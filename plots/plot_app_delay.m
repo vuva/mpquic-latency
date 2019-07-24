@@ -19,8 +19,8 @@ set(0,'defaultAxesPlotboxAspectRatioMode','manual');
 set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","re","opp"];
-labels=["lrtt","rr","re","opp"];
+scheds=["lrtt","rr","opp"];
+labels=["lrtt","rr","opp"];
 
 sched_latencies={};
 server_dat={};
