@@ -2,34 +2,53 @@
 export n=$3
 export SL_ONTIME=5
 export SL_OFFTIME=3
-export SL_EXPTIME=$2
-export SL_FILE=$2
-EXP_TYPE=$1
+
+export SL_EXP_NAME=$1
+export SL_EXP_TIME=$2
+export SL_SIZE_DIST=$6
+export SL_SIZE=$7
+export SL_RATE_DIST=$4
+export SL_RATE=$5
+
 for ((i=1;i<=n;i++))
 do
 echo "==== Running Test No. $i/$n ===="
 export SL_I=$i
-export CLIENT=pc52.filab.uni-hannover.de
-export SERVER=pc50.filab.uni-hannover.de
-export ROUTER=pc51.filab.uni-hannover.de
+export CLIENT=nodem3.moongenmultipath.spork-join.filab.uni-hannover.de
+export SERVER=nodem1.moongenmultipath.spork-join.filab.uni-hannover.de
+export ROUTER=nodem2.moongenmultipath.spork-join.filab.uni-hannover.de
 
-
-
-
+#: <<'END'
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
-sleep 10
-export SL_EX="lrtt"
-~/sshlauncher/sshlauncher app-delay-exp.config
-sleep 10
+sleep 5
+export SL_SCHED="lrtt"
+~/sshlauncher/sshlauncher app-delay-exp.config 
+sleep 5
 
+ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
+ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
+sleep 5
+export SL_SCHED="rr"
+~/sshlauncher/sshlauncher app-delay-exp.config 
+sleep 5
+END
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
-sleep 10
-export SL_EX="re"
+sleep 5
+export SL_SCHED="re"
+~/sshlauncher/sshlauncher app-delay-exp.config 
+sleep 5
+
+
+ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
+ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
+sleep 5
+export SL_SCHED="opp"
 ~/sshlauncher/sshlauncher app-delay-exp.config
-sleep 10
+sleep 5
 
 done
-rm ~/*.zip.*
+
+
 echo done

@@ -104,10 +104,10 @@ func (manager *ClientManager) receive(client *Client) {
 		}
 		if length > 0 {
 			message = message[0:length]
-			//			utils.Debugf("\n RECEIVED: %x \n", message)
+			utils.Debugf("\n RECEIVED: %x \n", message)
 			// manager.broadcast <- message
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
-			log.Println(eoc_byte_index)
+			// log.Println(eoc_byte_index)
 
 			for eoc_byte_index != -1 {
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
@@ -131,19 +131,19 @@ func (manager *ClientManager) receive(client *Client) {
 	writeToFile(LOG_PREFIX+"server-timestamp.log", timeStamps)
 }
 
-func (client *Client) receive() {
-	for {
-		message := make([]byte, 4096)
-		length, err := client.socket.Read(message)
-		if err != nil {
-			client.socket.Close()
-			break
-		}
-		if length > 0 {
-			utils.Debugf("RECEIVED: " + string(message))
-		}
-	}
-}
+// func (client *Client) receive() {
+// 	for {
+// 		message := make([]byte, 4096)
+// 		length, err := client.socket.Read(message)
+// 		if err != nil {
+// 			client.socket.Close()
+// 			break
+// 		}
+// 		if length > 0 {
+// 			utils.Debugf("RECEIVED: " + string(message))
+// 		}
+// 	}
+// }
 
 func (manager *ClientManager) send(client *Client) {
 	defer client.socket.Close()
@@ -191,31 +191,7 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 	case "quic":
 
 		startQUICServer(address)
-		// utils.SetLogLevel(utils.LogLevelDebug)
-		// certPath := "../example"
-		// certFile := certPath + "/fullchain.pem"
-		// keyFile := certPath + "/privkey.pem"
 
-		// http.Handle("/", http.FileServer(http.Dir("../example")))
-
-		// bs := binds{"localhost:443"}
-
-		// var wg sync.WaitGroup
-		// wg.Add(len(bs))
-		// for _, b := range bs {
-		// 	bCap := b
-		// 	go func() {
-		// 		var err error
-
-		// 		err = h2quic.ListenAndServeQUIC(bCap, certFile, keyFile, nil, false)
-
-		// 		if err != nil {
-		// 			fmt.Println(err)
-		// 		}
-		// 		wg.Done()
-		// 	}()
-		// }
-		// wg.Wait()
 	}
 
 }
@@ -277,8 +253,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			connection.Write(message)
 
 		}
-		// connection.Write(message)
-		//			utils.Debugf("after: %d \n", time.Now().UnixNano())
+		utils.Debugf("SENT: %x \n", message)
 		timeStamps[seq_no] = uint(time.Now().UnixNano())
 		wait(1 / getRandom(arrival_distro, arrival_value))
 	}
