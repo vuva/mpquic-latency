@@ -520,11 +520,11 @@ func main() {
 
 	LOG_PREFIX = *flagLog
 	quic.SetCongestionControl("cubic")
-	sched := schedNameConvert(*flagProtocol, *flagSched)
 
 	if strings.ToLower(*flagMode) == "server" {
 		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagLog)
 	} else {
+		sched := schedNameConvert(*flagProtocol, *flagSched)
 		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched)
 	}
 }
