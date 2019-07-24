@@ -9,6 +9,7 @@ export SL_SIZE_DIST=$6
 export SL_SIZE=$7
 export SL_RATE_DIST=$4
 export SL_RATE=$5
+export CONFIG_FILE=$SL_EXP_NAME-exp
 
 for ((i=1;i<=n;i++))
 do
@@ -23,29 +24,29 @@ ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
 sleep 5
 export SL_SCHED="lrtt"
-~/sshlauncher/sshlauncher app-delay-exp.config 
+~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
 
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
 sleep 5
 export SL_SCHED="rr"
-~/sshlauncher/sshlauncher app-delay-exp.config 
+~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
 END
-ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
-ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
-sleep 5
-export SL_SCHED="re"
-~/sshlauncher/sshlauncher app-delay-exp.config 
-sleep 5
+#ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
+#ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
+#sleep 5
+#export SL_SCHED="re"
+#~/sshlauncher/sshlauncher $CONFIG_FILE.config
+#sleep 5
 
 
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
 sleep 5
 export SL_SCHED="opp"
-~/sshlauncher/sshlauncher app-delay-exp.config
+~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
 
 done

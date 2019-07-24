@@ -297,7 +297,7 @@ func startQUICServer(addr string) error {
 			utils.Debugf("\n RECEIVED: %x \n", message)
 			// manager.broadcast <- message
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
-			log.Println(eoc_byte_index)
+			// log.Println(eoc_byte_index)
 
 			for eoc_byte_index != -1 {
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
@@ -482,6 +482,24 @@ func generateTLSConfig() *tls.Config {
 	return &tls.Config{Certificates: []tls.Certificate{tlsCert}}
 }
 
+func schedNameConvert(protocol string, sched_name string) string {
+	converted_name := sched_name
+	if protocol == "quic" {
+		switch sched_name {
+		case "lrtt":
+			converted_name = "lowRTT"
+		case "rr":
+			converted_name = "RR"
+		case "opp":
+			converted_name = "oppRedundant"
+		default:
+			panic("no scheduler found")
+		}
+	}
+
+	return converted_name
+}
+
 func main() {
 	flagMode := flag.String("mode", "server", "start in client or server mode")
 	flagTime := flag.Uint("t", 10000, "time to run (ms)")
@@ -502,9 +520,11 @@ func main() {
 
 	LOG_PREFIX = *flagLog
 	quic.SetCongestionControl("cubic")
+	sched := schedNameConvert(*flagProtocol, *flagSched)
+
 	if strings.ToLower(*flagMode) == "server" {
 		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagLog)
 	} else {
-		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, *flagSched)
+		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched)
 	}
 }
