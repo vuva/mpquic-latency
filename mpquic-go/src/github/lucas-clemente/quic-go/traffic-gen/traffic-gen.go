@@ -180,10 +180,12 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 		log.Println("TCP Listen ...")
 		for {
 			connection, _ := listener.Accept()
+			tcp_connection := connection.(*net.TCPConn)
+			tcp_connection.SetNoDelay(true)
 			if err != nil {
 				log.Println(err)
 			}
-			client := &Client{socket: connection, data: make(chan []byte)}
+			client := &Client{socket: tcp_connection, data: make(chan []byte)}
 			manager.register <- client
 			go manager.receive(client)
 			//		go manager.send(client)
@@ -201,7 +203,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	var stream quic.Stream
 	var quic_session quic.Session
-	var connection net.Conn
+	var connection *net.TCPConn
 	var err error
 
 	if protocol == "quic" {
@@ -211,7 +213,11 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		defer quic_session.Close(nil)
 
 	} else if protocol == "tcp" {
-		connection, err = net.Dial("tcp", address)
+		tcp_address := strings.Split(address, ":")
+		ip_add := net.ParseIP(tcp_address[0]).To4()
+		port, _ := strconv.Atoi(tcp_address[1])
+		connection, err = net.DialTCP("tcp", nil, &net.TCPAddr{IP: ip_add, Port: port})
+		connection.SetNoDelay(true)
 		defer connection.Close()
 
 	}
@@ -257,6 +263,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		timeStamps[seq_no] = uint(time.Now().UnixNano())
 		wait(1 / getRandom(arrival_distro, arrival_value))
 	}
+
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	// sendingDone <- true
 	// }()

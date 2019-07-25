@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='D:\Dropbox\Working\AppDelayMeasure\logs\';
+folder='D:\Dropbox\Working\mquic-latency\logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-c-400-c-1428';
+exp_name = 'app-delay-quic-c-400-c-1252';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 
@@ -19,7 +19,7 @@ set(0,'defaultAxesPlotboxAspectRatioMode','manual');
 set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","opp"];
+scheds=["lrtt"];
 labels=["lrtt","rr","opp"];
 
 sched_latencies={};
@@ -37,28 +37,28 @@ for j = 1:length(scheds)
     end
     sched_latencies{length(sched_latencies)+1} = sched_latency/10^6;
 end
-
-%====== Load pcap ==========
-pcap_labels=["lrtt-pcap","rr-pcap","re-pcap","opp-pcap"];
-
-for j = 1:length(scheds)
-    sched_latency=[];
-    for i=k:n
-         sched=convertStringsToChars(scheds(j));
-         eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,pcap_surfix ));' ]);
-                  
-         eval(['sched_latency = vertcat(sched_latency, ' sched '_pcap_dat(:,10));'] );
-         eval(['server_dat{j} = sortrows(' sched '_pcap_dat,2);']);
-    end
-    sched_latencies{length(sched_latencies)+1} = sched_latency*10^3;
-end
+pcap_labels=[];
+%% ====== Load pcap ==========
+% pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap"];
+% 
+% for j = 1:length(scheds)
+%     sched_latency=[];
+%     for i=k:n
+%          sched=convertStringsToChars(scheds(j));
+%          eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,pcap_surfix ));' ]);
+%                   
+%          eval(['sched_latency = vertcat(sched_latency, ' sched '_pcap_dat(:,10));'] );
+%          eval(['server_dat{j} = sortrows(' sched '_pcap_dat,2);']);
+%     end
+%     sched_latencies{length(sched_latencies)+1} = sched_latency*10^3;
+% end
 
 
 %% =========== plot DATA ==============
 plotccdf([labels,pcap_labels],sched_latencies);
 % plot_throughput(labels,server_dat);
-plot_subflows("Redundant",re_pcap_dat);
-plot_subflows("Lrtt",lrtt_pcap_dat);
+% plot_subflows("Redundant",re_pcap_dat);
+% plot_subflows("Lrtt",lrtt_pcap_dat);
 
 
 %% =========== Functions Definition ==============
