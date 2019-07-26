@@ -314,10 +314,7 @@ func startQUICServer(addr string) error {
 		}
 		if length > 0 {
 			message = message[0:length]
-			go func() {
-				utils.Debugf("\n RECEIVED: %x \n", message)
-
-			}()
+			utils.Debugf("\n RECEIVED: %x \n", message)
 			// manager.broadcast <- message
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			// log.Println(eoc_byte_index)
