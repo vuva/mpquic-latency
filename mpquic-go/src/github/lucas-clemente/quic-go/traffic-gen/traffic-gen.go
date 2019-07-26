@@ -305,6 +305,7 @@ func startQUICServer(addr string) error {
 	// _, err = io.Copy(loggingWriter{stream}, stream)
 	timeStamps := make(map[uint]uint)
 	buffer := make([]byte, 0)
+	previous := BASE_SEQ_NO
 	for {
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
@@ -314,7 +315,7 @@ func startQUICServer(addr string) error {
 		}
 		if length > 0 {
 			message = message[0:length]
-			utils.Debugf("\n RECEIVED: %x \n", message)
+			// utils.Debugf("\n RECEIVED: %x \n", message)
 			// manager.broadcast <- message
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			// log.Println(eoc_byte_index)
@@ -326,6 +327,14 @@ func startQUICServer(addr string) error {
 				// Get data chunk ID and record receive timestampt
 				seq_no := data_chunk[0:4]
 				seq_no_int := bytesToInt(seq_no)
+
+				// these lines to debug
+				if seq_no_int != previous+1 {
+					utils.Debugf("\n Unordered: %d \n", seq_no_int)
+				}
+				previous = seq_no_int
+				//
+
 				timeStamps[seq_no_int] = uint(time.Now().UnixNano())
 				//				buffer.Write(message[eoc_byte_index:length])
 
