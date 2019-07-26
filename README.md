@@ -6,6 +6,8 @@ Usage:
 
 cd ~/mpquic-latency/mpquic-go/src/github/lucas-clemente/quic-go/traffic-gen
 
+go build
+
 go run traffic-gen.go
 
   -a string
