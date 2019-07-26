@@ -270,11 +270,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 		timeStamps[bytesToInt(next_message[0:4])] = uint(time.Now().UnixNano())
 		// remove sent file from the queue
-		if len(send_queue) > 1 {
-			send_queue = send_queue[1:]
-		} else {
-			send_queue[0] = nil
-		}
+		send_queue = send_queue[1:]
 
 		// utils.Debugf("SENT: %x \n", message)
 
