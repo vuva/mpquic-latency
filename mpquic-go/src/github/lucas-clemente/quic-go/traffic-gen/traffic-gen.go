@@ -255,18 +255,25 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		// message, _ := reader.ReadString('\n')
 		//			utils.Debugf("before: %d \n", time.Now().UnixNano())
 		message, _ := generateMessage(uint(i), csize_distro, csize_value)
-		send_queue[len(send_queue)] = message
+
+		send_queue = append(send_queue, message)
 		next_message := send_queue[0]
 
 		utils.Debugf("Messages in queue: %d \n", len(send_queue))
 		if protocol == "quic" {
 			stream.Write(next_message)
-			send_queue = send_queue[1:]
 
 		} else if protocol == "tcp" {
 			connection.Write(next_message)
-			send_queue = send_queue[1:]
+
 		}
+		// remove sent file from the queue
+		if len(send_queue) > 1 {
+			send_queue = send_queue[1:]
+		} else {
+			send_queue[0] = nil
+		}
+
 		// utils.Debugf("SENT: %x \n", message)
 		timeStamps[bytesToInt(next_message[0:4])] = uint(time.Now().UnixNano())
 		wait(1 / getRandom(arrival_distro, arrival_value))
