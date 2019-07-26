@@ -104,7 +104,7 @@ func (manager *ClientManager) receive(client *Client) {
 		}
 		if length > 0 {
 			message = message[0:length]
-			utils.Debugf("\n RECEIVED: %x \n", message)
+			// utils.Debugf("\n RECEIVED: %x \n", message)
 			// manager.broadcast <- message
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			// log.Println(eoc_byte_index)
@@ -259,7 +259,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			connection.Write(message)
 
 		}
-		utils.Debugf("SENT: %x \n", message)
+		// utils.Debugf("SENT: %x \n", message)
 		timeStamps[seq_no] = uint(time.Now().UnixNano())
 		wait(1 / getRandom(arrival_distro, arrival_value))
 	}
@@ -520,13 +520,14 @@ func main() {
 	flagMultipath := flag.Bool("m", true, "Enable multipath")
 	flagSched := flag.String("sched", "", "Scheduler")
 	flagDebug := flag.Bool("v", false, "Debug mode")
+	flagCong := flag.String("cc", "cubic", "Congestion control")
 	flag.Parse()
 	if *flagDebug {
 		utils.SetLogLevel(utils.LogLevelDebug)
 	}
 
 	LOG_PREFIX = *flagLog
-	quic.SetCongestionControl("cubic")
+	quic.SetCongestionControl(*flagCong)
 
 	if strings.ToLower(*flagMode) == "server" {
 		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagLog)
