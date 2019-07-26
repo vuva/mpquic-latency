@@ -247,20 +247,26 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	startTime := time.Now()
 	timeStamps := make(map[uint]uint)
+
+	send_queue := make([][]byte, 0)
+
 	for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
 		// reader := bufio.NewReader(os.Stdin)
 		// message, _ := reader.ReadString('\n')
 		//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-		message, seq_no := generateMessage(uint(i), csize_distro, csize_value)
+		message, _ := generateMessage(uint(i), csize_distro, csize_value)
+		send_queue[len(send_queue)] = message
+		next_message := send_queue[0]
+		utils.Debugf("Messages in queue: %d \n", len(send_queue))
 		if protocol == "quic" {
-			stream.Write(message)
+			stream.Write(next_message)
 
 		} else if protocol == "tcp" {
-			connection.Write(message)
+			connection.Write(next_message)
 
 		}
 		// utils.Debugf("SENT: %x \n", message)
-		timeStamps[seq_no] = uint(time.Now().UnixNano())
+		timeStamps[bytesToInt(next_message[0:4])] = uint(time.Now().UnixNano())
 		wait(1 / getRandom(arrival_distro, arrival_value))
 	}
 
@@ -301,7 +307,7 @@ func startQUICServer(addr string) error {
 		}
 		if length > 0 {
 			message = message[0:length]
-			utils.Debugf("\n RECEIVED: %x \n", message)
+			// utils.Debugf("\n RECEIVED: %x \n", message)
 			// manager.broadcast <- message
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			// log.Println(eoc_byte_index)
