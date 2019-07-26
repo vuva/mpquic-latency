@@ -267,6 +267,8 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			connection.Write(next_message)
 
 		}
+
+		timeStamps[bytesToInt(next_message[0:4])] = uint(time.Now().UnixNano())
 		// remove sent file from the queue
 		if len(send_queue) > 1 {
 			send_queue = send_queue[1:]
@@ -275,7 +277,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		}
 
 		// utils.Debugf("SENT: %x \n", message)
-		timeStamps[bytesToInt(next_message[0:4])] = uint(time.Now().UnixNano())
+
 		wait(1 / getRandom(arrival_distro, arrival_value))
 	}
 
