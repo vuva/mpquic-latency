@@ -248,29 +248,29 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	startTime := time.Now()
 	timeStamps := make(map[uint]uint)
 
-	send_queue := make([][]byte, 0)
+	// send_queue := make([][]byte, 0)
 
 	for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
 		// reader := bufio.NewReader(os.Stdin)
 		// message, _ := reader.ReadString('\n')
 		//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-		message, _ := generateMessage(uint(i), csize_distro, csize_value)
+		message, seq := generateMessage(uint(i), csize_distro, csize_value)
 
-		send_queue = append(send_queue, message)
-		next_message := send_queue[0]
+		// send_queue = append(send_queue, message)
+		// next_message := send_queue[0]
 
-		utils.Debugf("Messages in queue: %d \n", len(send_queue))
+		// utils.Debugf("Messages in queue: %d \n", len(send_queue))
 		if protocol == "quic" {
-			stream.Write(next_message)
+			stream.Write(message)
 
 		} else if protocol == "tcp" {
-			connection.Write(next_message)
+			connection.Write(message)
 
 		}
 
-		timeStamps[bytesToInt(next_message[0:4])] = uint(time.Now().UnixNano())
+		timeStamps[seq] = uint(time.Now().UnixNano())
 		// remove sent file from the queue
-		send_queue = send_queue[1:]
+		// send_queue = send_queue[1:]
 
 		// utils.Debugf("SENT: %x \n", message)
 
