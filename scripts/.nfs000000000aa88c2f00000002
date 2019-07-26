@@ -1,7 +1,0 @@
-echo 'unset HISTFILE; sudo killall -INT tcpdump; sudo tcpdump dst 10.1.1.2 and src 10.1.2.2 or 10.1.3.2 -i any -w ~/logs/traffic-gen/dump-receiver.pcapng -j adapter;' | /bin/bash -ls
-tcpdump: no process found
-tcpdump: listening on any, link-type LINUX_SLL (Linux cooked), capture size 262144 bytes
-3132 packets captured
-3132 packets received by filter
-0 packets dropped by kernel
-[PEXPECT]$ 

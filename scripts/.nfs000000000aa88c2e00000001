@@ -1,7 +1,0 @@
-echo 'unset HISTFILE; sudo killall -INT tcpdump; sudo killall -INT tshark; sudo tshark -r ~/logs/traffic-gen/dump-sender.pcapng -l -i any -Y '\''ip.dst==10.1.1.2'\''  -T fields -e frame.number -e frame.time_epoch -e ip.src -e tcp.srcport -e ip.dst -e tcp.dstport -e ip.proto -e frame.len -e tcp.seq -e tcp.ack -e tcp.options.mptcp.rawdataseqno -e tcp.options.mptcp.rawdataack > ~/logs/traffic-gen/1-lrtt-app-delay-quic-c-500-c-1000-sender.csv ;sudo killall -INT traffic-gen;' | /bin/bash -ls
-tshark: no process found
-Running as user "root" and group "root". This could be dangerous.
-tshark: Lua: Error during loading:
- [string "/usr/share/wireshark/init.lua"]:32: dofile has been disabled due to running Wireshark as superuser. See https://wiki.wireshark.org/CaptureSetup/CapturePrivileges for help in running Wireshark as an unprivileged user.
-traffic-gen: no process found
-[PEXPECT]$ 
