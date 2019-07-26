@@ -1,2 +1,5 @@
-logs/
+
 **.exe
+**/logs 
+**.log
+**.csv

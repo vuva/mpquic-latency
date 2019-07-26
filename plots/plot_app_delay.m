@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='D:\Dropbox\Working\mquic-latency\logs\';
+folder='C:\Dropbox\Working\mquic-latency\logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-400-c-1252';
+exp_name = 'app-delay-quic-c-500-c-1000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 
@@ -20,7 +20,7 @@ set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
 scheds=["lrtt"];
-labels=["lrtt","rr","opp"];
+labels=["lrtt"];
 
 sched_latencies={};
 server_dat={};
