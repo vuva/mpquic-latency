@@ -24,9 +24,9 @@ ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
 sleep 5
 export SL_SCHED="lrtt"
-~/sshlauncher/sshlauncher $CONFIG_FILE.config
+~/sshlauncher/sshlauncher $CONFIG_FILE.config -d
 sleep 5
-: <<'END'
+#: <<'END'
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
 sleep 5
@@ -48,6 +48,7 @@ sleep 5
 export SL_SCHED="opp"
 ~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
+
 END
 done
 
