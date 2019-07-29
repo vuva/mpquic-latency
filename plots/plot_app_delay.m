@@ -1,12 +1,13 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='C:\Dropbox\Working\mquic-latency\logs\';
+folder='D:\Dropbox\Working\mquic-latency\logs\';
 distribution_name = 'on5-off3';
 global exp_name;
 exp_name = 'app-delay-mptcp-c-600-c-1000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
+HAS_PCAP = true;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
@@ -39,6 +40,7 @@ for j = 1:length(scheds)
 end
 pcap_labels=[];
 %% ====== Load pcap ==========
+if HAS_PCAP 
 pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap"];
 
 for j = 1:length(scheds)
@@ -53,7 +55,7 @@ for j = 1:length(scheds)
     sched_latencies{length(sched_latencies)+1} = sched_latency*10^3;
 end
 
-
+end
 %% =========== plot DATA ==============
 plotccdf([labels,pcap_labels],sched_latencies);
 % plot_throughput(labels,server_dat);
