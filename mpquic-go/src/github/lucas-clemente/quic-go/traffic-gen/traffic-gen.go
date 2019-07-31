@@ -253,11 +253,15 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	timeStamps := make(map[uint]uint)
 	writeTime := make(map[uint]uint)
 	send_queue := ByteQueue{queue: make([][]byte, 0)}
-	trafficGenDone := make(chan bool)
+	// trafficGenDone := make(chan bool, 1)
 	sendingDone := make(chan bool)
-	go func() {
-		for !<-trafficGenDone {
 
+	go func() {
+		for true {
+			// done := <-trafficGenDone
+			// if done {
+			// 	break
+			// }
 			if len(send_queue.queue) == 0 {
 				continue
 			}
@@ -278,7 +282,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			utils.Debugf("Messages sent. Q size: %d \n", len(send_queue.queue))
 		}
 
-		sendingDone <- true
+		// sendingDone <- true
 	}()
 	go func() {
 		startTime := time.Now()
@@ -296,7 +300,8 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 			wait(1 / getRandom(arrival_distro, arrival_value))
 		}
-		trafficGenDone <- true
+		// trafficGenDone <- true
+		sendingDone <- true
 	}()
 	<-sendingDone
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
@@ -524,7 +529,7 @@ func main() {
 	flagCsizeDistro := flag.String("csizedist", "c", "data chunk size distribution")
 	flagCsizeValue := flag.Float64("csizeval", 1000, "data chunk size value")
 	flagArrDistro := flag.String("arrdist", "c", "arrival distribution")
-	flagArrValue := flag.Float64("arrval", 1000, "arrival value")
+	flagArrValue := flag.Float64("arrval", 1, "arrival value")
 	flagAddress := flag.String("a", "localhost", "Destination address")
 	flagProtocol := flag.String("p", "tcp", "TCP or QUIC")
 	flagLog := flag.String("log", "", "Log folder")
