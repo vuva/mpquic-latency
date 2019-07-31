@@ -260,13 +260,16 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		// next_message := send_queue[0]
 		timeStamps[seq] = uint(time.Now().UnixNano())
 		// utils.Debugf("Messages in queue: %d \n", len(send_queue))
-		if protocol == "quic" {
-			stream.Write(message)
+		go func() {
+			if protocol == "quic" {
+				stream.Write(message)
 
-		} else if protocol == "tcp" {
-			connection.Write(message)
+			} else if protocol == "tcp" {
+				connection.Write(message)
 
-		}
+			}
+
+		}()
 		writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
 		// remove sent file from the queue
