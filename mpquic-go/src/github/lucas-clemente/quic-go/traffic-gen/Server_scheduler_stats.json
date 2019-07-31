@@ -1,1 +1,1 @@
-{ "totalSentPackets" : 51290, "duplicatedPackets" : 17930, "duplicatedDroppedPackets" : 9412, "duplicatedPacketDropRate" : 52.49302844394869, "totalStreamBytes" : 50553602, "duplicatedStreamBytes" : 18957100, "duplicateStreamRate" : 37.49900946721858}
+{ "totalSentPackets" : 135339, "duplicatedPackets" : 76346, "duplicatedDroppedPackets" : 51168, "duplicatedPacketDropRate" : 67.02119298980955, "totalStreamBytes" : 163506385, "duplicatedStreamBytes" : 96245949, "duplicateStreamRate" : 58.863725107738155}
