@@ -247,7 +247,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	startTime := time.Now()
 	timeStamps := make(map[uint]uint)
-
+	writeTime := make(map[uint]uint)
 	// send_queue := make([][]byte, 0)
 
 	for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
@@ -258,7 +258,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 		// send_queue = append(send_queue, message)
 		// next_message := send_queue[0]
-	timeStamps[seq] = uint(time.Now().UnixNano())
+		timeStamps[seq] = uint(time.Now().UnixNano())
 		// utils.Debugf("Messages in queue: %d \n", len(send_queue))
 		if protocol == "quic" {
 			stream.Write(message)
@@ -267,8 +267,8 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			connection.Write(message)
 
 		}
+		writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
-	
 		// remove sent file from the queue
 		// send_queue = send_queue[1:]
 
@@ -278,6 +278,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	}
 
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
+	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
 	// sendingDone <- true
 	// }()
 	// <-sendingDone

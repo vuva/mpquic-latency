@@ -4,10 +4,10 @@ n=1;
 folder='D:\Dropbox\Working\mquic-latency\logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-mptcp-c-600-c-1000';
+exp_name = 'app-delay-quic-c-40-c-14280';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
-HAS_PCAP = true;
+HAS_PCAP = false;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
@@ -21,7 +21,7 @@ set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
 scheds=["lrtt","rr","opp"];
-labels=["lrtt","rr","opp"];
+labels=["lrtt","rr","opp","re","tag0"];
 
 sched_latencies={};
 server_dat={};
@@ -41,7 +41,7 @@ end
 pcap_labels=[];
 %% ====== Load pcap ==========
 if HAS_PCAP 
-pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap"];
+pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap","re-pcap","tag0-pcap"];
 
 for j = 1:length(scheds)
     sched_latency=[];
@@ -49,7 +49,7 @@ for j = 1:length(scheds)
          sched=convertStringsToChars(scheds(j));
          eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,pcap_surfix ));' ]);
                   
-         eval(['sched_latency = vertcat(sched_latency, ' sched '_pcap_dat(:,10));'] );
+         eval(['sched_latency = vertcat(sched_latency, ' sched '_pcap_dat(100:end-100,10));'] );
          eval(['server_dat{j} = sortrows(' sched '_pcap_dat,2);']);
     end
     sched_latencies{length(sched_latencies)+1} = sched_latency*10^3;
@@ -60,7 +60,9 @@ end
 plotccdf([labels,pcap_labels],sched_latencies);
 % plot_throughput(labels,server_dat);
 % plot_subflows("Redundant",re_pcap_dat);
-plot_subflows("Lrtt",lrtt_pcap_dat);
+% plot_subflows("re",re_pcap_dat);
+% plot_subflows("tag9999999",tag0_pcap_dat);
+
 
 
 %% =========== Functions Definition ==============
