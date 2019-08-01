@@ -281,7 +281,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	// This thread push message to transport layer
 	go func() {
-		for !(flagDone && len(send_queue.queue) == 0) {
+		for !flagDone && len(send_queue.queue) != 0 {
 
 			if len(send_queue.queue) == 0 {
 				continue
