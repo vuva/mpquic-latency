@@ -53,7 +53,7 @@ var SERVER_TCP_PORT int = 2121
 var SERVER_QUIC_PORT int = 4343
 
 type ByteQueue struct {
-	mu    sync.RWMutex
+	mu    sync.Mutex
 	queue [][]byte
 }
 
@@ -255,40 +255,13 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	send_queue := ByteQueue{queue: make([][]byte, 0)}
 	// trafficGenDone := make(chan bool, 1)
 	sendingDone := make(chan bool)
-	flagDone := false
 
-	// This thread put message to application layer send queue
-	go func() {
-		startTime := time.Now()
-		for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
-			message, seq := generateMessage(uint(i), csize_distro, csize_value)
-			send_queue.mu.RLock()
-			send_queue.queue = append(send_queue.queue, message)
-			send_queue.mu.RUnlock()
-			timeStamps[seq] = uint(time.Now().UnixNano())
-			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
-			utils.Debugf("Messages put queue:%d %d \n", seq, len(send_queue.queue))
-			writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
-
-			// utils.Debugf("SENT: %x \n", message)
-
-			wait(1 / getRandom(arrival_distro, arrival_value))
-		}
-		// trafficGenDone <- true
-		// sendingDone <- true
-		flagDone = true
-	}()
-
-	// This thread push message to transport layer
 	go func() {
 		for true {
 			// done := <-trafficGenDone
 			// if done {
 			// 	break
 			// }
-			if flagDone && len(send_queue.queue) == 0 {
-				break
-			}
 			if len(send_queue.queue) == 0 {
 				continue
 			}
@@ -303,15 +276,33 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 
 			// remove sent file from the queue
-			send_queue.mu.RLock()
+			send_queue.mu.Lock()
 			send_queue.queue = send_queue.queue[1:]
-			send_queue.mu.RUnlock()
+			send_queue.mu.Unlock()
 			utils.Debugf("Messages sent. Q size: %d \n", len(send_queue.queue))
 		}
 
+		// sendingDone <- true
+	}()
+	go func() {
+		startTime := time.Now()
+		for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
+			message, seq := generateMessage(uint(i), csize_distro, csize_value)
+			send_queue.mu.Lock()
+			send_queue.queue = append(send_queue.queue, message)
+			send_queue.mu.Unlock()
+			timeStamps[seq] = uint(time.Now().UnixNano())
+			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+			utils.Debugf("Messages put queue:%d %d \n", seq, len(send_queue.queue))
+			writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
+
+			// utils.Debugf("SENT: %x \n", message)
+
+			wait(1 / getRandom(arrival_distro, arrival_value))
+		}
+		// trafficGenDone <- true
 		sendingDone <- true
 	}()
-
 	<-sendingDone
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
@@ -538,7 +529,7 @@ func main() {
 	flagCsizeDistro := flag.String("csizedist", "c", "data chunk size distribution")
 	flagCsizeValue := flag.Float64("csizeval", 1000, "data chunk size value")
 	flagArrDistro := flag.String("arrdist", "c", "arrival distribution")
-	flagArrValue := flag.Float64("arrval", 1000, "arrival value")
+	flagArrValue := flag.Float64("arrval", 1, "arrival value")
 	flagAddress := flag.String("a", "localhost", "Destination address")
 	flagProtocol := flag.String("p", "tcp", "TCP or QUIC")
 	flagLog := flag.String("log", "", "Log folder")
