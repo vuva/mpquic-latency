@@ -197,7 +197,7 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 		}
 	case "quic":
 
-		startQUICServer(address)
+		go startQUICServer(address)
 
 	}
 
@@ -281,19 +281,16 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	// This thread push message to transport layer
 	go func() {
-		for true {
-			// done := <-trafficGenDone
-			// if done {
-			// 	break
-			// }
-			if flagDone && len(send_queue.queue) == 0 {
-				break
-			}
+		for !flagDone && len(send_queue.queue) != 0 {
+
 			if len(send_queue.queue) == 0 {
 				continue
 			}
 			utils.Debugf("Messages in queue: %d \n", len(send_queue.queue))
 			next_message := send_queue.queue[0]
+			if next_message == nil {
+				continue
+			}
 			if protocol == "quic" {
 				stream.Write(next_message)
 
