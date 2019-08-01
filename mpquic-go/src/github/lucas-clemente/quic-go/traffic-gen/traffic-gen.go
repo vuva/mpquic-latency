@@ -273,8 +273,11 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		// send_queue = send_queue[1:]
 
 		// utils.Debugf("SENT: %x \n", message)
+		wait_time := 1/getRandom(arrival_distro, arrival_value) - float64(writeTime[seq])/1000000000
+		if wait_time > 0 {
+			wait(wait_time)
+		}
 
-		wait(1 / getRandom(arrival_distro, arrival_value))
 	}
 
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
