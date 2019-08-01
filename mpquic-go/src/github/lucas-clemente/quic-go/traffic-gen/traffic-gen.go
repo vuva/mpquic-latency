@@ -248,45 +248,38 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	startTime := time.Now()
 	timeStamps := make(map[uint]uint)
 	writeTime := make(map[uint]uint)
-	send_queue := make([][]byte, 0)
-	trafficGenDone := make(chan bool)
-	sendingDone := make(chan bool)
-	go func() {
-		for !<-trafficGenDone {
-			next_message := send_queue[0]
-			if next_message == nil {
-				continue
-			}
-			if protocol == "quic" {
-				stream.Write(next_message)
-
-			} else if protocol == "tcp" {
-				connection.Write(next_message)
-
-			}
-
-			// remove sent file from the queue
-			send_queue = send_queue[1:]
-
-		}
-		sendingDone <- true
-	}()
+	// send_queue := make([][]byte, 0)
 
 	for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
+		// reader := bufio.NewReader(os.Stdin)
+		// message, _ := reader.ReadString('\n')
+		//			utils.Debugf("before: %d \n", time.Now().UnixNano())
 		message, seq := generateMessage(uint(i), csize_distro, csize_value)
 
-		send_queue = append(send_queue, message)
+		// send_queue = append(send_queue, message)
+		// next_message := send_queue[0]
 		timeStamps[seq] = uint(time.Now().UnixNano())
 		// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+		go func() {
+			if protocol == "quic" {
+				stream.Write(message)
 
+			} else if protocol == "tcp" {
+				connection.Write(message)
+
+			}
+
+		}()
 		writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
+
+		// remove sent file from the queue
+		// send_queue = send_queue[1:]
 
 		// utils.Debugf("SENT: %x \n", message)
 
 		wait(1 / getRandom(arrival_distro, arrival_value))
 	}
-	trafficGenDone <- true
-	<-sendingDone
+
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
 	// sendingDone <- true
