@@ -9,7 +9,7 @@ import (
 	"encoding/binary"
 	"encoding/pem"
 
-	"sync"
+	// "sync"
 
 	// "errors"
 	"flag"
@@ -51,11 +51,6 @@ var LOG_PREFIX string = ""
 var SERVER_ADDRESS string = "10.1.1.2"
 var SERVER_TCP_PORT int = 2121
 var SERVER_QUIC_PORT int = 4343
-
-type ByteQueue struct {
-	mu    sync.Mutex
-	queue [][]byte
-}
 
 type ClientManager struct {
 	clients    map[*Client]bool
@@ -250,19 +245,18 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		log.Println(err)
 	}
 
+	startTime := time.Now()
 	timeStamps := make(map[uint]uint)
 	writeTime := make(map[uint]uint)
-	send_queue := ByteQueue{queue: make([][]byte, 0)}
+	send_queue := make([][]byte, 0)
 	trafficGenDone := make(chan bool)
 	sendingDone := make(chan bool)
 	go func() {
 		for !<-trafficGenDone {
-
-			if len(send_queue.queue) == 0 {
+			next_message := send_queue[0]
+			if next_message == nil {
 				continue
 			}
-			utils.Debugf("Messages in queue: %d \n", len(send_queue.queue))
-			next_message := send_queue.queue[0]
 			if protocol == "quic" {
 				stream.Write(next_message)
 
@@ -272,32 +266,26 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 
 			// remove sent file from the queue
-			send_queue.mu.Lock()
-			send_queue.queue = send_queue.queue[1:]
-			send_queue.mu.Unlock()
-			utils.Debugf("Messages sent. Q size: %d \n", len(send_queue.queue))
-		}
+			send_queue = send_queue[1:]
 
+		}
 		sendingDone <- true
 	}()
-	go func() {
-		startTime := time.Now()
-		for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
-			message, seq := generateMessage(uint(i), csize_distro, csize_value)
-			send_queue.mu.Lock()
-			send_queue.queue = append(send_queue.queue, message)
-			send_queue.mu.Unlock()
-			timeStamps[seq] = uint(time.Now().UnixNano())
-			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
-			utils.Debugf("Messages put queue:%d %d \n", seq, len(send_queue.queue))
-			writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
-			// utils.Debugf("SENT: %x \n", message)
+	for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
+		message, seq := generateMessage(uint(i), csize_distro, csize_value)
 
-			wait(1 / getRandom(arrival_distro, arrival_value))
-		}
-		trafficGenDone <- true
-	}()
+		send_queue = append(send_queue, message)
+		timeStamps[seq] = uint(time.Now().UnixNano())
+		// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+
+		writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
+
+		// utils.Debugf("SENT: %x \n", message)
+
+		wait(1 / getRandom(arrival_distro, arrival_value))
+	}
+	trafficGenDone <- true
 	<-sendingDone
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
@@ -390,8 +378,42 @@ func startQUICClient(urls []string, scheduler string) (sess quic.Session, stream
 		return nil, nil, err2
 	}
 
+	// fmt.Printf("Client: Sending '%s'\n", message)
+	// _, err = stream.Write([]byte(message))
+	// if err != nil {
+	// 	return err
+	// }
+
+	// buf := make([]byte, len(message))
+	// _, err = io.ReadFull(stream, buf)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Printf("Client: Got '%s'\n", buf)
+
 	return session, stream, nil
 }
+
+//func (client *Client) send(connection net.Conn,run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64) {
+//
+//	run_time_duration, error := time.ParseDuration(strconv.Itoa(int(run_time)) + "ms")
+//	if error != nil {
+//		log.Println(error)
+//	}
+//
+//	startTime := time.Now()
+//	timeStamps := make(map[uint]uint)
+//	for i:=1; time.Now().Sub(startTime) < run_time_duration;i++ {
+//		// reader := bufio.NewReader(os.Stdin)
+//		// message, _ := reader.ReadString('\n')
+//		message, seq_no := generateMessage(uint(i),csize_distro, csize_value)
+//		connection.Write(message)
+//		timeStamps[seq_no] = uint(time.Now().UnixNano())
+//		wait(getRandom(arrival_distro, arrival_value))
+//	}
+//	writeToFile("client-timestamp.log", timeStamps)
+//
+//}
 
 // wait for interarrival_time second
 func wait(interarrival_time float64) {
@@ -529,7 +551,7 @@ func main() {
 	flagProtocol := flag.String("p", "tcp", "TCP or QUIC")
 	flagLog := flag.String("log", "", "Log folder")
 	flagMultipath := flag.Bool("m", true, "Enable multipath")
-	flagSched := flag.String("sched", "lrtt", "Scheduler")
+	flagSched := flag.String("sched", "", "Scheduler")
 	flagDebug := flag.Bool("v", false, "Debug mode")
 	flagCong := flag.String("cc", "cubic", "Congestion control")
 	flag.Parse()
