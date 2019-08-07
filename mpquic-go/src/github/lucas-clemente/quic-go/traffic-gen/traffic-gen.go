@@ -477,7 +477,8 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 
 	csize := uint(getRandom(csize_distro, csize_value))
 	//chunk size must be a factor of 4 to avoid EOL fragmenting
-	csize = csize - csize%4
+	// Temporary set to a factor of 4 to match QUIC MTU 1350byte
+	csize = csize - csize%2
 	if csize < 8 {
 		csize = 8
 	}
