@@ -1,13 +1,13 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='D:\Dropbox\Working\mquic-latency\logs\';
+folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-40-c-14280';
+exp_name = 'app-delay-mptcp-c-400-c-1428';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
-HAS_PCAP = false;
+HAS_PCAP = true;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
@@ -20,8 +20,8 @@ set(0,'defaultAxesPlotboxAspectRatioMode','manual');
 set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","opp"];
-labels=["lrtt","rr","opp","re","tag0"];
+scheds=["lrtt","rr","opp","re"];
+labels=["lrtt","rr","opp","re"];
 
 sched_latencies={};
 server_dat={};
@@ -41,7 +41,7 @@ end
 pcap_labels=[];
 %% ====== Load pcap ==========
 if HAS_PCAP 
-pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap","re-pcap","tag0-pcap"];
+pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap","re-pcap"];
 
 for j = 1:length(scheds)
     sched_latency=[];
@@ -59,8 +59,8 @@ end
 %% =========== plot DATA ==============
 plotccdf([labels,pcap_labels],sched_latencies);
 % plot_throughput(labels,server_dat);
-% plot_subflows("Redundant",re_pcap_dat);
-% plot_subflows("re",re_pcap_dat);
+plot_subflows("opp",opp_pcap_dat);
+plot_subflows("RR",rr_pcap_dat);
 % plot_subflows("tag9999999",tag0_pcap_dat);
 
 

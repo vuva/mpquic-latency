@@ -250,35 +250,38 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	writeTime := make(map[uint]uint)
 	// send_queue := make([][]byte, 0)
 
-	for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
-		// reader := bufio.NewReader(os.Stdin)
-		// message, _ := reader.ReadString('\n')
-		//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-		message, seq := generateMessage(uint(i), csize_distro, csize_value)
+	go func() {
+		for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
+			// reader := bufio.NewReader(os.Stdin)
+			// message, _ := reader.ReadString('\n')
+			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
+			message, seq := generateMessage(uint(i), csize_distro, csize_value)
 
-		// send_queue = append(send_queue, message)
-		// next_message := send_queue[0]
-		timeStamps[seq] = uint(time.Now().UnixNano())
-		// utils.Debugf("Messages in queue: %d \n", len(send_queue))
-		if protocol == "quic" {
-			stream.Write(message)
+			// send_queue = append(send_queue, message)
+			// next_message := send_queue[0]
+			timeStamps[seq] = uint(time.Now().UnixNano())
+			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+			if protocol == "quic" {
+				stream.Write(message)
 
-		} else if protocol == "tcp" {
-			connection.Write(message)
+			} else if protocol == "tcp" {
+				connection.Write(message)
+
+			}
+			writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
+
+			// remove sent file from the queue
+			// send_queue = send_queue[1:]
+
+			// utils.Debugf("SENT: %x \n", message)
+			wait_time := 1/getRandom(arrival_distro, arrival_value) - float64(writeTime[seq])/1000000000
+			if wait_time > 0 {
+				wait(wait_time)
+			}
 
 		}
-		writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
-		// remove sent file from the queue
-		// send_queue = send_queue[1:]
-
-		// utils.Debugf("SENT: %x \n", message)
-		wait_time := 1/getRandom(arrival_distro, arrival_value) - float64(writeTime[seq])/1000000000
-		if wait_time > 0 {
-			wait(wait_time)
-		}
-
-	}
+	}()
 
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
@@ -544,7 +547,7 @@ func main() {
 	flagProtocol := flag.String("p", "tcp", "TCP or QUIC")
 	flagLog := flag.String("log", "", "Log folder")
 	flagMultipath := flag.Bool("m", true, "Enable multipath")
-	flagSched := flag.String("sched", "", "Scheduler")
+	flagSched := flag.String("sched", "lrtt", "Scheduler")
 	flagDebug := flag.Bool("v", false, "Debug mode")
 	flagCong := flag.String("cc", "cubic", "Congestion control")
 	flag.Parse()
