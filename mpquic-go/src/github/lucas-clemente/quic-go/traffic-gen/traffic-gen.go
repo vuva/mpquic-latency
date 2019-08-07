@@ -281,13 +281,13 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 		}
 
+		sendingDone <- true
 	}()
-
+	<-sendingDone
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
-	// sendingDone <- true
+
 	// }()
-	// <-sendingDone
 }
 
 func startQUICServer(addr string) error {
