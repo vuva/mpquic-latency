@@ -113,7 +113,7 @@ func (manager *ClientManager) receive(client *Client) {
 			for eoc_byte_index != -1 {
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
 				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
-				//				utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
+				utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
 				// Get data chunk ID and record receive timestampt
 				seq_no := data_chunk[0:4]
 				seq_no_int := bytesToInt(seq_no)
@@ -255,18 +255,19 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	gen_finished := false
 
 	go func() {
+		counter := 0
 		for i := 1; time.Now().Before(endTime); i++ {
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
 			message, seq := generateMessage(uint(i), csize_distro, csize_value)
-
+			counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
 			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
 			send_queue.PushBack(message)
-			utils.Debugf("message push: %d ", send_queue.Len())
+
 			// writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
 			// remove sent file from the queue
@@ -279,8 +280,8 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 
 		}
+		utils.Debugf("Generate total: %d messages", counter)
 		gen_finished = true
-
 		generatingDone <- true
 	}()
 
@@ -288,12 +289,13 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		counter := 0
 
 		for !gen_finished {
+			time.Sleep(time.Nanosecond)
 			if send_queue.Len() == 0 {
 				continue
 			}
 			queue_font := send_queue.Front()
 			message, _ := queue_font.Value.([]byte)
-			utils.Debugf("message waiting %d, sent %d", send_queue.Len(), counter)
+
 			if protocol == "quic" {
 				stream.Write(message)
 
@@ -302,9 +304,12 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 			}
 			counter++
+
 			send_queue.Remove(queue_font)
 
 		}
+		utils.Debugf("Sent total: %d messages", counter)
+
 		sendingDone <- true
 
 	}()
