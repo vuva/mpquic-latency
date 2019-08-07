@@ -235,7 +235,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	//	client := &Client{socket: connection}
 	//	go client.receive()
 
-	// sendingDone := make(chan bool)
+	sendingDone := make(chan bool)
 	//	go client.send(connection ,run_time , csize_distro , csize_value , arrival_distro , arrival_value )
 
 	// go func() {
