@@ -33,6 +33,7 @@ import (
 	"github.com/lucas-clemente/quic-go/internal/utils"
 	// "quic-go"
 	//	"io/ioutil"
+	"container/list"
 )
 
 type binds []string
@@ -236,6 +237,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	//	go client.receive()
 
 	sendingDone := make(chan bool)
+	generatingDone := make(chan bool)
 	//	go client.send(connection ,run_time , csize_distro , csize_value , arrival_distro , arrival_value )
 
 	// go func() {
@@ -245,13 +247,15 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 		log.Println(err)
 	}
 
-	startTime := time.Now()
+	// startTime := time.Now()
+	endTime := time.Now().Add(run_time_duration)
 	timeStamps := make(map[uint]uint)
 	writeTime := make(map[uint]uint)
-	// send_queue := make([][]byte, 0)
+	send_queue := list.New()
+	gen_finished := false
 
 	go func() {
-		for i := 1; time.Now().Sub(startTime) < run_time_duration; i++ {
+		for i := 1; time.Now().Before(endTime); i++ {
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
@@ -261,6 +265,35 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// next_message := send_queue[0]
 			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+			send_queue.PushBack(message)
+			utils.Debugf("message push: %d ", send_queue.Len())
+			// writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
+
+			// remove sent file from the queue
+			// send_queue = send_queue[1:]
+
+			// utils.Debugf("SENT: %x \n", message)
+			wait_time := 1 / getRandom(arrival_distro, arrival_value)
+			if wait_time > 0 {
+				wait(wait_time)
+			}
+
+		}
+		gen_finished = true
+
+		generatingDone <- true
+	}()
+
+	go func() {
+		counter := 0
+
+		for !gen_finished {
+			if send_queue.Len() == 0 {
+				continue
+			}
+			queue_font := send_queue.Front()
+			message, _ := queue_font.Value.([]byte)
+			utils.Debugf("message waiting %d, sent %d", send_queue.Len(), counter)
 			if protocol == "quic" {
 				stream.Write(message)
 
@@ -268,21 +301,14 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				connection.Write(message)
 
 			}
-			writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
-
-			// remove sent file from the queue
-			// send_queue = send_queue[1:]
-
-			// utils.Debugf("SENT: %x \n", message)
-			wait_time := 1/getRandom(arrival_distro, arrival_value) - float64(writeTime[seq])/1000000000
-			if wait_time > 0 {
-				wait(wait_time)
-			}
+			counter++
+			send_queue.Remove(queue_font)
 
 		}
-
 		sendingDone <- true
+
 	}()
+	<-generatingDone
 	<-sendingDone
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
@@ -414,7 +440,7 @@ func startQUICClient(urls []string, scheduler string) (sess quic.Session, stream
 // wait for interarrival_time second
 func wait(interarrival_time float64) {
 	waiting_time := time.Duration(interarrival_time*1000000000) * time.Nanosecond
-	utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
+	// utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
 	time.Sleep(waiting_time)
 }
 
