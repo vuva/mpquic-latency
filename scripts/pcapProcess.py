@@ -129,7 +129,7 @@ def impt_json(pcap_filename):
     for data_entry in packets_data:
         if 'ip' not in data_entry['_source']['layers']:
             continue
-        packet= PacketData(packets_data.index(data_entry) , float(data_entry['_source']['layers']['frame']['frame.time_epoch']), data_entry['_source']['layers']['ip']['ip.src'],int(data_entry['_source']['layers']['tcp']['tcp.srcport']), data_entry['_source']['layers']['ip']['ip.dst'], int(data_entry['_source']['layers']['tcp']['tcp.dstport']),int(data_entry['_source']['layers']['ip']['ip.proto']),int(data_entry['_source']['layers']['frame']['frame.len']),int(data_entry['_source']['layers']['tcp']['tcp.seq']), int(data_entry['_source']['layers']['tcp']['tcp.ack']))
+        packet = PacketData(packets_data.index(data_entry) , float(data_entry['_source']['layers']['frame']['frame.time_epoch']), data_entry['_source']['layers']['ip']['ip.src'],int(data_entry['_source']['layers']['tcp']['tcp.srcport']), data_entry['_source']['layers']['ip']['ip.dst'], int(data_entry['_source']['layers']['tcp']['tcp.dstport']),int(data_entry['_source']['layers']['ip']['ip.proto']),int(data_entry['_source']['layers']['frame']['frame.len']),int(data_entry['_source']['layers']['tcp']['tcp.seq']), int(data_entry['_source']['layers']['tcp']['tcp.ack']))
         if packet is not None:
             hash_key = generate_hash_key(packet)
             if hash_key in packets:
@@ -150,7 +150,7 @@ def impt_csv(pcap_filename, protocol):
         print('File(s) not found')
         return
 
-    packets_data=list(packet_reader)
+    packets_data = list(packet_reader)
     packets_data.sort(key=lambda p: p[1])
     packets = dict()
     dup_packets_count=0
@@ -164,7 +164,7 @@ def impt_csv(pcap_filename, protocol):
                 packet.rawdataseqno = -1;
                 packet.rawdataackno = -1;
 
-            packet.payload = int(data_entry[12][0:4]) if data_entry[12] is not '' else None
+            packet.payload = int(data_entry[12][0:8], 16) if data_entry[12] is not '' else None
 
             if packet is not None:
                 hash_key = generate_hash_key(packet, protocol)
