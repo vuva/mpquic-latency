@@ -12,7 +12,7 @@ RETRANSMISSION_TIMEOUT = 2.0
 DEFAULT_OUTPUT = 'TLOWPM.dat'
 debug=False
 class PacketData:
-    def __init__(self, no, timestamp, source, srcport, dest, destport, protocol, length, seq, ack, payload):
+    def __init__(self, no, timestamp, source, srcport, dest, destport, protocol, length, seq, ack):
         self.no= no
         self.timestamp= timestamp
         self.source= source
@@ -78,12 +78,12 @@ def main(argv):
         reversedOutputFile = open('reversed-'+args.outputFile, 'w', newline='')
         reversedOutputWriter = csv.writer(reversedOutputFile)
     for entry in processed_data:
-        row_data=[]
+        row_data = []
         for key in entry:
             row_data.append(entry[key])
 
         if args.reversed and socket.inet_ntoa(struct.pack('!L', entry['src'])) in args.destinationAddresses:
-            row_data[9]= -row_data[9]
+            row_data[9] = -row_data[9]
             reversedOutputWriter.writerow(row_data)
         else:
             outputWriter.writerow(row_data)
@@ -164,7 +164,7 @@ def impt_csv(pcap_filename, protocol):
                 packet.rawdataseqno = -1;
                 packet.rawdataackno = -1;
 
-            packet.payload= base64.b16decode(data_entry[12]) if data_entry[12] is not '' else None
+            packet.payload = int(data_entry[12][0:4]) if data_entry[12] is not '' else None
 
             if packet is not None:
                 hash_key = generate_hash_key(packet, protocol)
@@ -231,7 +231,7 @@ def process_tcp(sender_pcap, receiver_pcap, src_addrs, dst_addrs):
         sent_src = sent_packet.source
         sent_dst = sent_packet.dest
         sent_len = sent_packet.length
-        payload = int.from_bytes(sent_packet.payload[0:4], byteorder='big', signed=False)
+        payload = sent_packet.payload
         if sent_packet_key in receiver_pcap:
             depart_arrive_pairs.append(
                 {'index': index, 'src':int(ipaddress.ip_address(sent_src)), 'dst':int(ipaddress.ip_address(receiver_pcap[sent_packet_key].source)), 'seq': sent_seq, 'ack': sent_ack, 'departure_time': sent_packet.timestamp,

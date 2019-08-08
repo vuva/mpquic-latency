@@ -34,18 +34,18 @@ export SL_SCHED="rr"
 ~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
 
-#ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
-#ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
-#sleep 5
-#export SL_SCHED="re"
-#~/sshlauncher/sshlauncher $CONFIG_FILE.config
-#sleep 5
-
 
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
 sleep 5
 export SL_SCHED="opp"
+~/sshlauncher/sshlauncher $CONFIG_FILE.config
+sleep 5
+
+ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
+ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
+sleep 5
+export SL_SCHED="re"
 ~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
 
