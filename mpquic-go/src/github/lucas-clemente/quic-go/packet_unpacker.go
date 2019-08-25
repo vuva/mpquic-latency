@@ -27,7 +27,10 @@ type packetUnpacker struct {
 func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeader, data []byte) (*unpackedPacket, error) {
 	buf := getPacketBuffer()
 	defer putPacketBuffer(buf)
+	// fmt.Printf("\n data: %x ", data)
 	decrypted, encryptionLevel, err := u.aead.Open(buf, data, hdr.PacketNumber, publicHeaderBinary)
+
+	// fmt.Printf("\n %x \n %s %d \n %x \n ", decrypted, encryptionLevel, hdr.PacketNumber, publicHeaderBinary)
 	if err != nil {
 		// Wrap err in quicError so that public reset is sent by session
 		return nil, qerr.Error(qerr.DecryptionFailure, err.Error())
@@ -47,7 +50,6 @@ func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeade
 			continue
 		}
 		r.UnreadByte()
-
 		var frame wire.Frame
 		if typeByte&0x80 == 0x80 {
 			frame, err = wire.ParseStreamFrame(r, u.version)

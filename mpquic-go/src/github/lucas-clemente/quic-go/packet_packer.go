@@ -170,7 +170,6 @@ func (p *packetPacker) PackPacket(pth *path) (*packedPacket, error) {
 	}
 	p.stopWaiting[pth.pathID] = nil
 	p.ackFrame[pth.pathID] = nil
-
 	raw, err := p.writeAndSealPacket(publicHeader, payloadFrames, sealer, pth)
 	if err != nil {
 		return nil, err
@@ -329,7 +328,14 @@ func (p *packetPacker) writeAndSealPacket(
 	}
 	payloadStartIndex := buffer.Len()
 	for _, frame := range payloadFrames {
+		lenBefore := buffer.Len()
 		err := frame.Write(buffer, p.version)
+
+		frameByte := buffer.Bytes()[lenBefore:buffer.Len()]
+		if frameByte[0]&0x80 == 0x80 {
+			fmt.Printf("\n Pkt: %d, frame: %x", publicHeader.PacketNumber, frameByte)
+		}
+
 		if err != nil {
 			fmt.Println("ERROR FRAME WRITE")
 			return nil, err

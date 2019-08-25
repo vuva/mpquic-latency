@@ -21,6 +21,7 @@ import (
 	"net"
 
 	// "net/http"
+	"encoding/base64"
 	"os"
 	"strconv"
 	"strings"
@@ -361,7 +362,7 @@ func startQUICServer(addr string) error {
 			for eoc_byte_index != -1 {
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
 				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
-				//				utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
+				utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
 				// Get data chunk ID and record receive timestampt
 				seq_no := data_chunk[0:4]
 				seq_no_int := bytesToInt(seq_no)
@@ -395,7 +396,7 @@ func startQUICClient(urls []string, scheduler string) (sess quic.Session, stream
 	session, err := quic.DialAddr(urls[0], &tls.Config{InsecureSkipVerify: true}, &quic.Config{
 		CreatePaths: true,
 	})
-
+	
 	if err != nil {
 		return nil, nil, err
 	}
@@ -531,19 +532,34 @@ func (w loggingWriter) Write(b []byte) (int, error) {
 }
 
 func generateTLSConfig() *tls.Config {
-	key, err := rsa.GenerateKey(crand.Reader, 1024)
+	key, err := rsa.GenerateKey(crand.Reader, 2048)
 	if err != nil {
 		panic(err)
 	}
 	template := x509.Certificate{SerialNumber: big.NewInt(1)}
 	certDER, err := x509.CreateCertificate(crand.Reader, &template, &template, &key.PublicKey, key)
+
 	if err != nil {
 		panic(err)
 	}
+
 	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
 	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
 
 	tlsCert, err := tls.X509KeyPair(certPEM, keyPEM)
+	pkcs1 := x509.MarshalPKCS1PrivateKey(key)
+	priv := base64.StdEncoding.EncodeToString(pkcs1)
+	pub := base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(&key.PublicKey))
+
+	utils.Debugf("pri key: %s", priv)
+	utils.Debugf("pub key: %s", pub)
+	key_file, _ := os.Create("id_rsa_trafficgen")
+
+	defer key_file.Close()
+	key_file.WriteString("-----BEGIN RSA PRIVATE KEY-----\n")
+	key_file.WriteString(priv)
+	key_file.WriteString("\n-----END RSA PRIVATE KEY-----")
+
 	if err != nil {
 		panic(err)
 	}
