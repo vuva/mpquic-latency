@@ -10,7 +10,8 @@ import (
 	"github.com/lucas-clemente/quic-go/ackhandler"
 	"github.com/lucas-clemente/quic-go/internal/handshake"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
-	"github.com/lucas-clemente/quic-go/internal/utils"
+
+	// "github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
@@ -346,9 +347,9 @@ func (p *packetPacker) writeAndSealPacket(
 			}
 
 			defer logfile.Close()
-			utils.Debugf("\n path: %s, pk: %d, frame: %x", pth.conn.LocalAddr().String(), publicHeader.PacketNumber, frameByte[4:8])
+			// utils.Debugf("\n path: %d, pk: %d, frame: %x", pth.pathID, publicHeader.PacketNumber, frameByte[4:8])
 
-			io.WriteString(logfile, fmt.Sprintf("%s %d %x\n", pth.conn.LocalAddr(), publicHeader.PacketNumber, frameByte[4:8]))
+			io.WriteString(logfile, fmt.Sprintf("%d %d %x\n", pth.pathID, publicHeader.PacketNumber, frameByte[0:12]))
 
 		}
 
