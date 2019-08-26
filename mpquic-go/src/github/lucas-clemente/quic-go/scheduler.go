@@ -553,7 +553,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 	for {
 		// We first check for retransmissions
 		hasRetransmission, retransmitHandshakePacket, fromPth := sch.getRetransmission(s)
-		utils.Debugf("retrans: %d %d %d", hasRetransmission, retransmitHandshakePacket, fromPth)
+
 		// XXX There might still be some stream frames to be retransmitted
 		hasStreamRetransmission := s.streamFramer.HasFramesForRetransmission()
 
