@@ -363,7 +363,7 @@ func startQUICServer(addr string) error {
 			for eoc_byte_index != -1 {
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
 				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
-				utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
+				// utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
 				// Get data chunk ID and record receive timestampt
 				seq_no := data_chunk[0:4]
 				seq_no_int := bytesToInt(seq_no)
