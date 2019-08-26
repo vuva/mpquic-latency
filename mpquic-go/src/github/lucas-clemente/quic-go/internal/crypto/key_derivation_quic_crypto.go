@@ -3,8 +3,6 @@ package crypto
 import (
 	"bytes"
 	"crypto/sha256"
-
-	// "fmt"
 	"io"
 
 	"github.com/lucas-clemente/quic-go/internal/protocol"
@@ -32,7 +30,6 @@ func DeriveQuicCryptoAESKeys(forwardSecure bool, sharedSecret, nonces []byte, co
 	if err != nil {
 		return nil, err
 	}
-	// fmt.Printf("vuva:\n %x \n %x \n %x \n %x \n %x \n", otherKey, myKey, otherIV, myIV, nonces)
 	return NewAEADAESGCM12(otherKey, myKey, otherIV, myIV)
 }
 

@@ -130,7 +130,7 @@ func (pcm *pconnManager) run() {
 	// XXX (QDC): maybe wait for one handshake to complete, but maybe not needed
 	// FIXME Server starting on any vs. server with non-any address
 	// Server should open paths, client might be placed behing NAT
-	if pcm.perspective == protocol.PerspectiveClient {
+	if pcm.perspective == protocol.PerspectiveServer {
 		pcm.createPconns()
 	}
 

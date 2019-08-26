@@ -4,10 +4,10 @@ n=1;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-mptcp-c-400-c-1428';
+exp_name = 'app-delay-quic-c-600-c-1350';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
-HAS_PCAP = true;
+HAS_PCAP = false;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
@@ -20,54 +20,106 @@ set(0,'defaultAxesPlotboxAspectRatioMode','manual');
 set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","opp","re"];
-labels=["lrtt","rr","opp","re"];
+scheds=["lrtt","rr","opp"];
+labels=["lrtt","rr","opp"];
 
-sched_latencies={};
+app_latencies={};
+send_latencies={};
+recv_latencies={};
+net_latencies={};
 server_dat={};
 for j = 1:length(scheds)
-    sched_latency=[];
+    sched_app_latency=[];
+    sched_send_latency=[];
+    sched_recv_latency=[];
+    sched_net_latency=[];
     for i=k:n
-         sched=convertStringsToChars(scheds(j));
-         eval([sched '_client_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name, "-client",log_surfix ));' ]);
-         eval([sched '_server_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name, "-server",log_surfix ));' ]);
-         eval([sched '_client_dat = sortrows(' sched '_client_dat,1);']);
-         eval([sched '_server_dat = sortrows(' sched '_server_dat,1);']);
-         eval(['sched_latency = vertcat(sched_latency, ' sched '_server_dat(:,2) - ' sched '_client_dat(:,2));'] );
-         eval(['server_dat{j} = sortrows(' sched '_server_dat,2)/10^9;']);
-    end
-    sched_latencies{length(sched_latencies)+1} = sched_latency/10^6;
-end
-pcap_labels=[];
-%% ====== Load pcap ==========
-if HAS_PCAP 
-pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap","re-pcap"];
+        
+        
+        
+        sched=convertStringsToChars(scheds(j));
+        eval([sched '_client_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name, "-client",log_surfix ));' ]);
+        eval([sched '_server_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name, "-server",log_surfix ));' ]);
+                 eval([sched '_client_dat = sortrows(' sched '_client_dat,1);']);
+                 eval([sched '_server_dat = sortrows(' sched '_server_dat,1);']);
+        %          eval(['sched_latency = vertcat(sched_latency, ' sched '_server_dat(:,2) - ' sched '_client_dat(:,2));'] );
+        %          eval(['server_dat{j} = sortrows(' sched '_server_dat,2)/10^9;']);
+        
+        
+        %     sched_latencies{length(sched_latencies)+1} = sched_latency/10^6;
+        eval(['[~, row1, row2] = intersect(' sched '_client_dat(:,1),' sched '_server_dat(:,1),"sorted");']);
+        eval([sched '_all_timestp = [' sched '_client_dat(row1,[1,2]), ' sched '_server_dat(row2,2)];']);
+        eval([sched '_all_timestp(:,[2,3]) = ' sched '_all_timestp(:,[2,3]);']);
+        
+        
+        
+        pcap_labels=[];
+        %% ====== Load pcap ==========
+        if HAS_PCAP
+            pcap_labels=["lrtt-pcap","rr-pcap","opp-pcap","re-pcap"];
+            sched=convertStringsToChars(scheds(j));
+            eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,pcap_surfix ));' ]);
+            %             eval(['sched_latency = vertcat(sched_latency, ' sched '_pcap_dat(100:end-100,10));'] );
+            
+            eval([sched '_pcap_dat = sortrows(' sched '_pcap_dat,12);']);
+            %         sched_latencies{length(sched_latencies)+1} = sched_latency*10^3;
+            eval(['[~, row1, row2] = intersect(' sched '_all_timestp(:,1),' sched '_pcap_dat(:,12),"sorted");']);
+            eval([sched '_all_timestp = [' sched '_all_timestp(row1,[1,2,3]), ' sched '_pcap_dat(row2, [6,7])];']);
+            eval([sched '_all_timestp(:,[4,5]) = ' sched '_all_timestp(:,[4,5])*10^9;']);
+            
+            % calculating all delays
+            %     for j = 1:length(scheds)
+            %         sched=convertStringsToChars(scheds(j));
+            %         eval(['[~, row1, row2] = intersect(' sched '_client_dat(:,1),' sched '_pcap_dat(:,12));']);
+            %         eval(['temp = [' sched '_client_dat(row1,[1,2]), ' sched '_pcap_dat(row2, [6,7])];']);
+            %         eval(['[~, row1, row2] = intersect(temp(:,1),' sched '_server_dat(:,1));']);
+            %         eval([sched '_all_timestp = [temp(row1,[1,2,3,4]), ' sched '_server_dat(row2, 2)];']);
+            %         eval([sched '_all_timestp(:,[3,4])=' sched '_all_timestp(:,[3,4])*10^3']);
+            %         eval([sched '_all_timestp(:,[2,5])=' sched '_all_timestp(:,[2,5])/10^6']);
+            %
+            %
+            %     end
+            
+        end
+%         eval(['sched_app_latency = vertcat(sched_app_latency,' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,2));']);
+%         eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
+%         eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,5));']);
+%         eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
+        %         eval(['sched_net_latency = vertcat(sched_net_latency,10^3*(' sched '_pcap_dat(:,7) - ' sched '_pcap_dat(:,6)));']);
 
-for j = 1:length(scheds)
-    sched_latency=[];
-    for i=k:n
-         sched=convertStringsToChars(scheds(j));
-         eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,pcap_surfix ));' ]);
-                  
-         eval(['sched_latency = vertcat(sched_latency, ' sched '_pcap_dat(100:end-100,10));'] );
-         eval(['server_dat{j} = sortrows(' sched '_pcap_dat,2);']);
+        eval(['sched_app_latency = vertcat(sched_app_latency,' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,2));']);
+%         eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
+%         eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,2));']);
+%         eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
     end
-    sched_latencies{length(sched_latencies)+1} = sched_latency*10^3;
+    
+    app_latencies{length(app_latencies)+1} = sched_app_latency/10^6;
+    send_latencies{length(send_latencies)+1} = sched_send_latency/10^6;
+    recv_latencies{length(recv_latencies)+1} = sched_recv_latency/10^6;
+    net_latencies{length(net_latencies)+1} = sched_net_latency/10^6;
 end
 
-end
 %% =========== plot DATA ==============
-plotccdf([labels,pcap_labels],sched_latencies);
+% latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
+plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
+% plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
+% plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
+% plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
+% plotccdf(latency_ana_label, [net_latencies(3), recv_latencies(3),app_latencies(3)]);
+% plotccdf(latency_ana_label, [net_latencies(4), recv_latencies(4),app_latencies(4)]);
+% plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(2),send_latencies(2)), addCell(net_latencies(2),send_latencies(2),recv_latencies(2)), send_latencies(2)]);
+% plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(3),send_latencies(3)), addCell(net_latencies(3),send_latencies(3),recv_latencies(3)), send_latencies(3)]);
+% plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(4),send_latencies(4)), addCell(net_latencies(4),send_latencies(4),recv_latencies(4)), send_latencies(4)]);
 % plot_throughput(labels,server_dat);
-plot_subflows("opp",opp_pcap_dat);
-plot_subflows("RR",rr_pcap_dat);
+% plot_subflows("opp",opp_pcap_dat);
+% plot_subflows("RR",rr_pcap_dat);
 % plot_subflows("tag9999999",tag0_pcap_dat);
 
 
 
 %% =========== Functions Definition ==============
 function[sorted_data] = sortData(raw_data)
-    sorted_data = sortrows(raw_data,1);
+sorted_data = sortrows(raw_data,1);
 end
 
 function[]=plotccdf(labels,data)
@@ -158,4 +210,11 @@ title(plot_title);
 end
 function[ip] = dec2ip(decip)
 ip= strcat( num2str(bitand(bitshift(decip,-24), 255)) ,'.', num2str(bitand(bitshift(decip,-16), 255)) ,'.', num2str(bitand(bitshift(decip,-8), 255))  ,'.', num2str(bitand(bitshift(decip,0), 255)));
+end
+
+function[total] = addCell(varargin)
+total=zeros(length(varargin{1}));
+for i=1:nargin
+    total = total + varargin{i}{1}(:,1);
+end
 end

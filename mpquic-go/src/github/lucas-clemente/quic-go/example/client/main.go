@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/tls"
 	"flag"
 	"io"
 	"log"
@@ -17,7 +16,7 @@ import (
 )
 
 func main() {
-	verbose := flag.Bool("v", true, "verbose")
+	verbose := flag.Bool("v", false, "verbose")
 	multipath := flag.Bool("m", false, "multipath")
 	output := flag.String("o", "", "logging output")
 	flag.Parse()
@@ -43,13 +42,8 @@ func main() {
 		CreatePaths: *multipath,
 	}
 
-	tlsConfig := &tls.Config{
-
-		InsecureSkipVerify: true,
-	}
-
 	hclient := &http.Client{
-		Transport: &h2quic.RoundTripper{QuicConfig: quicConfig, TLSClientConfig: tlsConfig},
+		Transport: &h2quic.RoundTripper{QuicConfig: quicConfig},
 	}
 
 	var wg sync.WaitGroup
@@ -74,5 +68,4 @@ func main() {
 		}(addr)
 	}
 	wg.Wait()
-
 }

@@ -13,16 +13,16 @@ DEFAULT_OUTPUT = 'TLOWPM.dat'
 debug=False
 class PacketData:
     def __init__(self, no, timestamp, source, srcport, dest, destport, protocol, length, seq, ack):
-        self.no= no
-        self.timestamp= timestamp
-        self.source= source
-        self.dest= dest
-        self.srcport= srcport
-        self.destport= destport
-        self.protocol= protocol
-        self.length= length
-        self.seq= seq
-        self.ack= ack
+        self.no = no
+        self.timestamp = timestamp
+        self.source = source
+        self.dest = dest
+        self.srcport = srcport
+        self.destport = destport
+        self.protocol = protocol
+        self.length = length
+        self.seq = seq
+        self.ack = ack
 
 
 def main(argv):
@@ -39,9 +39,9 @@ def main(argv):
     args = parser.parse_args()
     src_addresses = args.sourceAddresses
     dst_addresses = args.destinationAddresses
-    debug=args.verbosity
+    debug = args.verbosity
     print('Parsing Sender Pcap ...')
-    sent_packets_pcap=dict()
+    sent_packets_pcap = dict()
     for sender_file_name in args.senderPcapFiles:
         if '.json' in sender_file_name:
             sent_packets_pcap = {**sent_packets_pcap, **impt_json(sender_file_name)}
@@ -53,7 +53,7 @@ def main(argv):
     # sent_packets_pcap.sort(key=lambda t:'t.timestamp')
 
     print('Parsing Receiver Pcap ...')
-    received_packets_pcap={}
+    received_packets_pcap = {}
     for receiver_file_name in args.receiverPcapFiles:
         if '.json' in receiver_file_name:
             received_packets_pcap = {**received_packets_pcap, **impt_json(receiver_file_name)}
@@ -65,9 +65,9 @@ def main(argv):
     # received_packets_pcap.sort(key=lambda t:'t.timestamp')
 
     print('Filtering Sender Pcap ...')
-    senderPcap=filter_pcap(sent_packets_pcap, src_addresses, dst_addresses, args.reversed)
+    senderPcap = filter_pcap(sent_packets_pcap, src_addresses, dst_addresses, args.reversed)
     print('Filtering Receiver Pcap ...')
-    receiverPcap=filter_pcap(received_packets_pcap, src_addresses, dst_addresses,args.reversed)
+    receiverPcap = filter_pcap(received_packets_pcap, src_addresses, dst_addresses,args.reversed)
     print('Processing Pcap ...')
     processed_data = process_tcp(senderPcap,receiverPcap, src_addresses, dst_addresses)
 
@@ -105,7 +105,7 @@ def generate_hash_key(packet, protocol):
         hash_func.update(('dstp'+repr(packet.destport)).encode("UTF-8"))
         hash_func.update(('dataseq'+repr(packet.rawdataseqno)).encode("UTF-8"))
         hash_func.update(('dataack'+repr(packet.rawdataackno)).encode("UTF-8"))
-    elif protocol=='TCP':
+    elif protocol =='TCP':
         hash_func.update(('proto'+repr(packet.protocol)).encode("UTF-8"))
         hash_func.update(('src'+repr(packet.source)).encode("UTF-8"))
         hash_func.update(('srcp'+repr(packet.srcport)).encode("UTF-8"))
@@ -161,8 +161,8 @@ def impt_csv(pcap_filename, protocol):
                 packet.rawdataseqno = int(data_entry[10]) if data_entry[10] is not '' else None
                 packet.rawdataackno = int(data_entry[11]) if data_entry[11] is not '' else None
             elif protocol=='TCP':
-                packet.rawdataseqno = -1;
-                packet.rawdataackno = -1;
+                packet.rawdataseqno = -1
+                packet.rawdataackno = -1
 
             packet.payload = int(data_entry[12][0:8], 16) if data_entry[12] is not '' else None
 

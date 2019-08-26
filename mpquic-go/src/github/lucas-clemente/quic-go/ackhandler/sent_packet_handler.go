@@ -3,6 +3,7 @@ package ackhandler
 import (
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/lucas-clemente/quic-go/congestion"
@@ -31,6 +32,9 @@ const (
 	minRetransmissionTime = 200 * time.Millisecond
 	// Minimum tail loss probe time in ms
 	minTailLossProbeTimeout = 10 * time.Millisecond
+
+	// Bufferbloat mitigation base parameter lambda
+	bmLambdaBase = 3.0
 )
 
 var (
@@ -82,7 +86,7 @@ type sentPacketHandler struct {
 	// The alarm timeout
 	alarm time.Time
 
-	pathID protocol.PathID
+	pathID        protocol.PathID
 	onAckCallback func(protocol.PathID, protocol.PacketNumber)
 
 	packets              uint64
@@ -92,13 +96,17 @@ type sentPacketHandler struct {
 }
 
 func (h *sentPacketHandler) GetCongestionWindow() uint64 {
-	return uint64(h.congestion.GetCongestionWindow()) / 1460
+	return uint64(h.congestion.GetCongestionWindow())
+}
+
+func (h *sentPacketHandler) GetBytesInFlight() uint64 {
+	return uint64(h.bytesInFlight)
 }
 
 // NewSentPacketHandler creates a new sentPacketHandler
 func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlgorithm, onRTOCallback func(time.Time) bool,
 	pathID protocol.PathID, onAckCallback func(protocol.PathID, protocol.PacketNumber)) SentPacketHandler {
-	
+
 	var congestionControl congestion.SendAlgorithm
 
 	if cong != nil {
@@ -119,8 +127,8 @@ func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlg
 		rttStats:           rttStats,
 		congestion:         congestionControl,
 		onRTOCallback:      onRTOCallback,
-		pathID: 			pathID,
-		onAckCallback:		onAckCallback,
+		pathID:             pathID,
+		onAckCallback:      onAckCallback,
 	}
 }
 
@@ -504,6 +512,7 @@ func (h *sentPacketHandler) DequeuePacketForRetransmission() *Packet {
 	if len(h.retransmissionQueue) == 0 {
 		return nil
 	}
+	// fmt.Println("has retrans")
 	packet := h.retransmissionQueue[0]
 	// Shift the slice and don't retain anything that isn't needed.
 	copy(h.retransmissionQueue, h.retransmissionQueue[1:])
@@ -535,6 +544,24 @@ func (h *sentPacketHandler) SendingAllowed() bool {
 	// to RTOs, but we currently don't have a nice way of distinguishing them.
 	haveRetransmissions := len(h.retransmissionQueue) > 0
 	return !maxTrackedLimited && (!congestionLimited || haveRetransmissions)
+}
+
+func (h *sentPacketHandler) CongestionFree() bool {
+
+	congestionLimited := h.bytesInFlight > h.congestion.GetCongestionWindow()
+	maxTrackedLimited := protocol.PacketNumber(len(h.retransmissionQueue)+h.packetHistory.Len()) >= protocol.MaxTrackedSentPackets
+	return !congestionLimited && !maxTrackedLimited
+}
+
+func (h *sentPacketHandler) OvershootFree(pathNum int) bool {
+
+	// Bufferbloat mitigation algorithm
+	congestionWindow := h.congestion.GetCongestionWindow()
+	minRTT := h.rttStats.MinRTT().Seconds()
+	sRTT := h.rttStats.SmoothedRTT().Seconds()
+	lambda := math.Pow(bmLambdaBase, float64(pathNum))
+	overshootLimit := protocol.ByteCount(lambda * (minRTT / sRTT) * float64(congestionWindow))
+	return h.bytesInFlight < overshootLimit
 }
 
 func (h *sentPacketHandler) retransmitTLP() {

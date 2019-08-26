@@ -18,6 +18,8 @@ type SentPacketHandler interface {
 	SetInflightAsLost()
 
 	SendingAllowed() bool
+	CongestionFree() bool
+	OvershootFree(pathNum int) bool
 	GetStopWaitingFrame(force bool) *wire.StopWaitingFrame
 	ShouldSendRetransmittablePacket() bool
 	DequeuePacketForRetransmission() (packet *Packet)
@@ -30,6 +32,7 @@ type SentPacketHandler interface {
 
 	GetStatistics() (uint64, uint64, uint64, uint64)
 	GetCongestionWindow() uint64
+	GetBytesInFlight() uint64
 	RemovePacketByNumber(protocol.PacketNumber) bool
 }
 

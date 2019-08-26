@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/lucas-clemente/quic-go/ackhandler"
 	"github.com/lucas-clemente/quic-go/internal/handshake"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
+	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
@@ -170,6 +173,7 @@ func (p *packetPacker) PackPacket(pth *path) (*packedPacket, error) {
 	}
 	p.stopWaiting[pth.pathID] = nil
 	p.ackFrame[pth.pathID] = nil
+
 	raw, err := p.writeAndSealPacket(publicHeader, payloadFrames, sealer, pth)
 	if err != nil {
 		return nil, err
@@ -326,14 +330,26 @@ func (p *packetPacker) writeAndSealPacket(
 		fmt.Println("ERROR public HEADER WRITE")
 		return nil, err
 	}
+
 	payloadStartIndex := buffer.Len()
 	for _, frame := range payloadFrames {
-		lenBefore := buffer.Len()
+		prevLen := buffer.Len()
 		err := frame.Write(buffer, p.version)
 
-		frameByte := buffer.Bytes()[lenBefore:buffer.Len()]
-		if frameByte[0]&0x80 == 0x80 {
-			fmt.Printf("\n Pkt: %d, frame: %x", publicHeader.PacketNumber, frameByte)
+		// VUVA: Log frame and message
+		frameByte := buffer.Bytes()[prevLen:buffer.Len()]
+		if frameByte[0]&0x80 == 0x80 && p.perspective == protocol.PerspectiveClient {
+			logfile, err := os.OpenFile("frame-pkt-mapping.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+			if err != nil {
+				panic("cannot create logfile!!")
+			}
+
+			defer logfile.Close()
+			utils.Debugf("\n path: %s, pk: %d, frame: %x", pth.conn.LocalAddr().String(), publicHeader.PacketNumber, frameByte[4:8])
+
+			io.WriteString(logfile, fmt.Sprintf("%s %d %x\n", pth.conn.LocalAddr().String(), publicHeader.PacketNumber, frameByte[4:8]))
+
 		}
 
 		if err != nil {

@@ -325,7 +325,7 @@ func (s *session) run() error {
 
 	logStop := make(chan struct{})
 	if LogPayload {
-		logTicker := time.NewTicker(100 * time.Millisecond)
+		logTicker := time.NewTicker(1000 * time.Millisecond)
 		go s.scheduler.LogSendings(s, logTicker, logStop)
 	}
 
@@ -516,8 +516,7 @@ func (s *session) handlePacketImpl(p *receivedPacket) error {
 	return pth.handlePacketImpl(p)
 }
 
-func (s *session) handleFrames(fs []wire.Frame, p *path) error {
-	recvTime := time.Now().UnixNano()
+func (s *session) handleFrames(fs []wire.Frame, p *path, rcvTime time.Time) error {
 	for _, ff := range fs {
 		var err error
 		wire.LogFrame(ff, false)
@@ -534,7 +533,7 @@ func (s *session) handleFrames(fs []wire.Frame, p *path) error {
 
 				logLine := strconv.FormatUint(uint64(frame.StreamID), 10) + ";" +
 					strconv.FormatUint(uint64(frame.Offset), 10) + ";" +
-					strconv.FormatInt(recvTime, 10) + "\n"
+					strconv.FormatInt(rcvTime.UnixNano(), 10) + "\n"
 				s.logLatFile.WriteString(logLine)
 			}
 		case *wire.AckFrame:
@@ -821,7 +820,7 @@ func (s *session) sendPackedPacket(packet *packedPacket, pth *path) error {
 	}
 	pth.sentPacket <- struct{}{}
 
-	// s.logPacket(packet, pth.pathID)
+	s.logPacket(packet, pth.pathID)
 	return pth.conn.Write(packet.raw)
 }
 
@@ -834,7 +833,7 @@ func (s *session) sendConnectionClose(quicErr *qerr.QuicError) error {
 	if err != nil {
 		return err
 	}
-	// s.logPacket(packet, protocol.InitialPathID)
+	s.logPacket(packet, protocol.InitialPathID)
 	// XXX (QDC): seems reasonable to send on pathID 0, but this can change
 	return s.paths[protocol.InitialPathID].conn.Write(packet.raw)
 }

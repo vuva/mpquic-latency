@@ -136,7 +136,7 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir(*www)))
 
 	if len(bs) == 0 {
-		bs = binds{"localhost:6121"}
+		bs = binds{"0.0.0.0:6121"}
 	}
 
 	var wg sync.WaitGroup
