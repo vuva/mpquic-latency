@@ -348,7 +348,7 @@ func (p *packetPacker) writeAndSealPacket(
 			defer logfile.Close()
 			utils.Debugf("\n path: %s, pk: %d, frame: %x", pth.conn.LocalAddr().String(), publicHeader.PacketNumber, frameByte[4:8])
 
-			io.WriteString(logfile, fmt.Sprintf("%s %d %x\n", pth.conn.LocalAddr().String(), publicHeader.PacketNumber, frameByte[4:8]))
+			io.WriteString(logfile, fmt.Sprintf("%s %d %x\n", pth.conn.LocalAddr(), publicHeader.PacketNumber, frameByte[4:8]))
 
 		}
 
