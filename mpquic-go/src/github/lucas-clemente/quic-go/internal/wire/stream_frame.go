@@ -82,7 +82,7 @@ func ParseStreamFrame(r *bytes.Reader, version protocol.VersionNumber) (*StreamF
 	if !frame.FinBit && frame.DataLen() == 0 {
 		return nil, qerr.EmptyStreamFrameNoFin
 	}
-	utils.Debugf("Unpack: %x", frame.Data)
+	// utils.Debugf("Unpack: %x", frame.Data)
 	return frame, nil
 }
 
