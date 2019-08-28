@@ -325,7 +325,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 func startQUICServer(addr string) error {
 	listener, err := quic.ListenAddr(addr, generateTLSConfig(), &quic.Config{
-		CreatePaths: true,
+		CreatePaths: false,
 	})
 	if err != nil {
 		return err
