@@ -340,6 +340,8 @@ func (p *packetPacker) writeAndSealPacket(
 		// VUVA: Log frame and message
 		frameByte := buffer.Bytes()[prevLen:buffer.Len()]
 		if frameByte[0]&0x80 == 0x80 && p.perspective == protocol.PerspectiveClient {
+			streamFrame, _ := wire.ParseStreamFrame(bytes.NewReader(frameByte), p.version)
+
 			logfile, err := os.OpenFile("frame-pkt-mapping.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 			if err != nil {
@@ -349,7 +351,7 @@ func (p *packetPacker) writeAndSealPacket(
 			defer logfile.Close()
 			// utils.Debugf("\n path: %d, pk: %d, frame: %x", pth.pathID, publicHeader.PacketNumber, frameByte[4:8])
 
-			io.WriteString(logfile, fmt.Sprintf("%d %d %x\n", pth.pathID, publicHeader.PacketNumber, frameByte[0:12]))
+			io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %x\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data))
 
 		}
 
