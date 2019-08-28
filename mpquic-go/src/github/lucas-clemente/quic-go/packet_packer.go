@@ -351,7 +351,7 @@ func (p *packetPacker) writeAndSealPacket(
 			defer logfile.Close()
 			// utils.Debugf("\n path: %d, pk: %d, frame: %x", pth.pathID, publicHeader.PacketNumber, frameByte[4:8])
 
-			io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %x\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data))
+			io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %x\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data[0:4]))
 
 		}
 
