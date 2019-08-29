@@ -72,7 +72,7 @@ func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeade
 
 			defer logfile.Close()
 			if streamFrame.DataLen() > 8 {
-				io.WriteString(logfile, fmt.Sprintf("%d %d %d %x %d\n", hdr.PathID, hdr.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data[0:4], uint(time.Now().UnixNano())))
+				io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %x %d\n", hdr.PathID, hdr.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data[0:4], uint(time.Now().UnixNano())))
 
 			}
 			// END VUVA
