@@ -65,7 +65,7 @@ func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeade
 			}
 			// VUVA: log received frame
 			streamFrame := frame.(*wire.StreamFrame)
-			logfile, err := os.OpenFile("received-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			logfile, err := os.OpenFile("receiver-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 			if err != nil {
 				panic("cannot create logfile!!")

@@ -344,7 +344,7 @@ func (p *packetPacker) writeAndSealPacket(
 		if frameByte[0]&0x80 == 0x80 && p.perspective == protocol.PerspectiveClient {
 			streamFrame, _ := wire.ParseStreamFrame(bytes.NewReader(frameByte), p.version)
 
-			logfile, err := os.OpenFile("sent-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			logfile, err := os.OpenFile("sender-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 			if err != nil {
 				panic("cannot create logfile!!")
