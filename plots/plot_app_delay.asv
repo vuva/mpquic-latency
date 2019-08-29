@@ -86,8 +86,8 @@ for j = 1:length(scheds)
         
         %% ====== Load quic frame log ==========
         if HAS_FRAME_LOG
-            eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-sent",frame_log_surfix ));' ]);
-            eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-received",frame_log_surfix ));' ]);
+            eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"sent",pcap_surfix ));' ]);
+            eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,pcap_surfix ));' ]);
         end
         
         

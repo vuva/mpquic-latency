@@ -2,6 +2,7 @@ package quic
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
@@ -352,7 +353,7 @@ func (p *packetPacker) writeAndSealPacket(
 			defer logfile.Close()
 			// utils.Debugf("\n path: %d, pk: %d, frame: %x", pth.pathID, publicHeader.PacketNumber, frameByte[4:8])
 			if streamFrame.DataLen() > 8 {
-				io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %x %d\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data[0:4], uint(time.Now().UnixNano())))
+				io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %d %d\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])), uint(time.Now().UnixNano())))
 
 			}
 

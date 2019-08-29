@@ -318,8 +318,8 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	<-sendingDone
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
 	// writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
-	os.Rename("sent-frame.log", LOG_PREFIX+"sent-frame.log")
-	os.Rename("received-frame.log", LOG_PREFIX+"received-frame.log")
+	os.Rename("sender-frame.log", LOG_PREFIX+"sender-frame.log")
+	os.Rename("receiver-frame.log", LOG_PREFIX+"receiver-frame.log")
 
 	// }()
 }
