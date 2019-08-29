@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/wire"
@@ -71,7 +72,7 @@ func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeade
 
 			defer logfile.Close()
 			if streamFrame.DataLen() > 8 {
-				io.WriteString(logfile, fmt.Sprintf("%d %d %d %x\n", hdr.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data[0:4]))
+				io.WriteString(logfile, fmt.Sprintf("%d %d %d %x %d\n", hdr.PathID, hdr.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data[0:4], uint(time.Now().UnixNano())))
 
 			}
 			// END VUVA
