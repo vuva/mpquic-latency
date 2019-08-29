@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/wire"
@@ -59,6 +61,20 @@ func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeade
 					err = qerr.Error(qerr.UnencryptedStreamData, fmt.Sprintf("received unencrypted stream data on stream %d", streamID))
 				}
 			}
+			// VUVA: log received frame
+			streamFrame := frame.(*wire.StreamFrame)
+			logfile, err := os.OpenFile("received-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+			if err != nil {
+				panic("cannot create logfile!!")
+			}
+
+			defer logfile.Close()
+			if streamFrame.DataLen() > 8 {
+				io.WriteString(logfile, fmt.Sprintf("%d %d %d %x\n", hdr.PacketNumber, streamFrame.StreamID, streamFrame.Offset, streamFrame.Data[0:4]))
+
+			}
+			// END VUVA
 		} else if typeByte&0xc0 == 0x40 {
 			frame, err = wire.ParseAckFrame(r, u.version)
 			if err != nil {
