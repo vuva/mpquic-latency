@@ -251,7 +251,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	// startTime := time.Now()
 	endTime := time.Now().Add(run_time_duration)
 	timeStamps := make(map[uint]uint)
-	writeTime := make(map[uint]uint)
+	// writeTime := make(map[uint]uint)
 	send_queue := list.New()
 	gen_finished := false
 
@@ -317,8 +317,9 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	<-generatingDone
 	<-sendingDone
 	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
-	writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
-	os.Rename("frame-pkt-mapping.log", LOG_PREFIX+"frame-pkt-mapping.log")
+	// writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
+	os.Rename("sent-frame.log", LOG_PREFIX+"sent-frame.log")
+	os.Rename("received-frame.log", LOG_PREFIX+"received-frame.log")
 
 	// }()
 }
