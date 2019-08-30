@@ -273,7 +273,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
 			send_queue.mutex.Lock()
-			defer send_queue.mutex.Unlock()
+
 			send_queue.mess_list.PushBack(message)
 			send_queue.mutex.Unlock()
 
@@ -314,7 +314,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 			counter++
 			send_queue.mutex.Lock()
-			defer send_queue.mutex.Unlock()
+
 			send_queue.mess_list.Remove(queue_font)
 			send_queue.mutex.Unlock()
 
