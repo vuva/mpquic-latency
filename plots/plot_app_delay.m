@@ -86,8 +86,18 @@ for j = 1:length(scheds)
         
         %% ====== Load quic frame log ==========
         if HAS_FRAME_LOG
-            eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-sent",frame_log_surfix ));' ]);
-            eval([sched '_pcap_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-received",frame_log_surfix ));' ]);
+            pcap_labels=["lrtt-frame","rr-frame","opp-frame"];
+            eval([sched '_frame_sender_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-sender",frame_log_surfix ));' ]);
+            eval([sched '_frame_receiver_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-receiver",frame_log_surfix ));' ]);
+            
+            eval([sched '_frame_sender_dat = removeRedundantFrame(' sched '_frame_sender_dat);']);
+            eval([sched '_frame_receiver_dat = removeRedundantFrame(' sched '_frame_receiver_dat);']);
+            
+            eval(['[~, row1, row2] = intersect(' sched '_frame_sender_dat(:,4),' sched '_frame_receiver_dat(:,4),"sorted");']);
+            eval([sched '_frame_timestp = [' sched '_frame_sender_dat(row1,[5,4,6]), ' sched '_frame_receiver_dat(row2, [6])];']);
+            
+            eval(['[~, row1, row2] = intersect(' sched '_all_timestp(:,1),' sched '_frame_timestp(:,1),"sorted");']);
+            eval([sched '_all_timestp = [' sched '_all_timestp(row1,[1,2,3]), ' sched '_frame_timestp(row2, [3,4])];']);
         end
         
         
@@ -100,7 +110,7 @@ for j = 1:length(scheds)
         eval(['sched_app_latency = vertcat(sched_app_latency,' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,2));']);
 %         eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
 %         eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,2));']);
-%         eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
+        eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
         
 
     end
@@ -229,4 +239,32 @@ total=zeros(length(varargin{1}));
 for i=1:nargin
     total = total + varargin{i}{1}(:,1);
 end
+end
+
+function[frame_data] = removeRedundantFrame(data)
+frame_data=[];
+sorted_data = sortrows(data,4);
+current_offset = 0;
+first_sent = intmax;
+first_sent_index =0;
+for i=1:length(sorted_data)
+    
+    if 0 == sorted_data(i,1) || 1 == sorted_data(i,3)
+        continue;
+    end
+    
+    if current_offset ~= sorted_data(i,4) 
+        frame_data(size(frame_data,1)+1,:) = sorted_data(i,:);
+        first_sent_index = size(frame_data,1);
+    elseif sorted_data(i,6) < first_sent
+        frame_data(first_sent_index,:) = sorted_data(i,:);
+        first_sent_index = size(frame_data,1);
+    end
+    
+    
+    
+    current_offset = sorted_data(i,4);
+end
+
+
 end

@@ -9,7 +9,7 @@ import (
 	"encoding/binary"
 	"encoding/pem"
 
-	// "sync"
+	"sync"
 
 	// "errors"
 	"flag"
@@ -46,6 +46,11 @@ func (b binds) String() string {
 func (b *binds) Set(v string) error {
 	*b = strings.Split(v, ",")
 	return nil
+}
+
+type MessageList struct {
+	mess_list *list.List
+	mutex     sync.RWMutex
 }
 
 var BASE_SEQ_NO uint = 2147483648 // 0x80000000
@@ -252,7 +257,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	endTime := time.Now().Add(run_time_duration)
 	timeStamps := make(map[uint]uint)
 	// writeTime := make(map[uint]uint)
-	send_queue := list.New()
+	send_queue := MessageList{mess_list: list.New()}
 	gen_finished := false
 
 	go func() {
@@ -267,7 +272,10 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// next_message := send_queue[0]
 			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
-			send_queue.PushBack(message)
+			send_queue.mutex.Lock()
+			defer send_queue.mutex.Unlock()
+			send_queue.mess_list.PushBack(message)
+			send_queue.mutex.Unlock()
 
 			// writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
@@ -291,10 +299,10 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 		for !gen_finished {
 			time.Sleep(time.Nanosecond)
-			if send_queue.Len() == 0 {
+			if send_queue.mess_list.Len() == 0 {
 				continue
 			}
-			queue_font := send_queue.Front()
+			queue_font := send_queue.mess_list.Front()
 			message, _ := queue_font.Value.([]byte)
 
 			if protocol == "quic" {
@@ -305,8 +313,10 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 			}
 			counter++
-
-			send_queue.Remove(queue_font)
+			send_queue.mutex.Lock()
+			defer send_queue.mutex.Unlock()
+			send_queue.mess_list.Remove(queue_font)
+			send_queue.mutex.Unlock()
 
 		}
 		utils.Debugf("Sent total: %d messages", counter)
