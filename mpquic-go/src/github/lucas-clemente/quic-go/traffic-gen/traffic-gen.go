@@ -199,7 +199,7 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 		}
 	case "quic":
 
-		startQUICServer(address)
+		startQUICServer(address, multipath)
 
 	}
 
@@ -334,9 +334,9 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	// }()
 }
 
-func startQUICServer(addr string) error {
+func startQUICServer(addr string, isMultipath bool) error {
 	listener, err := quic.ListenAddr(addr, generateTLSConfig(), &quic.Config{
-		CreatePaths: false,
+		CreatePaths: isMultipath,
 	})
 	if err != nil {
 		return err
