@@ -215,7 +215,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	if protocol == "quic" {
 		addresses := []string{address}
-		quic_session, stream, err = startQUICClient(addresses, scheduler)
+		quic_session, stream, err = startQUICClient(addresses, scheduler, multipath)
 		defer stream.Close()
 		defer quic_session.Close(nil)
 
@@ -403,10 +403,10 @@ func startQUICServer(addr string) error {
 	return err
 }
 
-func startQUICClient(urls []string, scheduler string) (sess quic.Session, stream quic.Stream, err error) {
+func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess quic.Session, stream quic.Stream, err error) {
 
 	session, err := quic.DialAddr(urls[0], &tls.Config{InsecureSkipVerify: true}, &quic.Config{
-		CreatePaths: true,
+		CreatePaths: isMultipath,
 	})
 
 	if err != nil {
