@@ -616,7 +616,8 @@ func (sch *scheduler) sendPacket(s *session) error {
 			s.packer.QueueControlFrame(pf, pth)
 		}
 		utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
-		next_stream := s.streamsMap.streams[s.streamsMap.nextStream]
+		next_stream := s.streamsMap.streams[s.streamsMap.nextStreamToAccept]
+		utils.Debugf("\n vuva: nextStreamToAccept %d nextStreamToAccept %d", s.streamsMap.nextStream, s.streamsMap.nextStreamToAccept)
 		if next_stream != nil {
 			utils.Debugf("\n vuva: streamID %d , datalen %d", next_stream.StreamID(), len(next_stream.dataForWriting))
 
