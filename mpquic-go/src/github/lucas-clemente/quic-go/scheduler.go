@@ -615,9 +615,10 @@ func (sch *scheduler) sendPacket(s *session) error {
 		for pf := s.streamFramer.PopPathsFrame(); pf != nil; pf = s.streamFramer.PopPathsFrame() {
 			s.packer.QueueControlFrame(pf, pth)
 		}
+		utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
 		next_stream := s.streamsMap.streams[s.streamsMap.nextStream]
 		if next_stream != nil {
-			utils.Debugf("%d , %d", next_stream.StreamID(), len(next_stream.dataForWriting))
+			utils.Debugf("\n vuva: streamID %d , datalen %d", next_stream.StreamID(), len(next_stream.dataForWriting))
 
 		}
 		pkt, sent, err := sch.performPacketSending(s, windowUpdateFrames, pth)
