@@ -616,7 +616,10 @@ func (sch *scheduler) sendPacket(s *session) error {
 			s.packer.QueueControlFrame(pf, pth)
 		}
 		next_stream := s.streamsMap.streams[s.streamsMap.nextStream]
-		utils.Debugf("%d , %d", next_stream.StreamID(), len(next_stream.dataForWriting))
+		if next_stream != nil {
+			utils.Debugf("%d , %d", next_stream.StreamID(), len(next_stream.dataForWriting))
+
+		}
 		pkt, sent, err := sch.performPacketSending(s, windowUpdateFrames, pth)
 		if err != nil {
 			return err
