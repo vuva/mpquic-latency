@@ -615,12 +615,15 @@ func (sch *scheduler) sendPacket(s *session) error {
 		for pf := s.streamFramer.PopPathsFrame(); pf != nil; pf = s.streamFramer.PopPathsFrame() {
 			s.packer.QueueControlFrame(pf, pth)
 		}
+
 		// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
-		for id, stream := range s.streamsMap.streams {
-			utils.Debugf("\n vuva: id %d stream %p", id, stream)
+		var next_stream *stream
+		for id, datastream := range s.streamsMap.streams {
+			utils.Debugf("\n vuva: id %d stream %p", id, datastream)
+			next_stream = datastream
 		}
-		next_stream := s.streamsMap.streams[s.streamsMap.nextStreamToAccept]
-		utils.Debugf("\n vuva: nextStreamToAccept %d nextStreamToAccept %d", s.streamsMap.nextStream, s.streamsMap.nextStreamToAccept)
+		// next_stream := s.streamsMap.streams[s.streamsMap.nextStreamToAccept]
+		utils.Debugf("\n vuva: nextStream %d nextStreamToAccept %d", s.streamsMap.nextStream, s.streamsMap.nextStreamToAccept)
 		if next_stream != nil {
 			utils.Debugf("\n vuva: streamID %d , datalen %d", next_stream.StreamID(), len(next_stream.dataForWriting))
 
