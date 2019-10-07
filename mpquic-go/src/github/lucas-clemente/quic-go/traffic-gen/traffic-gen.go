@@ -609,7 +609,7 @@ func main() {
 	flagAddress := flag.String("a", "localhost", "Destination address")
 	flagProtocol := flag.String("p", "tcp", "TCP or QUIC")
 	flagLog := flag.String("log", "", "Log folder")
-	flagMultipath := flag.Bool("m", true, "Enable multipath")
+	flagMultipath := flag.Bool("m", false, "Enable multipath")
 	flagSched := flag.String("sched", "lrtt", "Scheduler")
 	flagDebug := flag.Bool("v", false, "Debug mode")
 	flagCong := flag.String("cc", "olia", "Congestion control")
