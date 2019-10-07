@@ -459,10 +459,12 @@ pathLoop:
 
 		if currentRTT.Nanoseconds() < lowestRTT {
 			lowestRTTPath = pth
+			lowestRTT = currentRTT.Nanoseconds()
 		}
 
 		if rate > highestRate {
 			highestRatePath = pth
+			highestRate = rate
 		}
 
 	}
@@ -470,7 +472,7 @@ pathLoop:
 	selectedPath = lowestRTTPath
 
 	// check if we should send redundantly
-	if dataInStream/highestRate < 3*highestRatePathRTT {
+	if highestRate > 0 && dataInStream/highestRate < 3*highestRatePathRTT {
 		for pathID, pth := range s.paths {
 			if pathID != highestRatePath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
 				utils.Debugf("\n vuva: redundant %d %d<3*%d pathID %d", dataInStream, dataInStream/highestRate, highestRatePathRTT, pathID)
