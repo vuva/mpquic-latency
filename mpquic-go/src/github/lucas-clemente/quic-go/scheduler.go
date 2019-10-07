@@ -400,7 +400,7 @@ func (sch *scheduler) selectTailGuardRedundantPaths(s *session, hasRetransmissio
 	highestRatePathRTT := uint64(0)
 	lowestRTT := int64(math.MaxInt64)
 
-	MSS := uint64(protocol.MaxPacketSize)
+	// MSS := uint64(protocol.MaxPacketSize)
 	// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
 	var next_stream *stream
 	for id, datastream := range s.streamsMap.streams {
@@ -454,7 +454,7 @@ pathLoop:
 		// 	}
 		// }
 
-		if currentRTT.Nanoseconds() =< lowestRTT {
+		if currentRTT.Nanoseconds() <= lowestRTT {
 			lowestRTTPath = pth
 			lowestRTT = currentRTT.Nanoseconds()
 		}
