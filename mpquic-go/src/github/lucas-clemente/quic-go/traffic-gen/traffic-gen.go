@@ -612,7 +612,7 @@ func main() {
 	flagMultipath := flag.Bool("m", true, "Enable multipath")
 	flagSched := flag.String("sched", "lrtt", "Scheduler")
 	flagDebug := flag.Bool("v", false, "Debug mode")
-	flagCong := flag.String("cc", "cubic", "Congestion control")
+	flagCong := flag.String("cc", "olia", "Congestion control")
 	flag.Parse()
 	if *flagDebug {
 		utils.SetLogLevel(utils.LogLevelDebug)
