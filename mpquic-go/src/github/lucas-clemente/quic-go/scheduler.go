@@ -438,9 +438,9 @@ pathLoop:
 		currentRTT := pth.rttStats.SmoothedRTT()
 		rate := cw * 8
 		utils.Debugf("\n vuva: pathID %d rate %d RTT %dms", pathID, rate, currentRTT.Nanoseconds()/1000000)
-		if lowestRTT != 0 && currentRTT == 0 {
-			continue pathLoop
-		}
+		// if lowestRTT != 0 && currentRTT == 0 {
+		// 	continue pathLoop
+		// }
 
 		// if currentRTT == 0 {
 		// 	currentQuota, ok := sch.quotas[pathID]
