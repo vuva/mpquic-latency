@@ -215,7 +215,7 @@ pathLoop:
 		}
 
 		currentRTT = pth.rttStats.SmoothedRTT()
-
+		utils.Debugf("\n vuva: pathID %d RTT %dms", pathID, currentRTT.Nanoseconds()/1000000)
 		// Prefer staying single-path if not blocked by current path
 		// Don't consider this sample if the smoothed RTT is 0
 		if lowerRTT != 0 && currentRTT == 0 {
