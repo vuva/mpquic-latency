@@ -1,6 +1,7 @@
 package quic
 
 import (
+	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -388,6 +389,100 @@ pathLoop:
 	return selectedPath
 }
 
+// VUVA
+func (sch *scheduler) selectTailGuardRedundantPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
+
+	var selectedPath *path
+	var highestRatePath *path
+	var lowestRTTPath *path
+
+	highestRate := uint64(0)
+	highestRatePathRTT := uint64(0)
+	lowestRTT := int64(math.MaxInt64)
+
+	MSS := uint64(protocol.MaxPacketSize)
+	// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
+	var next_stream *stream
+	for id, datastream := range s.streamsMap.streams {
+		utils.Debugf("\n vuva: id %d stream %p", id, datastream)
+		next_stream = datastream
+	}
+	// next_stream := s.streamsMap.streams[s.streamsMap.nextStreamToAccept]
+	// utils.Debugf("\n vuva: nextStream %d nextStreamToAccept %d", s.streamsMap.nextStream, s.streamsMap.nextStreamToAccept)
+	dataInStream := uint64(len(next_stream.dataForWriting))
+	if next_stream != nil {
+		utils.Debugf("\n vuva: streamID %d , datalen %d", next_stream.StreamID(), dataInStream)
+
+	}
+
+pathLoop:
+	for pathID, pth := range s.paths {
+		// Don't block path usage if we retransmit, even on another path
+		// DERA: Only consider paths, that have space in their cwnd for 'new' packets.
+		//		 Or consider all valid paths for outstanding retransmissions.
+		if !hasRetransmission && !pth.SendingAllowed() {
+			continue pathLoop
+		}
+
+		// If this path is potentially failed, do no consider it for sending
+		if pth.potentiallyFailed.Get() {
+			continue pathLoop
+		}
+
+		// XXX Prevent using initial pathID if multiple paths
+		if pathID == protocol.InitialPathID {
+			continue pathLoop
+		}
+
+		cw := pth.sentPacketHandler.GetCongestionWindow()
+		currentRTT := pth.rttStats.SmoothedRTT()
+		rate := cw * MSS
+
+		utils.Debugf("\n vuva: rate %d RTT %d", rate, currentRTT.Nanoseconds())
+
+		if lowestRTT != 0 && currentRTT == 0 {
+			continue pathLoop
+		}
+
+		// Case if we have multiple paths unprobed
+		// if currentRTT == 0 {
+		// 	currentQuota, ok := sch.quotas[pathID]
+		// 	if !ok {
+		// 		sch.quotas[pathID] = 0
+		// 		currentQuota = 0
+		// 	}
+		// 	lowerQuota, _ := sch.quotas[selectedPathID]
+		// 	if selectedPath != nil && currentQuota > lowerQuota {
+		// 		continue pathLoop
+		// 	}
+		// }
+
+		if currentRTT.Nanoseconds() < lowestRTT {
+			lowestRTTPath = pth
+		}
+
+		if rate > highestRate {
+			highestRatePath = pth
+		}
+
+	}
+
+	selectedPath = lowestRTTPath
+
+	// check if we should send redundantly
+	if dataInStream/highestRate < 3*highestRatePathRTT {
+		for pathID, pth := range s.paths {
+			if pathID != highestRatePath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
+				utils.Debugf("\n vuva: redundant %d %d<3*%d pathID %d", dataInStream, dataInStream/highestRate, highestRatePathRTT, pathID)
+				sch.redundantPaths = append(sch.redundantPaths, pth)
+
+			}
+		}
+	}
+
+	return selectedPath
+}
+
 // Exclude initial path from selection and discovery of new paths.
 func (sch *scheduler) selectInitialPath(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 
@@ -441,6 +536,8 @@ func (sch *scheduler) selectPath(s *session, hasRetransmission bool, hasStreamRe
 	case "utilRepair":
 		// Utilize path with the highest throughput.
 		return sch.selectPathUtilRepair(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	case "tailGuard":
+		return sch.selectTailGuardRedundantPaths(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	default:
 		// Error invalid scheduling algorithm
 		utils.Debugf("Invalid scheduler algorithm specified!")
@@ -616,18 +713,6 @@ func (sch *scheduler) sendPacket(s *session) error {
 			s.packer.QueueControlFrame(pf, pth)
 		}
 
-		// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
-		var next_stream *stream
-		for id, datastream := range s.streamsMap.streams {
-			utils.Debugf("\n vuva: id %d stream %p", id, datastream)
-			next_stream = datastream
-		}
-		// next_stream := s.streamsMap.streams[s.streamsMap.nextStreamToAccept]
-		utils.Debugf("\n vuva: nextStream %d nextStreamToAccept %d", s.streamsMap.nextStream, s.streamsMap.nextStreamToAccept)
-		if next_stream != nil {
-			utils.Debugf("\n vuva: streamID %d , datalen %d", next_stream.StreamID(), len(next_stream.dataForWriting))
-
-		}
 		pkt, sent, err := sch.performPacketSending(s, windowUpdateFrames, pth)
 		if err != nil {
 			return err

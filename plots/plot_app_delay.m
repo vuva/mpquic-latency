@@ -4,7 +4,7 @@ n=1;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-200-c-1200';
+exp_name = 'app-delay-quic-c-300-c-1200';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -81,7 +81,7 @@ for j = 1:length(scheds)
             %
             %
             %     end
-            
+                    eval(['sched_net_latency = vertcat(sched_net_latency,10^9*(' sched '_pcap_dat(:,7) - ' sched '_pcap_dat(:,6)));']);
         end
         
         %% ====== Load quic frame log ==========
@@ -98,6 +98,7 @@ for j = 1:length(scheds)
             
             eval(['[~, row1, row2] = intersect(' sched '_all_timestp(:,1),' sched '_frame_timestp(:,1),"sorted");']);
             eval([sched '_all_timestp = [' sched '_all_timestp(row1,[1,2,3]), ' sched '_frame_timestp(row2, [3,4])];']);
+            eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
         end
         
         
@@ -108,9 +109,9 @@ for j = 1:length(scheds)
         %         eval(['sched_net_latency = vertcat(sched_net_latency,10^3*(' sched '_pcap_dat(:,7) - ' sched '_pcap_dat(:,6)));']);
 
         eval(['sched_app_latency = vertcat(sched_app_latency,' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,2));']);
-%         eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
-%         eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,2));']);
-        eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
+        eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
+        eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,2));']);
+%         eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
         
 
     end
@@ -122,14 +123,14 @@ for j = 1:length(scheds)
 end
 
 %% =========== plot DATA ==============
-% latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
-plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
+latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
+% plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
-% plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
-% plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
-% plotccdf(latency_ana_label, [net_latencies(3), recv_latencies(3),app_latencies(3)]);
+plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
+plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
+plotccdf(latency_ana_label, [net_latencies(3), recv_latencies(3),app_latencies(3)]);
 % plotccdf(latency_ana_label, [net_latencies(4), recv_latencies(4),app_latencies(4)]);
-% plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(2),send_latencies(2)), addCell(net_latencies(2),send_latencies(2),recv_latencies(2)), send_latencies(2)]);
+% plotccdf(latency_ana_label, [net_latencies(2), addCell(net_latencies(2),send_latencies(2)), addCell(net_latencies(2),send_latencies(2),recv_latencies(2)), send_latencies(2)]);
 % plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(3),send_latencies(3)), addCell(net_latencies(3),send_latencies(3),recv_latencies(3)), send_latencies(3)]);
 % plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(4),send_latencies(4)), addCell(net_latencies(4),send_latencies(4),recv_latencies(4)), send_latencies(4)]);
 % plot_throughput(labels,server_dat);
