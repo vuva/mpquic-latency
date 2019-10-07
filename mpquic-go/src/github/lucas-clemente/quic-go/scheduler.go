@@ -436,26 +436,25 @@ pathLoop:
 
 		cw := pth.sentPacketHandler.GetCongestionWindow()
 		currentRTT := pth.rttStats.SmoothedRTT()
-		rate := cw * MSS
-
-		utils.Debugf("\n vuva: rate %d RTT %d", rate, currentRTT.Nanoseconds())
+		rate := cw * MSS * 8
 
 		if lowestRTT != 0 && currentRTT == 0 {
 			continue pathLoop
 		}
 
-		// Case if we have multiple paths unprobed
 		// if currentRTT == 0 {
 		// 	currentQuota, ok := sch.quotas[pathID]
 		// 	if !ok {
 		// 		sch.quotas[pathID] = 0
 		// 		currentQuota = 0
 		// 	}
-		// 	lowerQuota, _ := sch.quotas[selectedPathID]
+		// 	lowerQuota, _ := sch.quotas[lowestRTTPath.pathID]
 		// 	if selectedPath != nil && currentQuota > lowerQuota {
 		// 		continue pathLoop
 		// 	}
 		// }
+
+		utils.Debugf("\n vuva: pathID %d rate %d RTT %dms", pathID, rate, currentRTT.Nanoseconds()/10^6)
 
 		if currentRTT.Nanoseconds() < lowestRTT {
 			lowestRTTPath = pth
