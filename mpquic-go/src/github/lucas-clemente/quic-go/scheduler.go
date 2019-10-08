@@ -725,6 +725,10 @@ func (sch *scheduler) sendPacket(s *session) error {
 			return sch.ackRemainingPaths(s, windowUpdateFrames)
 		}
 
+		// VUVA: update send rate
+		pth.rttStats.UpdateSendRate(uint64(pkt.Length))
+		utils.Debugf("\n vuva: path %d sendrate %d", pth.pathID, pth.rttStats.GetSendRate())
+
 		// Duplicate traffic when it was sent on an unknown performing path
 		// FIXME adapt for new paths coming during the connection
 		// DERA: redundant schedulers will duplicate packet anyways.
@@ -746,6 +750,8 @@ func (sch *scheduler) sendPacket(s *session) error {
 		// Redundant retranmissions
 		if RedundantSending {
 			err := sch.redSendPacket(s, pth, pkt, windowUpdateFrames)
+
+			pth.rttStats.UpdateSendRate(uint64(pkt.Length))
 			if err != nil {
 				return err
 			}

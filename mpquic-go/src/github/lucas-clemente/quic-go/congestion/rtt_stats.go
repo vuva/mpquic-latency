@@ -21,6 +21,12 @@ type rttSample struct {
 	time time.Time
 }
 
+type rateSample struct {
+	rate       uint64
+	sampleTime time.Time
+	interval   time.Duration
+}
+
 // RTTStats provides round-trip statistics
 type RTTStats struct {
 	initialRTTus int64
@@ -37,13 +43,18 @@ type RTTStats struct {
 	recentMinRTT     rttSample
 	halfWindowRTT    rttSample
 	quarterWindowRTT rttSample
+
+	currentRate uint64
+	sendRate    rateSample
 }
 
 // NewRTTStats makes a properly initialized RTTStats object
 func NewRTTStats() *RTTStats {
+	oneSecond, _ := time.ParseDuration("1s")
 	return &RTTStats{
 		initialRTTus:       initialRTTus,
 		recentMinRTTwindow: utils.InfDuration,
+		sendRate:           rateSample{sampleTime: time.Now(), interval: oneSecond},
 	}
 }
 
@@ -185,4 +196,17 @@ func (r *RTTStats) ExpireSmoothedMetrics() {
 // Update the smoothed RTT to the given value
 func (r *RTTStats) UpdateSessionRTT(smoothedRTT time.Duration) {
 	r.smoothedRTT = smoothedRTT
+}
+
+func (r *RTTStats) UpdateSendRate(dataLength uint64) {
+	if time.Now().Before(r.sendRate.sampleTime.Add(r.sendRate.interval)) {
+		r.currentRate += dataLength
+	} else {
+		r.sendRate.rate = r.currentRate
+		r.sendRate.sampleTime = time.Now()
+	}
+}
+
+func (r *RTTStats) GetSendRate() uint64 {
+	return r.sendRate.rate
 }
