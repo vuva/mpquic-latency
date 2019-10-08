@@ -434,11 +434,11 @@ pathLoop:
 			continue pathLoop
 		}
 
-		cw := pth.sentPacketHandler.GetBytesInFlight()
+		cw := pth.sentPacketHandler.GetCongestionWindow()
 		currentRTT := pth.rttStats.SmoothedRTT()
 		rate := uint64(0)
 		if currentRTT > 0 {
-			rate = cw * 8000000 / uint64(currentRTT.Nanoseconds())
+			rate = cw * 8000000000 / uint64(currentRTT.Nanoseconds())
 		}
 		utils.Debugf("\n vuva: pathID %d rate %d RTT %dms", pathID, rate, currentRTT.Nanoseconds()/1000000)
 		// if lowestRTT != 0 && currentRTT == 0 {
