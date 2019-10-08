@@ -726,7 +726,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 		}
 
 		// VUVA: update send rate
-		pth.rttStats.UpdateSendRate(uint64(pkt.Length))
+		pth.rttStats.UpdateSendRate(uint64(protocol.MaxPacketSize))
 		utils.Debugf("\n vuva: path %d sendrate %d", pth.pathID, pth.rttStats.GetSendRate())
 
 		// Duplicate traffic when it was sent on an unknown performing path
