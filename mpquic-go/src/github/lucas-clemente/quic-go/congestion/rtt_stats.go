@@ -201,12 +201,12 @@ func (r *RTTStats) UpdateSessionRTT(smoothedRTT time.Duration) {
 func (r *RTTStats) UpdateSendRate(dataLength uint64) {
 	if time.Now().Before(r.sendRate.sampleTime.Add(r.sendRate.interval)) {
 		r.currentRate += dataLength
+		utils.Debugf("\n Ninetails: len %d currentRate %d", dataLength, r.currentRate)
 	} else {
 		r.sendRate.rate = r.currentRate
 		r.sendRate.sampleTime = time.Now()
 		r.currentRate = 0
 	}
-	utils.Debugf("\n Ninetails: len %d currentRate %d", dataLength, r.currentRate)
 }
 
 func (r *RTTStats) GetSendRate() uint64 {
