@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='D:\Work\Data\mp-quic-logs\';
+folder='C:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-300-c-1200';
+exp_name = 'app-delay-quic-c-3-c-120000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -22,8 +22,8 @@ set(0,'defaultAxesPlotboxAspectRatioMode','manual');
 set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","opp"];
-labels=["lrtt","rr","opp"];
+scheds=["lrtt","rr","nt"];
+labels=["lrtt","rr","nt"];
 
 app_latencies={};
 send_latencies={};
@@ -123,12 +123,12 @@ for j = 1:length(scheds)
 end
 
 %% =========== plot DATA ==============
-latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
-% plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
+% latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
+plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
-plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
-plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
-plotccdf(latency_ana_label, [net_latencies(3), recv_latencies(3),app_latencies(3)]);
+% plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
+% plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
+% plotccdf(latency_ana_label, [net_latencies(3), recv_latencies(3),app_latencies(3)]);
 % plotccdf(latency_ana_label, [net_latencies(4), recv_latencies(4),app_latencies(4)]);
 % plotccdf(latency_ana_label, [net_latencies(2), addCell(net_latencies(2),send_latencies(2)), addCell(net_latencies(2),send_latencies(2),recv_latencies(2)), send_latencies(2)]);
 % plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(3),send_latencies(3)), addCell(net_latencies(3),send_latencies(3),recv_latencies(3)), send_latencies(3)]);
