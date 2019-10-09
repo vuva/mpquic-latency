@@ -403,17 +403,17 @@ func (sch *scheduler) selectTailGuardRedundantPaths(s *session, hasRetransmissio
 	// MSS := uint64(protocol.MaxPacketSize)
 	// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
 	var next_stream *stream
-	for id, datastream := range s.streamsMap.streams {
-		utils.Debugf("\n vuva: id %d stream %p", id, datastream)
+	for _, datastream := range s.streamsMap.streams {
+		// utils.Debugf("\n vuva: id %d stream %p", id, datastream)
 		next_stream = datastream
 	}
 	// next_stream := s.streamsMap.streams[s.streamsMap.nextStreamToAccept]
 	// utils.Debugf("\n vuva: nextStream %d nextStreamToAccept %d", s.streamsMap.nextStream, s.streamsMap.nextStreamToAccept)
 	dataInStream := uint64(len(next_stream.dataForWriting))
-	if next_stream != nil {
-		utils.Debugf("\n vuva: streamID %d , datalen %d", next_stream.StreamID(), dataInStream)
+	// if next_stream != nil {
+	// 	utils.Debugf("\n vuva: streamID %d , datalen %d", next_stream.StreamID(), dataInStream)
 
-	}
+	// }
 
 pathLoop:
 	for pathID, pth := range s.paths {
@@ -434,13 +434,14 @@ pathLoop:
 			continue pathLoop
 		}
 
-		cw := pth.sentPacketHandler.GetCongestionWindow()
+		// cw := pth.sentPacketHandler.GetCongestionWindow()
 		currentRTT := pth.rttStats.SmoothedRTT()
 		rate := uint64(0)
 		if currentRTT > 0 {
-			rate = cw * 8000000000 / uint64(currentRTT.Nanoseconds())
+			// rate = cw * 8000000000 / uint64(currentRTT.Nanoseconds())
+			rate = pth.rttStats.GetSendRate()
 		}
-		utils.Debugf("\n vuva: pathID %d rate %d RTT %dms", pathID, rate, currentRTT.Nanoseconds()/1000000)
+		utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms", pathID, 8*rate, currentRTT.Nanoseconds()/1000000)
 		// if lowestRTT != 0 && currentRTT == 0 {
 		// 	continue pathLoop
 		// }
@@ -727,7 +728,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 
 		// VUVA: update send rate
 		pth.rttStats.UpdateSendRate(uint64(pkt.Length))
-		utils.Debugf("\n vuva: path %d sendrate %d", pth.pathID, pth.rttStats.GetSendRate())
+		utils.Debugf("\n Ninetails: path %d sendrate %d", pth.pathID, 8*pth.rttStats.GetSendRate())
 
 		// Duplicate traffic when it was sent on an unknown performing path
 		// FIXME adapt for new paths coming during the connection

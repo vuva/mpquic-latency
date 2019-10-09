@@ -207,7 +207,7 @@ func (r *RTTStats) UpdateSendRate(dataLength uint64) {
 		r.sendRate.sampleTime = time.Now()
 		r.currentRate = 0
 	}
-	utils.Debugf("\n Ninetails: interval %s len %d currentRate %d", r.sendRate.interval, dataLength, r.currentRate)
+	// utils.Debugf("\n Ninetails: interval %s len %d currentRate %d", r.sendRate.interval, dataLength, r.currentRate)
 }
 
 func (r *RTTStats) GetSendRate() uint64 {
