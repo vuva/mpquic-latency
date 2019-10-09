@@ -441,7 +441,7 @@ pathLoop:
 			// rate = cw * 8000000000 / uint64(currentRTT.Nanoseconds())
 			rate = pth.rttStats.GetSendRate()
 		}
-		utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms", pathID, 8*rate, currentRTT.Nanoseconds()/1000000)
+		utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms", pathID, rate, currentRTT.Nanoseconds()/1000000)
 		// if lowestRTT != 0 && currentRTT == 0 {
 		// 	continue pathLoop
 		// }
@@ -473,10 +473,11 @@ pathLoop:
 	selectedPath = lowestRTTPath
 
 	// check if we should send redundantly
+	utils.Debugf("\n Ninetails: highestRate %d dataInStream %d highestRatePathRTT %d", highestRate, dataInStream, highestRatePathRTT)
 	if highestRate > 0 && dataInStream/highestRate < 3*highestRatePathRTT {
 		for pathID, pth := range s.paths {
 			if pathID != highestRatePath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
-				utils.Debugf("\n vuva: redundant %d %d<3*%d pathID %d", dataInStream, dataInStream/highestRate, highestRatePathRTT, pathID)
+				utils.Debugf("\n Ninetails: redundant %d %d<3*%d pathID %d", dataInStream, dataInStream/highestRate, highestRatePathRTT, pathID)
 				sch.redundantPaths = append(sch.redundantPaths, pth)
 
 			}
@@ -728,7 +729,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 
 		// VUVA: update send rate
 		pth.rttStats.UpdateSendRate(uint64(pkt.Length))
-		utils.Debugf("\n Ninetails: path %d sendrate %d", pth.pathID, 8*pth.rttStats.GetSendRate())
+		utils.Debugf("\n Ninetails: path %d sendrate %d", pth.pathID, pth.rttStats.GetSendRate())
 
 		// Duplicate traffic when it was sent on an unknown performing path
 		// FIXME adapt for new paths coming during the connection
@@ -752,7 +753,9 @@ func (sch *scheduler) sendPacket(s *session) error {
 		if RedundantSending {
 			err := sch.redSendPacket(s, pth, pkt, windowUpdateFrames)
 
+			// VUVA: update send rate
 			pth.rttStats.UpdateSendRate(uint64(pkt.Length))
+
 			if err != nil {
 				return err
 			}
