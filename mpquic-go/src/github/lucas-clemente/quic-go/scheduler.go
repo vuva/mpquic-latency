@@ -390,7 +390,7 @@ pathLoop:
 }
 
 // VUVA
-func (sch *scheduler) selectTailGuardRedundantPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
+func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 
 	var selectedPath *path
 	var highestRatePath *path
@@ -475,7 +475,7 @@ pathLoop:
 
 	// check if we should send redundantly
 	utils.Debugf("\n Ninetails: highestRate %d dataInStream %d highestRatePathRTT %d", highestRate, dataInStream, highestRatePathRTT)
-	if highestRate > 0 && dataInStream/highestRate*1000 < 3*highestRatePathRTT {
+	if dataInStream > 0 && highestRate > 0 && dataInStream/highestRate*1000 < 3*highestRatePathRTT {
 		for pathID, pth := range s.paths {
 			if pathID != highestRatePath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
 				utils.Debugf("\n Ninetails: redundant %d %d<3*%d pathID %d", dataInStream, dataInStream/highestRate, highestRatePathRTT, pathID)
@@ -541,8 +541,8 @@ func (sch *scheduler) selectPath(s *session, hasRetransmission bool, hasStreamRe
 	case "utilRepair":
 		// Utilize path with the highest throughput.
 		return sch.selectPathUtilRepair(s, hasRetransmission, hasStreamRetransmission, fromPth)
-	case "tailGuard":
-		return sch.selectTailGuardRedundantPaths(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	case "nineTails":
+		return sch.selectNineTailsPaths(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	default:
 		// Error invalid scheduling algorithm
 		utils.Debugf("Invalid scheduler algorithm specified!")
