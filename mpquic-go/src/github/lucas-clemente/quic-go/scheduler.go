@@ -475,10 +475,10 @@ pathLoop:
 
 	// check if we should send redundantly
 	utils.Debugf("\n Ninetails: highestRate %d dataInStream %d highestRatePathRTT %d", highestRate, dataInStream, highestRatePathRTT)
-	if dataInStream > 0 && highestRate > 0 && dataInStream/highestRate*1000 < 3*highestRatePathRTT {
+	if dataInStream > 0 && highestRate > 0 && float64(dataInStream)/float64(highestRate)*1000.0 < float64(3*highestRatePathRTT) {
 		for pathID, pth := range s.paths {
 			if pathID != highestRatePath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
-				utils.Debugf("\n Ninetails: redundant %d %f<3*%d pathID %d", dataInStream, dataInStream/highestRate*1000, highestRatePathRTT, pathID)
+				utils.Debugf("\n Ninetails: redundant %d %f<3*%d pathID %d", dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, pathID)
 				sch.redundantPaths = append(sch.redundantPaths, pth)
 
 			}
