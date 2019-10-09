@@ -398,7 +398,7 @@ func (sch *scheduler) selectTailGuardRedundantPaths(s *session, hasRetransmissio
 
 	highestRate := uint64(0)
 	highestRatePathRTT := uint64(0)
-	lowestRTT := int64(math.MaxInt64)
+	lowestRTT := uint64(math.MaxInt64)
 
 	// MSS := uint64(protocol.MaxPacketSize)
 	// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
@@ -435,13 +435,13 @@ pathLoop:
 		}
 
 		// cw := pth.sentPacketHandler.GetCongestionWindow()
-		currentRTT := pth.rttStats.SmoothedRTT()
+		currentRTT := uint64(pth.rttStats.SmoothedRTT().Nanoseconds() / 1000000)
 		rate := uint64(0)
 		if currentRTT > 0 {
 			// rate = cw * 8000000000 / uint64(currentRTT.Nanoseconds())
 			rate = pth.rttStats.GetSendRate()
 		}
-		utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms", pathID, rate, currentRTT.Nanoseconds()/1000000)
+		utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms", pathID, rate, currentRTT)
 		// if lowestRTT != 0 && currentRTT == 0 {
 		// 	continue pathLoop
 		// }
@@ -458,14 +458,15 @@ pathLoop:
 		// 	}
 		// }
 
-		if currentRTT.Nanoseconds() <= lowestRTT {
+		if currentRTT <= lowestRTT {
 			lowestRTTPath = pth
-			lowestRTT = currentRTT.Nanoseconds()
+			lowestRTT = currentRTT
 		}
 
 		if rate >= highestRate {
 			highestRatePath = pth
 			highestRate = rate
+			highestRatePathRTT = currentRTT
 		}
 
 	}
@@ -474,7 +475,7 @@ pathLoop:
 
 	// check if we should send redundantly
 	utils.Debugf("\n Ninetails: highestRate %d dataInStream %d highestRatePathRTT %d", highestRate, dataInStream, highestRatePathRTT)
-	if highestRate > 0 && dataInStream/highestRate < 3*highestRatePathRTT {
+	if highestRate > 0 && dataInStream/highestRate*1000 < 3*highestRatePathRTT {
 		for pathID, pth := range s.paths {
 			if pathID != highestRatePath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
 				utils.Debugf("\n Ninetails: redundant %d %d<3*%d pathID %d", dataInStream, dataInStream/highestRate, highestRatePathRTT, pathID)
