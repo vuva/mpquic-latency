@@ -50,7 +50,7 @@ type RTTStats struct {
 
 // NewRTTStats makes a properly initialized RTTStats object
 func NewRTTStats() *RTTStats {
-	oneSecond, _ := time.ParseDuration("1s")
+	oneSecond, _ := time.ParseDuration("5s")
 	return &RTTStats{
 		initialRTTus:       initialRTTus,
 		recentMinRTTwindow: utils.InfDuration,
@@ -201,7 +201,7 @@ func (r *RTTStats) UpdateSessionRTT(smoothedRTT time.Duration) {
 func (r *RTTStats) UpdateSendRate(dataLength uint64) {
 	if time.Now().Before(r.sendRate.sampleTime.Add(r.sendRate.interval)) {
 		r.currentRate += dataLength
-		utils.Debugf("\n Ninetails: len %d currentRate %d", dataLength, r.currentRate)
+		utils.Debugf("\n Ninetails: interval %s len %d currentRate %d", r.sendRate.interval, dataLength, r.currentRate)
 	} else {
 		r.sendRate.rate = r.currentRate
 		r.sendRate.sampleTime = time.Now()
