@@ -49,6 +49,13 @@ export SL_SCHED="re"
 ~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
 
+ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=ninetails'
+ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=ninetails'
+sleep 5
+export SL_SCHED="nt"
+~/sshlauncher/sshlauncher $CONFIG_FILE.config
+sleep 5
+
 END
 done
 
