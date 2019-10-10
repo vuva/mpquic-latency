@@ -472,13 +472,14 @@ pathLoop:
 	}
 
 	selectedPath = lowestRTTPath
-
+	selectedPathRate := selectedPath.rttStats.GetSendRate()
+	selectedPathRTT := selectedPath.rttStats.SmoothedRTT()
 	// check if we should send redundantly
-	utils.Debugf("\n Ninetails: highestRate %d dataInStream %d highestRatePathRTT %d", highestRate, dataInStream, highestRatePathRTT)
-	if dataInStream > 0 && highestRate > 0 && float64(dataInStream)/float64(highestRate)*1000.0 < float64(3*highestRatePathRTT) {
+	utils.Debugf("\n Ninetails: selectedPathRate %d dataInStream %d highestRatePathRTT %d", selectedPathRate, dataInStream, selectedPathRTT)
+	if dataInStream > 0 && selectedPathRate > 0 && float64(dataInStream)/float64(selectedPathRate)*1000.0 < float64(3*selectedPathRTT) {
 		for pathID, pth := range s.paths {
-			if pathID != highestRatePath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
-				utils.Debugf("\n Ninetails: redundant %d %f<3*%d pathID %d", dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, pathID)
+			if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
+				utils.Debugf("\n Ninetails: redundant %d %f<3*%d pathID %d", dataInStream, float64(dataInStream)/float64(selectedPathRate)*1000.0, selectedPathRTT, pathID)
 				sch.redundantPaths = append(sch.redundantPaths, pth)
 
 			}

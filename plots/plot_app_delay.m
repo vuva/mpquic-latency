@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='C:\Work\Data\mp-quic-logs\';
+folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-3-c-120000';
+exp_name = 'app-delay-quic-c-4-c-120000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -22,8 +22,8 @@ set(0,'defaultAxesPlotboxAspectRatioMode','manual');
 set(0,'DefaultFigureColormap',feval('colorcube'));
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","nt"];
-labels=["lrtt","rr","nt"];
+scheds=["lrtt","rr","opp","nt"];
+labels=["lrtt","rr","opp","nt"];
 
 app_latencies={};
 send_latencies={};
@@ -86,7 +86,7 @@ for j = 1:length(scheds)
         
         %% ====== Load quic frame log ==========
         if HAS_FRAME_LOG
-            pcap_labels=["lrtt-frame","rr-frame","opp-frame"];
+            pcap_labels=["lrtt-frame","rr-frame","opp-frame","nt-frame"];
             eval([sched '_frame_sender_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-sender",frame_log_surfix ));' ]);
             eval([sched '_frame_receiver_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name,"-receiver",frame_log_surfix ));' ]);
             
