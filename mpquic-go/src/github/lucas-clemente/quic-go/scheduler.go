@@ -441,7 +441,7 @@ pathLoop:
 			// rate = cw * 8000000000 / uint64(currentRTT.Nanoseconds())
 			rate = pth.rttStats.GetSendRate()
 		}
-		utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms", pathID, rate, currentRTT)
+		utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms quota %d", pathID, rate, currentRTT, sch.quotas[pathID])
 		// if lowestRTT != 0 && currentRTT == 0 {
 		// 	continue pathLoop
 		// }
