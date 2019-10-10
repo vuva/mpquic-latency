@@ -472,6 +472,9 @@ pathLoop:
 	}
 
 	selectedPath = lowestRTTPath
+	if selectedPath == nil {
+		return nil
+	}
 	selectedPathRate := selectedPath.rttStats.GetSendRate()
 	selectedPathRTT := selectedPath.rttStats.SmoothedRTT()
 	// check if we should send redundantly
