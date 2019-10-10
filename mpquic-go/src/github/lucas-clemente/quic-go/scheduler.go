@@ -396,7 +396,7 @@ func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, h
 	// var highestRatePath *path
 	var lowestRTTPath *path
 
-	// highestRate := uint64(0)
+	highestRate := uint64(0)
 	// highestRatePathRTT := uint64(0)
 	lowestRTT := uint64(math.MaxInt64)
 
@@ -463,11 +463,11 @@ pathLoop:
 			lowestRTT = currentRTT
 		}
 
-		// if rate >= highestRate {
-		// 	highestRatePath = pth
-		// 	highestRate = rate
-		// 	highestRatePathRTT = currentRTT
-		// }
+		if rate >= highestRate {
+			// highestRatePath = pth
+			highestRate = rate
+			// highestRatePathRTT = currentRTT
+		}
 
 	}
 
@@ -475,14 +475,14 @@ pathLoop:
 	if selectedPath == nil {
 		return nil
 	}
-	selectedPathRate := selectedPath.rttStats.GetSendRate()
+	// selectedPathRate := selectedPath.rttStats.GetSendRate()
 	selectedPathRTT := selectedPath.rttStats.SmoothedRTT()
 	// check if we should send redundantly
-	utils.Debugf("\n Ninetails: selectedPathRate %d dataInStream %d highestRatePathRTT %d", selectedPathRate, dataInStream, selectedPathRTT)
-	if dataInStream > 0 && selectedPathRate > 0 && float64(dataInStream)/float64(selectedPathRate)*1000.0 < float64(3*selectedPathRTT) {
+	utils.Debugf("\n Ninetails: selectedPathID %d highestRate %d dataInStream %d selectedPathRTT %d", selectedPath.pathID, highestRate, dataInStream, selectedPathRTT)
+	if dataInStream > 0 && highestRate > 0 && float64(dataInStream)/float64(highestRate)*1000.0 < float64(3*selectedPathRTT) {
 		for pathID, pth := range s.paths {
 			if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && sch.quotas[pathID] > 0 {
-				utils.Debugf("\n Ninetails: redundant %d %f<3*%d pathID %d", dataInStream, float64(dataInStream)/float64(selectedPathRate)*1000.0, selectedPathRTT, pathID)
+				utils.Debugf("\n Ninetails: redundant %d %f<3*%d pathID %d", dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, selectedPathRTT, pathID)
 				sch.redundantPaths = append(sch.redundantPaths, pth)
 
 			}
