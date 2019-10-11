@@ -266,11 +266,13 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-			message, seq := generateMessage(uint(i), csize_distro, csize_value)
+			message, _ := generateMessage(uint(i), csize_distro, csize_value)
 			counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
-			timeStamps[seq] = uint(time.Now().UnixNano())
+
+			// Get time at the moment message generated
+			// timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
 			send_queue.mutex.Lock()
 
@@ -312,6 +314,9 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				connection.Write(message)
 
 			}
+			// Get time at the moment message put in stream
+			timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
+
 			counter++
 			send_queue.mutex.Lock()
 
