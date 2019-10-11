@@ -734,7 +734,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 
 		// VUVA: update send rate
 		pth.rttStats.UpdateSendRate(uint64(pkt.Length))
-		utils.Debugf("\n Ninetails: path %d sendrate %d", pth.pathID, pth.rttStats.GetSendRate())
+		utils.Debugf("\n Ninetails: path %d sendrate %d", pth.pathID, pth.rttStats.GetSendRate(), sch.quotas[pth.pathID])
 
 		// Duplicate traffic when it was sent on an unknown performing path
 		// FIXME adapt for new paths coming during the connection
@@ -811,7 +811,7 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 			frames:          redundantFrames,
 			encryptionLevel: encLevel,
 		}
-		utils.Infof("DUPLICATE packet %d on path %d", pkt.PacketNumber, redPth.pathID)
+		utils.Infof("DUPLICATE packet %d on path %d total dup %d", pkt.PacketNumber, redPth.pathID, sch.duplicatedPackets)
 
 		// Send duplicated packet
 		err = s.sendPackedPacket(dupPkt, redPth)
