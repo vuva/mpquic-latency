@@ -306,6 +306,8 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 			queue_font := send_queue.mess_list.Front()
 			message, _ := queue_font.Value.([]byte)
+			// Get time at the moment message put in stream
+			timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
 
 			if protocol == "quic" {
 				stream.Write(message)
@@ -314,8 +316,6 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				connection.Write(message)
 
 			}
-			// Get time at the moment message put in stream
-			timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
 
 			counter++
 			send_queue.mutex.Lock()
