@@ -266,16 +266,18 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-			message, _ := generateMessage(uint(i), csize_distro, csize_value)
+			message, seq := generateMessage(uint(i), csize_distro, csize_value)
 			counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
 
 			// Get time at the moment message generated
-			// timeStamps[seq] = uint(time.Now().UnixNano())
+			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+			if send_queue.mess_list.Len() > 0 {
+				continue
+			}
 			send_queue.mutex.Lock()
-
 			send_queue.mess_list.PushBack(message)
 			send_queue.mutex.Unlock()
 
@@ -287,7 +289,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// utils.Debugf("SENT: %x \n", message)
 			wait_time := 1 / getRandom(arrival_distro, arrival_value)
 			if wait_time > 0 {
-				wait(wait_time)
+				wait(uint(wait_time*1000000000) - (uint(time.Now().UnixNano()) - timeStamps[seq]))
 			}
 
 		}
@@ -307,7 +309,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			queue_font := send_queue.mess_list.Front()
 			message, _ := queue_font.Value.([]byte)
 			// Get time at the moment message put in stream
-			timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
+			// timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
 
 			if protocol == "quic" {
 				stream.Write(message)
@@ -460,9 +462,9 @@ func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess qu
 //
 //}
 
-// wait for interarrival_time second
-func wait(interarrival_time float64) {
-	waiting_time := time.Duration(interarrival_time*1000000000) * time.Nanosecond
+// wait for interarrival_time nanosecond
+func wait(interarrival_time uint) {
+	waiting_time := time.Duration(interarrival_time) * time.Nanosecond
 	// utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
 	time.Sleep(waiting_time)
 }
