@@ -205,7 +205,7 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 
 }
 
-func startClientMode(address string, protocol string, run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64, multipath bool, scheduler string) {
+func startClientMode(address string, protocol string, run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64, multipath bool, scheduler string, isBlockingCall bool) {
 	fmt.Println("Starting client...")
 
 	var stream quic.Stream
@@ -274,7 +274,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// Get time at the moment message generated
 			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
-			if send_queue.mess_list.Len() > 0 {
+			if isBlockingCall && send_queue.mess_list.Len() > 0 {
 				continue
 			}
 			send_queue.mutex.Lock()
@@ -620,6 +620,7 @@ func main() {
 	flagSched := flag.String("sched", "lrtt", "Scheduler")
 	flagDebug := flag.Bool("v", false, "Debug mode")
 	flagCong := flag.String("cc", "olia", "Congestion control")
+	flagBlock := flag.Bool("b", false, "Blocking call")
 	flag.Parse()
 	if *flagDebug {
 		utils.SetLogLevel(utils.LogLevelDebug)
@@ -632,6 +633,6 @@ func main() {
 		quic.SetSchedulerAlgorithm(sched)
 		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagLog)
 	} else {
-		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched)
+		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched, *flagBlock)
 	}
 }
