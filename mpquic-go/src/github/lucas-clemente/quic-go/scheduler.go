@@ -480,6 +480,9 @@ pathLoop:
 	// selectedPathRTT := selectedPath.rttStats.SmoothedRTT()
 	// check if we should send redundantly
 	utils.Debugf("\n Ninetails: selectedPathID %d highestRate %d dataInStream %d selectedPathRTT %d", selectedPath.pathID, highestRate, dataInStream, highestRatePathRTT)
+	if dataInStream > 120000 {
+		utils.Debugf("\n Ninetails overflow: dataInStream %d", dataInStream)
+	}
 	if availablePathCount > 1 && dataInStream > 0 && highestRate > 0 && float64(dataInStream)/float64(highestRate)*1000.0 < float64(3*highestRatePathRTT) {
 		for pathID, pth := range s.paths {
 			if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
