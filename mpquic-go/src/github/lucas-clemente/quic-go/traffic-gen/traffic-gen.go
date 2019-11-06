@@ -263,6 +263,10 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	go func() {
 		counter := 0
 		for i := 1; time.Now().Before(endTime); i++ {
+			if isBlockingCall && send_queue.mess_list.Len() > 0 {
+				time.Sleep(time.Microsecond)
+				continue
+			}
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
@@ -274,9 +278,6 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// Get time at the moment message generated
 			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
-			if isBlockingCall && send_queue.mess_list.Len() > 0 {
-				continue
-			}
 			send_queue.mutex.Lock()
 			send_queue.mess_list.PushBack(message)
 			send_queue.mutex.Unlock()
