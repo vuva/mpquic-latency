@@ -66,9 +66,9 @@ type sentPacketHandler struct {
 
 	bytesInFlight protocol.ByteCount
 
-	congestion  congestion.SendAlgorithm
-	estimatedBW congestion.Bandwidth
-	rttStats    *congestion.RTTStats
+	congestion      congestion.SendAlgorithm
+	congestionDebug congestion.SendAlgorithmWithDebugInfo
+	rttStats        *congestion.RTTStats
 
 	onRTOCallback func(time.Time) bool
 
@@ -97,7 +97,7 @@ type sentPacketHandler struct {
 }
 
 func (h *sentPacketHandler) GetBandwidth() uint64 {
-	return uint64(h.estimatedBW)
+	return uint64(h.congestionDebug.BandwidthEstimate())
 }
 
 func (h *sentPacketHandler) GetCongestionWindow() uint64 {
