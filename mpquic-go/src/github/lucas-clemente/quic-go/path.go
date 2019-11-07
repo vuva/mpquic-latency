@@ -54,7 +54,7 @@ type path struct {
 func (p *path) setup(oliaSenders map[protocol.PathID]*congestion.OliaSender) {
 	p.rttStats = &congestion.RTTStats{}
 
-	var cong congestion.SendAlgorithm
+	var cong congestion.SendAlgorithmWithDebugInfo
 
 	if p.sess.version >= protocol.VersionMP && oliaSenders != nil && p.pathID != protocol.InitialPathID && CongestionControl != "cubic" {
 		cong = congestion.NewOliaSender(oliaSenders, p.rttStats, protocol.InitialCongestionWindow, protocol.DefaultMaxCongestionWindow)

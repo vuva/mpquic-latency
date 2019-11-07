@@ -66,9 +66,9 @@ type sentPacketHandler struct {
 
 	bytesInFlight protocol.ByteCount
 
-	congestion      congestion.SendAlgorithm
-	congestionDebug congestion.SendAlgorithmWithDebugInfo
-	rttStats        *congestion.RTTStats
+	congestion congestion.SendAlgorithmWithDebugInfo
+
+	rttStats *congestion.RTTStats
 
 	onRTOCallback func(time.Time) bool
 
@@ -97,7 +97,7 @@ type sentPacketHandler struct {
 }
 
 func (h *sentPacketHandler) GetBandwidth() uint64 {
-	return uint64(h.congestionDebug.BandwidthEstimate())
+	return uint64(h.congestion.BandwidthEstimate())
 }
 
 func (h *sentPacketHandler) GetCongestionWindow() uint64 {
@@ -109,10 +109,10 @@ func (h *sentPacketHandler) GetBytesInFlight() uint64 {
 }
 
 // NewSentPacketHandler creates a new sentPacketHandler
-func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlgorithm, onRTOCallback func(time.Time) bool,
+func NewSentPacketHandler(rttStats *congestion.RTTStats, cong congestion.SendAlgorithmWithDebugInfo, onRTOCallback func(time.Time) bool,
 	pathID protocol.PathID, onAckCallback func(protocol.PathID, protocol.PacketNumber)) SentPacketHandler {
 
-	var congestionControl congestion.SendAlgorithm
+	var congestionControl congestion.SendAlgorithmWithDebugInfo
 
 	if cong != nil {
 		congestionControl = cong
