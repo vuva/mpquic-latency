@@ -34,6 +34,9 @@ type SentPacketHandler interface {
 	GetCongestionWindow() uint64
 	GetBytesInFlight() uint64
 	RemovePacketByNumber(protocol.PacketNumber) bool
+
+	// vuva
+	GetBandwidth() uint64
 }
 
 // ReceivedPacketHandler handles ACKs needed to send for incoming packets
