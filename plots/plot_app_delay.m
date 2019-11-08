@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='C:\Work\Data\mp-quic-logs\';
+folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-10-c-120000';
+exp_name = 'app-delay-quic-c-6-c-200000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -133,7 +133,7 @@ plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
 % plotccdf(latency_ana_label, [net_latencies(2), addCell(net_latencies(2),send_latencies(2)), addCell(net_latencies(2),send_latencies(2),recv_latencies(2)), send_latencies(2)]);
 % plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(3),send_latencies(3)), addCell(net_latencies(3),send_latencies(3),recv_latencies(3)), send_latencies(3)]);
 % plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(4),send_latencies(4)), addCell(net_latencies(4),send_latencies(4),recv_latencies(4)), send_latencies(4)]);
-% plot_throughput(labels,server_dat);
+plot_throughput(labels,server_dat);
 % plot_subflows("opp",opp_pcap_dat);
 % plot_subflows("RR",rr_pcap_dat);
 % plot_subflows("tag9999999",tag0_pcap_dat);

@@ -263,7 +263,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	gen_finished := false
 
 	go func() {
-		counter := 0
+		gen_counter := 0
 		for i := 1; time.Now().Before(endTime); i++ {
 			if isBlockingCall && send_queue.mess_list.Len() > 0 {
 				time.Sleep(time.Microsecond)
@@ -273,7 +273,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
 			message, seq := generateMessage(uint(i), csize_distro, csize_value)
-			counter++
+			gen_counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
 
@@ -302,13 +302,13 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 
 		}
-		utils.Debugf("Generate total: %d messages", counter)
+		utils.Debugf("Generate total: %d messages", gen_counter)
 		gen_finished = true
 		generatingDone <- true
 	}()
 
 	go func() {
-		counter := 0
+		sent_counter := 0
 
 		for !gen_finished {
 			time.Sleep(time.Nanosecond)
@@ -328,14 +328,14 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 			}
 
-			counter++
+			sent_counter++
 			send_queue.mutex.Lock()
 
 			send_queue.mess_list.Remove(queue_font)
 			send_queue.mutex.Unlock()
 
 		}
-		utils.Debugf("Sent total: %d messages", counter)
+		utils.Debugf("Sent total: %d messages", sent_counter)
 
 		sendingDone <- true
 
@@ -474,7 +474,7 @@ func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess qu
 // wait for interarrival_time nanosecond
 func wait(interarrival_time uint) {
 	waiting_time := time.Duration(interarrival_time) * time.Nanosecond
-	// utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
+	utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
 	time.Sleep(waiting_time)
 }
 
