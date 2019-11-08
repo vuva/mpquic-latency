@@ -256,6 +256,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	// startTime := time.Now()
 	endTime := time.Now().Add(run_time_duration)
 	timeStamps := make(map[uint]uint)
+
 	// writeTime := make(map[uint]uint)
 	send_queue := MessageList{mess_list: list.New()}
 	gen_finished := false
@@ -288,9 +289,9 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// send_queue = send_queue[1:]
 
 			// utils.Debugf("SENT: %x \n", message)
-			wait_time := 1 / getRandom(arrival_distro, arrival_value)
+			wait_time := uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 			if wait_time > 0 {
-				wait(uint(wait_time*1000000000) - (uint(time.Now().UnixNano()) - timeStamps[seq]))
+				wait(wait_time)
 			}
 
 		}
