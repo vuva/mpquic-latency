@@ -276,7 +276,16 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			gen_counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
+			var wait_time uint
+			if time.Now().Before(startTime) {
+				wait_time = 1000000000
+			} else {
+				wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 
+			}
+			if wait_time > 0 {
+				wait(wait_time)
+			}
 			// Get time at the moment message generated
 			timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
@@ -289,17 +298,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// remove sent file from the queue
 			// send_queue = send_queue[1:]
 
-			// utils.Debugf("SENT: %x \n", message)
-			var wait_time uint
-			if time.Now().Before(startTime) {
-				wait_time = 1000000000
-			} else {
-				wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
-
-			}
-			if wait_time > 0 {
-				wait(wait_time)
-			}
+			utils.Debugf("PUT: %d \n", seq)
 
 		}
 		utils.Debugf("Generate total: %d messages", gen_counter)
