@@ -24,6 +24,7 @@ type packedPacket struct {
 	encryptionLevel protocol.EncryptionLevel
 }
 
+// VUVA
 type frameLogEntry struct {
 	pathID       protocol.PathID
 	pktNumber    protocol.PacketNumber
@@ -46,6 +47,7 @@ type packetPacker struct {
 	stopWaiting   map[protocol.PathID]*wire.StopWaitingFrame
 	ackFrame      map[protocol.PathID]*wire.AckFrame
 
+	// VUVA
 	frameLogs []frameLogEntry
 }
 
