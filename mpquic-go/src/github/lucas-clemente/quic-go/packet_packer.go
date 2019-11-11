@@ -411,9 +411,6 @@ func (p *packetPacker) canSendData(encLevel protocol.EncryptionLevel) bool {
 }
 
 func (p *packetPacker) LogFrameData() {
-	if p.perspective == protocol.PerspectiveServer {
-		return
-	}
 	logfile, err := os.OpenFile("sender-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
