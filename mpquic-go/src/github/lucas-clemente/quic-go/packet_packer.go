@@ -24,6 +24,15 @@ type packedPacket struct {
 	encryptionLevel protocol.EncryptionLevel
 }
 
+type frameLogEntry struct {
+	pathID       protocol.PathID
+	pktNumber    protocol.PacketNumber
+	streamID     protocol.StreamID
+	streamOffset protocol.ByteCount
+	messageID    uint
+	timestamp    uint
+}
+
 type packetPacker struct {
 	connectionID protocol.ConnectionID
 	perspective  protocol.Perspective
@@ -36,6 +45,8 @@ type packetPacker struct {
 	controlFrames []wire.Frame
 	stopWaiting   map[protocol.PathID]*wire.StopWaitingFrame
 	ackFrame      map[protocol.PathID]*wire.AckFrame
+
+	frameLogs []frameLogEntry
 }
 
 func newPacketPacker(connectionID protocol.ConnectionID,
@@ -344,17 +355,25 @@ func (p *packetPacker) writeAndSealPacket(
 		if frameByte[0]&0x80 == 0x80 && p.perspective == protocol.PerspectiveClient {
 			streamFrame, _ := wire.ParseStreamFrame(bytes.NewReader(frameByte), p.version)
 
-			logfile, err := os.OpenFile("sender-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			// logfile, err := os.OpenFile("sender-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
-			if err != nil {
-				panic("cannot create logfile!!")
-			}
+			// if err != nil {
+			// 	panic("cannot create logfile!!")
+			// }
 
-			defer logfile.Close()
+			// defer logfile.Close()
 			// utils.Debugf("\n path: %d, pk: %d, frame: %x", pth.pathID, publicHeader.PacketNumber, frameByte[4:8])
 			if streamFrame.DataLen() > 8 {
-				io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %d %d\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])), uint(time.Now().UnixNano())))
-
+				// io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %d %d\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])), uint(time.Now().UnixNano())))
+				frameData := frameLogEntry{
+					pathID:       pth.pathID,
+					pktNumber:    publicHeader.PacketNumber,
+					streamOffset: streamFrame.Offset,
+					streamID:     streamFrame.StreamID,
+					messageID:    uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])),
+					timestamp:    uint(time.Now().Nanosecond()),
+				}
+				p.frameLogs = append(p.frameLogs, frameData)
 			}
 
 		}
@@ -386,4 +405,18 @@ func (p *packetPacker) canSendData(encLevel protocol.EncryptionLevel) bool {
 		return encLevel >= protocol.EncryptionSecure
 	}
 	return encLevel == protocol.EncryptionForwardSecure
+}
+
+func (p *packetPacker) LogFrameData() {
+	logfile, err := os.OpenFile("sender-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+
+	if err != nil {
+		panic("cannot create logfile!!")
+	}
+
+	defer logfile.Close()
+	for _, frameData := range p.frameLogs {
+
+		io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %d %d\n", frameData.pathID, frameData.pktNumber, frameData.streamID, frameData.streamOffset, frameData.messageID, frameData.timestamp))
+	}
 }
