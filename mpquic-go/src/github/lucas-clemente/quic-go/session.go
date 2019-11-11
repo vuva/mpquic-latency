@@ -23,6 +23,7 @@ import (
 
 type unpacker interface {
 	Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeader, data []byte) (*unpackedPacket, error)
+	LogFrameData()
 }
 
 type receivedPacket struct {
@@ -761,8 +762,13 @@ func (s *session) closeRemote(e error) {
 func (s *session) Close(e error) error {
 	s.closeLocal(e)
 	<-s.ctx.Done()
+	if s.perspective == protocol.PerspectiveClient {
+		s.packer.LogFrameData()
 
-	s.packer.LogFrameData()
+	} else if s.perspective == protocol.PerspectiveServer {
+		s.unpacker.LogFrameData()
+
+	}
 	return nil
 }
 
