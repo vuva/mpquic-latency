@@ -473,7 +473,7 @@ func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess qu
 // wait for interarrival_time nanosecond
 func wait(interarrival_time uint) {
 	waiting_time := time.Duration(interarrival_time) * time.Nanosecond
-	utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
+	// utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
 	time.Sleep(waiting_time)
 }
 
