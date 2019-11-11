@@ -775,6 +775,7 @@ func (s *session) Close(e error) error {
 func (s *session) handleCloseError(closeErr closeError) error {
 	if closeErr.err == nil {
 		closeErr.err = qerr.PeerGoingAway
+		s.unpacker.LogFrameData()
 	}
 
 	var quicErr *qerr.QuicError
