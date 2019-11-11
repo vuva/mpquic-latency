@@ -1,15 +1,15 @@
 %% ====== SET PARAMS ==========
-k=2;
-n=2;
+k=1;
+n=1;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-10-c-120000';
+exp_name = 'app-delay-quic-c-6-c-200000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
 HAS_PCAP = false;
-HAS_FRAME_LOG = false;
+HAS_FRAME_LOG = true;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
@@ -109,8 +109,8 @@ for j = 1:length(scheds)
         %         eval(['sched_net_latency = vertcat(sched_net_latency,10^3*(' sched '_pcap_dat(:,7) - ' sched '_pcap_dat(:,6)));']);
 
         eval(['sched_app_latency = vertcat(sched_app_latency,' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,2));']);
-%         eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
-%         eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,2));']);
+        eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
+        eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,2));']);
 %         eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
         
 

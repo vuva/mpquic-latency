@@ -22,7 +22,7 @@ var (
 	// CongestionControl can be set to 'olia' or 'cubic', default is uncoupled Cubic
 	CongestionControl string
 	// LogPayload indicates if send goodput Bytes should be logged to file
-	LogPayload = false
+	LogPayload = true
 )
 
 // SetSchedulerAlgorithm is used to adapt the scheduler

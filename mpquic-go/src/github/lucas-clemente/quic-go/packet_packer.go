@@ -2,13 +2,12 @@ package quic
 
 import (
 	"bytes"
-	// "encoding/binary"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
 	"os"
-
-	// "time"
+	"time"
 
 	"github.com/lucas-clemente/quic-go/ackhandler"
 	"github.com/lucas-clemente/quic-go/internal/handshake"
@@ -368,15 +367,15 @@ func (p *packetPacker) writeAndSealPacket(
 			// utils.Debugf("\n path: %d, pk: %d, frame: %x", pth.pathID, publicHeader.PacketNumber, frameByte[4:8])
 			if streamFrame.DataLen() > 8 {
 				// io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %d %d\n", pth.pathID, publicHeader.PacketNumber, streamFrame.StreamID, streamFrame.Offset, uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])), uint(time.Now().UnixNano())))
-				// frameData := frameLogEntry{
-				// 	pathID:       pth.pathID,
-				// 	pktNumber:    publicHeader.PacketNumber,
-				// 	streamOffset: streamFrame.Offset,
-				// 	streamID:     streamFrame.StreamID,
-				// 	messageID:    uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])),
-				// 	timestamp:    uint(time.Now().Nanosecond()),
-				// }
-				// p.frameLogs = append(p.frameLogs, frameData)
+				frameData := frameLogEntry{
+					pathID:       pth.pathID,
+					pktNumber:    publicHeader.PacketNumber,
+					streamOffset: streamFrame.Offset,
+					streamID:     streamFrame.StreamID,
+					messageID:    uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])),
+					timestamp:    uint(time.Now().Nanosecond()),
+				}
+				p.frameLogs = append(p.frameLogs, frameData)
 			}
 
 		}
