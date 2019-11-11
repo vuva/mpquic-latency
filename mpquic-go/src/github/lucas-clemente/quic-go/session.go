@@ -532,10 +532,10 @@ func (s *session) handleFrames(fs []wire.Frame, p *path, rcvTime time.Time) erro
 					s.logLatFile, _ = os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 				}
 
-				logLine := strconv.FormatUint(uint64(frame.StreamID), 10) + ";" +
-					strconv.FormatUint(uint64(frame.Offset), 10) + ";" +
-					strconv.FormatInt(rcvTime.UnixNano(), 10) + "\n"
-				s.logLatFile.WriteString(logLine)
+				// logLine := strconv.FormatUint(uint64(frame.StreamID), 10) + ";" +
+				// 	strconv.FormatUint(uint64(frame.Offset), 10) + ";" +
+				// 	strconv.FormatInt(rcvTime.UnixNano(), 10) + "\n"
+				// s.logLatFile.WriteString(logLine)
 			}
 		case *wire.AckFrame:
 			err = s.handleAckFrame(frame)
@@ -829,7 +829,7 @@ func (s *session) sendPackedPacket(packet *packedPacket, pth *path) error {
 	}
 	pth.sentPacket <- struct{}{}
 
-	s.logPacket(packet, pth.pathID)
+	// s.logPacket(packet, pth.pathID)
 	return pth.conn.Write(packet.raw)
 }
 
@@ -842,7 +842,7 @@ func (s *session) sendConnectionClose(quicErr *qerr.QuicError) error {
 	if err != nil {
 		return err
 	}
-	s.logPacket(packet, protocol.InitialPathID)
+	// s.logPacket(packet, protocol.InitialPathID)
 	// XXX (QDC): seems reasonable to send on pathID 0, but this can change
 	return s.paths[protocol.InitialPathID].conn.Write(packet.raw)
 }

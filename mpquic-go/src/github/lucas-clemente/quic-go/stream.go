@@ -6,7 +6,8 @@ import (
 	"io"
 	"net"
 	"os"
-	"strconv"
+
+	// "strconv"
 	"sync"
 	"time"
 
@@ -159,13 +160,13 @@ func (s *stream) Read(p []byte) (int, error) {
 		s.mutex.Unlock()
 
 		// Log that frame was read
-		if frame != nil {
-			readTime := time.Now().UnixNano()
-			logLine := strconv.FormatUint(uint64(frame.StreamID), 10) + ";" +
-				strconv.FormatUint(uint64(frame.Offset), 10) + ";" +
-				strconv.FormatInt(readTime, 10) + "\n"
-			s.logBufferFile.WriteString(logLine)
-		}
+		// if frame != nil {
+		// 	readTime := time.Now().UnixNano()
+		// 	logLine := strconv.FormatUint(uint64(frame.StreamID), 10) + ";" +
+		// 		strconv.FormatUint(uint64(frame.Offset), 10) + ";" +
+		// 		strconv.FormatInt(readTime, 10) + "\n"
+		// 	s.logBufferFile.WriteString(logLine)
+		// }
 
 		if err != nil {
 			return bytesRead, err
