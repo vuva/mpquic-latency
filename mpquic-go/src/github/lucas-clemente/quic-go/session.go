@@ -822,7 +822,7 @@ func (s *session) sendPackedPacket(packet *packedPacket, pth *path) error {
 	}
 	pth.sentPacket <- struct{}{}
 
-	s.logPacket(packet, pth.pathID)
+	// s.logPacket(packet, pth.pathID)
 	return pth.conn.Write(packet.raw)
 }
 

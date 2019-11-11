@@ -298,7 +298,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// remove sent file from the queue
 			// send_queue = send_queue[1:]
 
-			utils.Debugf("PUT: %d \n", seq)
+			// utils.Debugf("PUT: %d \n", seq)
 
 		}
 		utils.Debugf("Generate total: %d messages", gen_counter)
