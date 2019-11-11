@@ -360,11 +360,14 @@ func startQUICServer(addr string, isMultipath bool) error {
 	if err != nil {
 		return err
 	}
+	defer sess.Close(err)
+
 	stream, err := sess.AcceptStream()
 	if err != nil {
 		panic(err)
 	}
 	defer stream.Close()
+
 	// defer sess.Close(nil)
 
 	// Echo through the loggingWriter
