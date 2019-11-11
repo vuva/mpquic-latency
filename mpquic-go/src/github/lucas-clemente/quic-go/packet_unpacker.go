@@ -68,13 +68,13 @@ func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeade
 			}
 			// VUVA: log received frame
 			streamFrame := frame.(*wire.StreamFrame)
-			logfile, err := os.OpenFile("receiver-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			// logfile, err := os.OpenFile("receiver-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
-			if err != nil {
-				panic("cannot create logfile!!")
-			}
+			// if err != nil {
+			// 	panic("cannot create logfile!!")
+			// }
 
-			defer logfile.Close()
+			// defer logfile.Close()
 			if streamFrame.DataLen() > 8 {
 				// io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %d %d\n", hdr.PathID, hdr.PacketNumber, streamFrame.StreamID, streamFrame.Offset, uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])), uint(time.Now().UnixNano())))
 				frameData := frameLogEntry{
