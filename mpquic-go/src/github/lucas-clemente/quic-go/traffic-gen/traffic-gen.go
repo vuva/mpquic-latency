@@ -356,13 +356,13 @@ func startQUICServer(addr string, isMultipath bool) error {
 	if err != nil {
 		return err
 	}
-	go sess, err := listener.Accept()
+	sess, err := listener.Accept()
 	if err != nil {
 		return err
 	}
 	defer sess.Close(err)
 
-	go stream, err := sess.AcceptStream()
+	stream, err := sess.AcceptStream()
 	if err != nil {
 		panic(err)
 	}
