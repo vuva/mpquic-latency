@@ -30,7 +30,7 @@ func SetSchedulerAlgorithm(scheduler string) {
 	s := make([]byte, len(scheduler))
 	copy(s, scheduler)
 	SchedulerAlgorithm = string(s)
-	RedundantSending = SchedulerAlgorithm == "oppRedundant" || SchedulerAlgorithm == "utilRepair"
+	RedundantSending = SchedulerAlgorithm == "oppRedundant" || SchedulerAlgorithm == "utilRepair" || SchedulerAlgorithm == "nineTails"
 }
 
 // SetCongestionControl is used to set the CC algorithm
