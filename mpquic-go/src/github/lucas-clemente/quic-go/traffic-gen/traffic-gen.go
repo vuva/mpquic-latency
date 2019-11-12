@@ -513,9 +513,6 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	if csize < 8 {
 		csize = 8
 	}
-	if csize > 1000000 {
-		csize = 1000000
-	}
 
 	pseudo_payload := make([]byte, (csize - 8))
 	for i := 0; i < len(pseudo_payload); i++ {
