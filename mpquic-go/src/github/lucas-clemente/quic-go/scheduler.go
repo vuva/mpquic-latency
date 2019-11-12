@@ -393,7 +393,7 @@ pathLoop:
 func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 
 	var selectedPath *path
-	var highestRatePath *path
+	// var highestRatePath *path
 	var lowestRTTPath *path
 
 	highestRate := uint64(0)
@@ -466,14 +466,14 @@ pathLoop:
 		}
 
 		if rate >= highestRate {
-			highestRatePath = pth
+			// highestRatePath = pth
 			highestRate = rate
 			highestRatePathRTT = currentRTT
 		}
 
 	}
+
 	selectedPath = lowestRTTPath
-	selectedPath = highestRatePath
 	if selectedPath == nil {
 		return nil
 	}
