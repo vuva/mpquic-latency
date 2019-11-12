@@ -2,12 +2,13 @@ package quic
 
 import (
 	"bytes"
-	"encoding/binary"
+	// "encoding/binary"
 	"errors"
 	"fmt"
 	"io"
 	"os"
-	"time"
+
+	// "time"
 
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/wire"
@@ -77,15 +78,15 @@ func (u *packetUnpacker) Unpack(publicHeaderBinary []byte, hdr *wire.PublicHeade
 			// defer logfile.Close()
 			if streamFrame.DataLen() > 8 {
 				// io.WriteString(logfile, fmt.Sprintf("%d %d %d %d %d %d\n", hdr.PathID, hdr.PacketNumber, streamFrame.StreamID, streamFrame.Offset, uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])), uint(time.Now().UnixNano())))
-				frameData := frameLogEntry{
-					pathID:       hdr.PathID,
-					pktNumber:    hdr.PacketNumber,
-					streamOffset: streamFrame.Offset,
-					streamID:     streamFrame.StreamID,
-					messageID:    uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])),
-					timestamp:    uint(time.Now().Nanosecond()),
-				}
-				u.frameLogs = append(u.frameLogs, frameData)
+				// frameData := frameLogEntry{
+				// 	pathID:       hdr.PathID,
+				// 	pktNumber:    hdr.PacketNumber,
+				// 	streamOffset: streamFrame.Offset,
+				// 	streamID:     streamFrame.StreamID,
+				// 	messageID:    uint(binary.BigEndian.Uint32(streamFrame.Data[0:4])),
+				// 	timestamp:    uint(time.Now().Nanosecond()),
+				// }
+				// u.frameLogs = append(u.frameLogs, frameData)
 			}
 			// END VUVA
 		} else if typeByte&0xc0 == 0x40 {
