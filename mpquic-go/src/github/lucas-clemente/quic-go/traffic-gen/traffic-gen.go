@@ -489,6 +489,9 @@ func getRandom(distro string, value float64) float64 {
 		retVal = rand.ExpFloat64() * value
 	case "g":
 		retVal = rand.NormFloat64()*value/3 + value
+		if retVal > value*2 {
+			retVal = value * 2
+		}
 	case "b":
 
 	case "wei":
@@ -512,9 +515,6 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	csize = csize - csize%2
 	if csize < 8 {
 		csize = 8
-	}
-	if csize > 1000000 {
-		csize = 1000000
 	}
 
 	pseudo_payload := make([]byte, (csize - 8))

@@ -480,7 +480,7 @@ pathLoop:
 	// selectedPathRate := selectedPath.rttStats.GetSendRate()
 	// selectedPathRTT := selectedPath.rttStats.SmoothedRTT()
 	// check if we should send redundantly
-	utils.Debugf("\n Ninetails: selectedPathID %d highestRate %d dataInStream %d highPathRTT %d selectedPathRTT %d", selectedPath.pathID, highestRate, dataInStream, highestRatePath, selectedPath)
+	utils.Debugf("\n Ninetails: selectedPathID %d highestRate %d dataInStream %d highPathRTT %d selectedPathRTT %d", selectedPath.pathID, highestRate, dataInStream, highestRatePath.pathID, selectedPath.pathID)
 	// if dataInStream ==Ninetails overflow 120000 {
 	// 	utils.Debugf("\n Ninetails overflow: dataInStream %d", dataInStream)
 	// }
