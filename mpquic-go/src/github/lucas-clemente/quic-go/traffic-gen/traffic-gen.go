@@ -489,6 +489,9 @@ func getRandom(distro string, value float64) float64 {
 		retVal = rand.ExpFloat64() * value
 	case "g":
 		retVal = rand.NormFloat64()*value/3 + value
+		if retVal > 2*value {
+			retVal = 2 * value
+		}
 	case "b":
 
 	case "wei":
