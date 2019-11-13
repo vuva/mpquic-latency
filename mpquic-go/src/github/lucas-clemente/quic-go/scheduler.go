@@ -30,7 +30,7 @@ func SetSchedulerAlgorithm(scheduler string) {
 	s := make([]byte, len(scheduler))
 	copy(s, scheduler)
 	SchedulerAlgorithm = string(s)
-	RedundantSending = SchedulerAlgorithm == "oppRedundant" || SchedulerAlgorithm == "utilRepair"
+	RedundantSending = SchedulerAlgorithm == "oppRedundant" || SchedulerAlgorithm == "utilRepair" || SchedulerAlgorithm == "nineTails"
 }
 
 // SetCongestionControl is used to set the CC algorithm
@@ -480,7 +480,7 @@ pathLoop:
 	// selectedPathRate := selectedPath.rttStats.GetSendRate()
 	// selectedPathRTT := selectedPath.rttStats.SmoothedRTT()
 	// check if we should send redundantly
-	utils.Debugf("\n Ninetails: selectedPathID %d highestRate %d dataInStream %d selectedPathRTT %d", selectedPath.pathID, highestRate, dataInStream, highestRatePathRTT)
+	utils.Debugf("\n Ninetails: selectedPathID %d highestRate %d dataInStream %d selectedPathRTT %d", selectedPath.pathID, highestRate, dataInStream, selectedPath.pathID)
 	// if dataInStream ==Ninetails overflow 120000 {
 	// 	utils.Debugf("\n Ninetails overflow: dataInStream %d", dataInStream)
 	// }

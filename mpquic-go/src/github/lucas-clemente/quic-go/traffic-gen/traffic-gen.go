@@ -519,7 +519,7 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	if csize < 12 {
 		csize = 12
 	}
-	utils.Debugf("Message size %d \n ", csize)
+	// utils.Debugf("Message size %d \n ", csize)
 	pseudo_payload := make([]byte, (csize - 8))
 	for i := 0; i < len(pseudo_payload); i++ {
 		pseudo_payload[i] = 0x01
