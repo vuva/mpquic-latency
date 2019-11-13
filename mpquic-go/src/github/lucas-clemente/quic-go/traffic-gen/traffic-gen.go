@@ -516,7 +516,7 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	if csize < 8 {
 		csize = 8
 	}
-
+	utils.Debugf("Message size %d \n ", csize)
 	pseudo_payload := make([]byte, (csize - 8))
 	for i := 0; i < len(pseudo_payload); i++ {
 		pseudo_payload[i] = 0x01
@@ -525,7 +525,7 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	message := append(seq_header, pseudo_payload...)
 	//	message = append(message, seq_header...)
 	message = append(message, eoc_header...)
-	utils.Debugf("Message size %d \n ", csize)
+
 	return message, seq_no
 }
 
