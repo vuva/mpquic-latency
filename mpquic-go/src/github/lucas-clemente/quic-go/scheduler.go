@@ -487,7 +487,7 @@ pathLoop:
 	if availablePathCount > 1 && dataInStream > 0 && highestRate > 0 && float64(dataInStream)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2) {
 		for pathID, pth := range s.paths {
 			if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
-				utils.Debugf("\n Ninetails: redundant %d %f<3*%d pathID %d", dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, pathID)
+				utils.Debugf("\n Ninetails: redundant datainstrem %d with %f < %d + %d/2 pathID %d", dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, pathID)
 				sch.redundantPaths = append(sch.redundantPaths, pth)
 
 			}
