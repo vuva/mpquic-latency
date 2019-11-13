@@ -509,7 +509,7 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	seq_header := intToBytes(uint(seq_no), 4)
 	eoc_header := intToBytes(uint(BASE_SEQ_NO-1), 4)
 
-	csize := uint(getRandom(csize_distro, csize_value))
+	csize := uint64(getRandom(csize_distro, csize_value))
 	//chunk size must be a factor of 4 to avoid EOL fragmenting
 	// Temporary set to a factor of 4 to match QUIC MTU 1350byte
 	csize = csize - csize%2
@@ -525,7 +525,7 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	message := append(seq_header, pseudo_payload...)
 	//	message = append(message, seq_header...)
 	message = append(message, eoc_header...)
-	utils.Debugf("Message size %d: %x \n ", uint(csize), message)
+	utils.Debugf("Message size %d \n ", csize)
 	return message, seq_no
 }
 
