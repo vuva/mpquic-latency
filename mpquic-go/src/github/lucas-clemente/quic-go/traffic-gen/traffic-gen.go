@@ -491,7 +491,10 @@ func getRandom(distro string, value float64) float64 {
 		retVal = rand.NormFloat64()*value/3 + value
 		if retVal > 2*value {
 			retVal = 2 * value
+		} else if retVal < 0 {
+			retVal = 0
 		}
+
 	case "b":
 
 	case "wei":
@@ -513,8 +516,8 @@ func generateMessage(offset_seq uint, csize_distro string, csize_value float64) 
 	//chunk size must be a factor of 4 to avoid EOL fragmenting
 	// Temporary set to a factor of 4 to match QUIC MTU 1350byte
 	csize = csize - csize%2
-	if csize < 8 {
-		csize = 8
+	if csize < 12 {
+		csize = 12
 	}
 	utils.Debugf("Message size %d \n ", csize)
 	pseudo_payload := make([]byte, (csize - 8))
