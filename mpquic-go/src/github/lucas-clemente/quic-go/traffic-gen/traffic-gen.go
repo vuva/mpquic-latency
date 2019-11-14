@@ -272,21 +272,11 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-			message, seq := generateMessage(uint(i), csize_distro, csize_value)
+			message, _ := generateMessage(uint(i), csize_distro, csize_value)
 			gen_counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
-			var wait_time uint
-			if time.Now().Before(startTime) {
-				wait_time = 1000000000
-			} else {
-				wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
-				// wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 
-			}
-			if wait_time > 0 {
-				wait(wait_time)
-			}
 			// Get time at the moment message generated
 			// timeStamps[seq] = uint(time.Now().UnixNano())
 			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
@@ -333,6 +323,18 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 			send_queue.mess_list.Remove(queue_font)
 			send_queue.mutex.Unlock()
+
+			var wait_time uint
+			if time.Now().Before(startTime) {
+				wait_time = 1000000000
+			} else {
+				wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[bytesToInt(message[0:4])])
+				// wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
+
+			}
+			if wait_time > 0 {
+				wait(wait_time)
+			}
 
 		}
 		utils.Debugf("Sent total: %d messages", sent_counter)
