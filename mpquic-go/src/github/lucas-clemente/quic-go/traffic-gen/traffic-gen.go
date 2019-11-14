@@ -281,6 +281,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				wait_time = 1000000000
 			} else {
 				wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
+				// wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 
 			}
 			if wait_time > 0 {
@@ -476,7 +477,7 @@ func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess qu
 // wait for interarrival_time nanosecond
 func wait(interarrival_time uint) {
 	waiting_time := time.Duration(interarrival_time) * time.Nanosecond
-	// utils.Debugf("wait for %d ms \n", waiting_time.Nanoseconds()/1000000)
+	utils.Debugf("wait for %d ns \n", waiting_time.Nanoseconds())
 	time.Sleep(waiting_time)
 }
 

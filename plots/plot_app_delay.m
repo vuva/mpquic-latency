@@ -4,7 +4,7 @@ n=1;
 folder='C:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-mptcp-c-5-c-200000';
+exp_name = 'app-delay-quic-c-1-c-200000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
