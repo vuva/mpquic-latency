@@ -200,13 +200,13 @@ func (p *path) handlePacketImpl(pkt *receivedPacket) error {
 	)
 
 	packet, err := p.sess.unpacker.Unpack(hdr.Raw, hdr, data)
-	if utils.Debug() {
-		if err != nil {
-			utils.Debugf("<- Reading packet 0x%x (%d bytes) for connection %x on path %x", hdr.PacketNumber, len(data)+len(hdr.Raw), hdr.ConnectionID, p.pathID)
-		} else {
-			utils.Debugf("<- Reading packet 0x%x (%d bytes) for connection %x on path %x, %s", hdr.PacketNumber, len(data)+len(hdr.Raw), hdr.ConnectionID, p.pathID, packet.encryptionLevel)
-		}
-	}
+	// if utils.Debug() {
+	// 	if err != nil {
+	// 		utils.Debugf("<- Reading packet 0x%x (%d bytes) for connection %x on path %x", hdr.PacketNumber, len(data)+len(hdr.Raw), hdr.ConnectionID, p.pathID)
+	// 	} else {
+	// 		utils.Debugf("<- Reading packet 0x%x (%d bytes) for connection %x on path %x, %s", hdr.PacketNumber, len(data)+len(hdr.Raw), hdr.ConnectionID, p.pathID, packet.encryptionLevel)
+	// 	}
+	// }
 
 	// if the decryption failed, this might be a packet sent by an attacker
 	// don't update the remote address
