@@ -418,20 +418,12 @@ func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, h
 	availablePathCount := 0
 pathLoop:
 	for pathID, pth := range s.paths {
-		// Don't block path usage if we retransmit, even on another path
-		// DERA: Only consider paths, that have space in their cwnd for 'new' packets.
-		//		 Or consider all valid paths for outstanding retransmissions.
-		if !hasRetransmission && !pth.SendingAllowed() {
-			continue pathLoop
-		}
-
-		// If this path is potentially failed, do no consider it for sending
-		if pth.potentiallyFailed.Get() {
-			continue pathLoop
-		}
-
 		// XXX Prevent using initial pathID if multiple paths
 		if pathID == protocol.InitialPathID {
+			continue pathLoop
+		}
+		// If this path is potentially failed, do no consider it for sending
+		if pth.potentiallyFailed.Get() {
 			continue pathLoop
 		}
 
@@ -443,6 +435,20 @@ pathLoop:
 			rate = pth.rttStats.GetSendRate()
 			// rate = pth.sentPacketHandler.GetCongestionWindow()/
 		}
+
+		if rate >= highestRate {
+			highestRatePath = pth
+			highestRate = rate
+			highestRatePathRTT = currentRTT
+		}
+
+		// Don't block path usage if we retransmit, even on another path
+		// DERA: Only consider paths, that have space in their cwnd for 'new' packets.
+		//		 Or consider all valid paths for outstanding retransmissions.
+		if !hasRetransmission && !pth.SendingAllowed() {
+			continue pathLoop
+		}
+
 		availablePathCount++
 		// utils.Debugf("\n Ninetails: pathID %d rate %d RTT %dms quota %d", pathID, rate, currentRTT, sch.quotas[pathID])
 		// if lowestRTT != 0 && currentRTT == 0 {
@@ -467,12 +473,6 @@ pathLoop:
 			lowestRTT = currentRTT
 		}
 
-		if rate >= highestRate {
-			highestRatePath = pth
-			highestRate = rate
-			highestRatePathRTT = currentRTT
-		}
-
 	}
 
 	selectedPath = lowestRTTPath
@@ -483,21 +483,28 @@ pathLoop:
 	// check if we should send redundantly
 	shouldRedundant := false
 	if highestRate != 0 {
-		shouldRedundant = availablePathCount > 1 && float64(dataInStream)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2)
-		utils.Debugf("\n Ninetails: selectedPathID %d availablepaths %d \n highestRatepath %d = %d Byte, %d ms; \n lowRTTpath %d = %d Byte, %d ms \n dataleftinstream %d with %f < %d + %d/2 ,shouldRedundant %t", selectedPath.pathID, availablePathCount, highestRatePath.pathID, highestRate, highestRatePathRTT, lowestRTTPath.pathID, lowestRTTPathRate, lowestRTT, dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, shouldRedundant)
-	} else {
-		utils.Debugf("\n Ninetails: highestRate = 0")
-		// return nil
-	}
+		shouldRedundant = float64(dataInStream)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2)
+		utils.Debugf("\n Ninetails: selectedPathID %d availablepaths %d \n highestRatepath %d = %d Byte, %d ms; \n lowRTTpath %d = %d Byte, %d ms \n dataleftinstream %d with %f >< %d + %d/2 ,shouldRedundant %t", selectedPath.pathID, availablePathCount, highestRatePath.pathID, highestRate, highestRatePathRTT, lowestRTTPath.pathID, lowestRTTPathRate, lowestRTT, dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, shouldRedundant)
+		if dataInStream > 0 && shouldRedundant {
+			if availablePathCount == 1 && selectedPath.pathID == lowestRTTPath.pathID {
+				utils.Debugf("\n Ninetails: shortlink waiting")
+				return nil
+			} else if availablePathCount == 1 && selectedPath.pathID == highestRatePath.pathID {
 
-	if availablePathCount > 1 && dataInStream > 0 && shouldRedundant {
-		for pathID, pth := range s.paths {
-			if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
-				sch.redundantPaths = append(sch.redundantPaths, pth)
-				utils.Debugf("\n Ninetails: redundant send on path %d", pathID)
+			} else {
+				for pathID, pth := range s.paths {
+					if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
+						sch.redundantPaths = append(sch.redundantPaths, pth)
+						utils.Debugf("\n Ninetails: redundant send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
+
+					}
+				}
 
 			}
 		}
+	} else {
+		utils.Debugf("\n Ninetails: highestRate = 0")
+		// return nil
 	}
 
 	return selectedPath
