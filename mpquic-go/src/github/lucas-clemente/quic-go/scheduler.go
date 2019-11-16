@@ -483,9 +483,12 @@ pathLoop:
 	// check if we should send redundantly
 	shouldRedundant := false
 	if highestRate != 0 {
-		shouldRedundant = float64(dataInStream)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2)
+		shouldRedundant = availablePathCount > 1 && float64(dataInStream)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2)
+		utils.Debugf("\n Ninetails: selectedPathID %d availablepaths %d \n highestRatepath %d = %d Byte, %d ms; \n lowRTTpath %d = %d Byte, %d ms \n dataleftinstream %d with %f < %d + %d/2 ,shouldRedundant %t", selectedPath.pathID, availablePathCount, highestRatePath.pathID, highestRate, highestRatePathRTT, lowestRTTPath.pathID, lowestRTTPathRate, lowestRTT, dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, shouldRedundant)
+	} else {
+		utils.Debugf("\n Ninetails: highestRate = 0, return nil")
+		return nil
 	}
-	utils.Debugf("\n Ninetails: selectedPathID %d availablepaths %d \n highestRatepath %d = %d Byte, %d ms; \n lowRTTpath %d = %d Byte, %d ms \n dataleftinstream %d with %f < %d + %d/2 ,shouldRedundant %d", selectedPath.pathID, availablePathCount, highestRatePath.pathID, highestRate, highestRatePathRTT, lowestRTTPath.pathID, lowestRTTPathRate, lowestRTT, dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, shouldRedundant)
 
 	if availablePathCount > 1 && dataInStream > 0 && shouldRedundant {
 		for pathID, pth := range s.paths {
