@@ -486,20 +486,16 @@ pathLoop:
 		shouldRedundant = float64(dataInStream)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2)
 		utils.Debugf("\n Ninetails: selectedPathID %d availablepaths %d \n highestRatepath %d = %d Byte, %d ms; \n lowRTTpath %d = %d Byte, %d ms \n dataleftinstream %d with %f >< %d + %d/2 ,shouldRedundant %t", selectedPath.pathID, availablePathCount, highestRatePath.pathID, highestRate, highestRatePathRTT, lowestRTTPath.pathID, lowestRTTPathRate, lowestRTT, dataInStream, float64(dataInStream)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, shouldRedundant)
 		if dataInStream > 0 && shouldRedundant {
-			if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && selectedPath.SendingAllowedWithReserved() {
-				utils.Debugf("\n Ninetails: shortlink waiting")
-				return nil
-			} else if availablePathCount == 1 && selectedPath.pathID == highestRatePath.pathID {
-
-			} else {
+			if availablePathCount > 1 {
 				for pathID, pth := range s.paths {
 					if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
 						sch.redundantPaths = append(sch.redundantPaths, pth)
 						utils.Debugf("\n Ninetails: redundant send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
-
 					}
 				}
-
+			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved() {
+				utils.Debugf("\n Ninetails: shortlink waiting")
+				return nil
 			}
 		}
 	} else {
