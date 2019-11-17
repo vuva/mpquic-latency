@@ -427,13 +427,13 @@ pathLoop:
 			continue pathLoop
 		}
 
-		// cw := pth.sentPacketHandler.GetCongestionWindow()
+		cw := pth.sentPacketHandler.GetCongestionWindow()
 		currentRTT := uint64(pth.rttStats.SmoothedRTT().Nanoseconds() / 1000000)
 		rate := uint64(0)
 		if currentRTT > 0 {
-			// rate = cw * 8 * 1000 / currentRTT
-			rate = pth.rttStats.GetSendRate()
-			// rate = pth.sentPacketHandler.GetCongestionWindow()/
+			rate = cw * 8 * 1000 / currentRTT
+			// rate = pth.rttStats.GetSendRate()
+
 		}
 
 		if rate >= highestRate {
