@@ -551,6 +551,22 @@ func (h *sentPacketHandler) SendingAllowed() bool {
 	return !maxTrackedLimited && (!congestionLimited || haveRetransmissions)
 }
 
+//VUVA Ninetails
+func (h *sentPacketHandler) SendingAllowedWithReserved() bool {
+	congestionLimited := h.bytesInFlight > h.congestion.GetCongestionWindow()-2*protocol.MaxPacketSize
+	maxTrackedLimited := protocol.PacketNumber(len(h.retransmissionQueue)+h.packetHistory.Len()) >= protocol.MaxTrackedSentPackets
+	if congestionLimited {
+		utils.Debugf("Congestion limited path %d: bytes in flight %d, windows %d RTT %d",
+			h.pathID, h.bytesInFlight,
+			h.congestion.GetCongestionWindow(), h.rttStats.SmoothedRTT())
+	}
+	// Workaround for #555:
+	// Always allow sending of retransmissions. This should probably be limited
+	// to RTOs, but we currently don't have a nice way of distinguishing them.
+	haveRetransmissions := len(h.retransmissionQueue) > 0
+	return !maxTrackedLimited && (!congestionLimited || haveRetransmissions)
+}
+
 func (h *sentPacketHandler) CongestionFree() bool {
 
 	congestionLimited := h.bytesInFlight > h.congestion.GetCongestionWindow()

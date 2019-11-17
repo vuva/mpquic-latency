@@ -128,6 +128,11 @@ func (p *path) SendingAllowed() bool {
 	return p.open.Get() && p.sentPacketHandler.SendingAllowed()
 }
 
+//VUVA Ninetails
+func (p *path) SendingAllowedWithReserved() bool {
+	return p.open.Get() && p.sentPacketHandler.SendingAllowedWithReserved()
+}
+
 func (p *path) GetStopWaitingFrame(force bool) *wire.StopWaitingFrame {
 	return p.sentPacketHandler.GetStopWaitingFrame(force)
 }
