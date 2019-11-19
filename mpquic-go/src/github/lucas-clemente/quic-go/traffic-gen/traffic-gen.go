@@ -272,17 +272,34 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-			message, _ := generateMessage(uint(i), csize_distro, csize_value)
+			message, seq := generateMessage(uint(i), csize_distro, csize_value)
 			gen_counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
 
-			// Get time at the moment message generated
-			// timeStamps[seq] = uint(time.Now().UnixNano())
-			// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+			if !isBlockingCall {
+				// Get time at the moment message generated
+				timeStamps[seq] = uint(time.Now().UnixNano())
+				// utils.Debugf("Messages in queue: %d \n", len(send_queue))
+
+			}
 			send_queue.mutex.Lock()
 			send_queue.mess_list.PushBack(message)
 			send_queue.mutex.Unlock()
+
+			if !isBlockingCall {
+				var wait_time uint
+				if time.Now().Before(startTime) {
+					wait_time = 1000000000
+				} else {
+
+					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq])
+
+				}
+				if wait_time > 0 {
+					wait(wait_time)
+				}
+			}
 
 			// writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
@@ -307,8 +324,11 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 			queue_font := send_queue.mess_list.Front()
 			message, _ := queue_font.Value.([]byte)
-			// Get time at the moment message put in stream
-			timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
+
+			if isBlockingCall {
+				// Get time at the moment message put in stream
+				timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
+			}
 
 			if protocol == "quic" {
 				stream.Write(message)
@@ -324,16 +344,18 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			send_queue.mess_list.Remove(queue_font)
 			send_queue.mutex.Unlock()
 
-			var wait_time uint
-			if time.Now().Before(startTime) {
-				wait_time = 1000000000
-			} else {
-				wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[bytesToInt(message[0:4])])
-				// wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
+			if isBlockingCall {
+				var wait_time uint
+				if time.Now().Before(startTime) {
+					wait_time = 1000000000
+				} else {
+					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[bytesToInt(message[0:4])])
+					// wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 
-			}
-			if wait_time > 0 {
-				wait(wait_time)
+				}
+				if wait_time > 0 {
+					wait(wait_time)
+				}
 			}
 
 		}

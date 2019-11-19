@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
-n=6;
-folder='C:\Work\Data\mp-quic-logs\';
+n=10;
+folder='D:\Work\Data\mp-quic-logs\test\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-4-c-500000';
+exp_name = 'app-delay-quic-c-20-c-100000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -14,16 +14,23 @@ HAS_FRAME_LOG = false;
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
 
-set(0,'DefaultFigureWindowStyle','docked');
-set(0,'DefaultLineLineWidth',1.5);
-set(0,'DefaultAxesXGrid','off','DefaultAxesYGrid','on','DefaultAxesGridLineStyle','--');
-set(0,'defaultAxesPlotboxAspectRatio',[1.618,1,1]);
-set(0,'defaultAxesPlotboxAspectRatioMode','manual');
-set(0,'DefaultFigureColormap',feval('colorcube'));
+set(groot,'DefaultFigureWindowStyle','docked');
+set(groot,'DefaultLineLineWidth',1.5);
+set(groot,'DefaultAxesXGrid','off','DefaultAxesYGrid','on','DefaultAxesGridLineStyle','--');
+set(groot,'defaultAxesPlotboxAspectRatio',[1.618,1,1]);
+set(groot,'defaultAxesPlotboxAspectRatioMode','manual');
+set(groot,'DefaultFigureColormap',feval('colorcube'));
+
+     set(groot, 'DefaultAxesFontWeight', 'normal', ...
+      'DefaultAxesFontSize', 12, ...
+      'DefaultAxesFontAngle', 'normal', ... % Not sure the difference here
+      'DefaultAxesFontWeight', 'normal', ... % Not sure the difference here
+      'DefaultAxesTitleFontWeight', 'normal', ...
+      'DefaultAxesTitleFontSizeMultiplier', 1) ;
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","opp","nt"];
-labels=["lrtt","rr","opp","nt"];
+scheds=["lrtt","rr","opp","nt","nt2"];
+labels=["LowRTT","RoundRobin","Opp-Redundant","NineTails","nt"];
 
 app_latencies={};
 send_latencies={};
@@ -52,7 +59,7 @@ for j = 1:length(scheds)
         %     sched_latencies{length(sched_latencies)+1} = sched_latency/10^6;
         eval(['[~, row1, row2] = intersect(' sched '_client_dat(:,1),' sched '_server_dat(:,1),"sorted");']);
         eval([sched '_all_timestp = [' sched '_client_dat(row1,[1,2]), ' sched '_server_dat(row2,2)];']);
-        eval([sched '_all_timestp = ' sched '_all_timestp(10:end,:);']);
+        eval([sched '_all_timestp = ' sched '_all_timestp(40:end,:);']);
         
         
         
@@ -131,6 +138,7 @@ end
 %% =========== plot DATA ==============
 % latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
 plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
+plotMeanLatency(labels,app_latencies);
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
 % plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
 % plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
@@ -272,6 +280,26 @@ for i=1:length(sorted_data)
     
     current_offset = sorted_data(i,4);
 end
+
+
+end
+
+function[] = plotMeanLatency(labels,latencies)
+global exp_name;
+col=@(x)reshape(x,numel(x),1);
+boxplot2=@(C,varargin)boxplot(cell2mat(cellfun(col,col(C),'uni',0)),cell2mat(arrayfun(@(I)I*ones(numel(C{I}),1),col(1:numel(C)),'uni',0)),varargin{:});
+
+% boxplot_data=[];
+% for i=1:length(latencies)
+%     boxplot_data=[boxplot_data latencies{i}(:,1)];
+% 
+% end
+figure
+
+bp=boxplot2(latencies,'Notch','off','Labels',labels);
+set(bp,'LineWidth',1.5);
+ylabel('Latency (ms)');
+title(strcat('MeanLatency-',exp_name));
 
 
 end

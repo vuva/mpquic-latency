@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
-n=1;
-folder='D:\Work\Data\mp-quic-logs\';
+n=10;
+folder='D:\Work\Data\mp-quic-logs\new-nt-big-csize\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-5-g-300000';
+exp_name = 'app-delay-quic-c-4-c-500000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -35,13 +35,16 @@ for j = 1:length(scheds)
     sched_send_latency=[];
     sched_recv_latency=[];
     sched_net_latency=[];
-    for i=k:n      
+    for i=k:n
+      
         
         sched=convertStringsToChars(scheds(j));
         eval([sched '_client_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name, "-client",log_surfix ));' ]);
         eval([sched '_server_dat = dlmread(strcat(folder,num2str(i),"-", scheds(j),"-",exp_name, "-server",log_surfix ));' ]);
         eval([sched '_client_dat = sortrows(' sched '_client_dat,1);']);
+%         eval([sched '_client_dat = ' sched '_client_dat(10:end);']);
         eval([sched '_server_dat = sortrows(' sched '_server_dat,1);']);
+%         eval([sched '_server_dat = ' sched '_server_dat(10:end);']);
         %          eval(['sched_latency = vertcat(sched_latency, ' sched '_server_dat(:,2) - ' sched '_client_dat(:,2));'] );
         %          eval(['server_dat{j} = sortrows(' sched '_server_dat,2)/10^9;']);
         
@@ -49,7 +52,7 @@ for j = 1:length(scheds)
         %     sched_latencies{length(sched_latencies)+1} = sched_latency/10^6;
         eval(['[~, row1, row2] = intersect(' sched '_client_dat(:,1),' sched '_server_dat(:,1),"sorted");']);
         eval([sched '_all_timestp = [' sched '_client_dat(row1,[1,2]), ' sched '_server_dat(row2,2)];']);
-        eval([sched '_all_timestp(:,[2,3]) = ' sched '_all_timestp(:,[2,3]);']);
+        eval([sched '_all_timestp = ' sched '_all_timestp(40:end,:);']);
         
         
         
@@ -121,13 +124,14 @@ for j = 1:length(scheds)
 end
 
 %% =========== Clean DATA ==============
-for i=1:length(app_latencies)
-    app_latencies{i} = app_latencies{i}(20:end)
-end
+% for i=1:length(app_latencies)
+%     app_latencies{i} = app_latencies{i}(20:end)
+% end
 
 %% =========== plot DATA ==============
 % latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
-plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
+% plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
+plotMeanLatency(labels,app_latencies);
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
 % plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
 % plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
@@ -269,6 +273,25 @@ for i=1:length(sorted_data)
     
     current_offset = sorted_data(i,4);
 end
+
+
+end
+
+function[] = plotMeanLatency(labels,latencies)
+global exp_name;
+col=@(x)reshape(x,numel(x),1);
+boxplot2=@(C,varargin)boxplot(cell2mat(cellfun(col,col(C),'uni',0)),cell2mat(arrayfun(@(I)I*ones(numel(C{I}),1),col(1:numel(C)),'uni',0)),varargin{:});
+
+% boxplot_data=[];
+% for i=1:length(latencies)
+%     boxplot_data=[boxplot_data latencies{i}(:,1)];
+% 
+% end
+figure
+set(0,'DefaultLineLineWidth',5.5);
+bp=boxplot2(latencies,'Notch','on','Labels',labels,'Widths',4);
+ylabel('Latency (ms)');
+title(strcat('MeanLatency-',exp_name));
 
 
 end
