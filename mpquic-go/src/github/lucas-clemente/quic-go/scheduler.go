@@ -493,7 +493,7 @@ pathLoop:
 						utils.Debugf("\n Ninetails: redundant send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
 					}
 				}
-			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved() {
+			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved(protocol.ByteCount(selectedPath.sentPacketHandler.GetCongestionWindow())) {
 				utils.Debugf("\n Ninetails: shortlink waiting")
 				return nil
 			}
