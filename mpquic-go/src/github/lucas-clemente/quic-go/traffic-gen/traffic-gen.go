@@ -441,7 +441,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 						}
 						previous = seq_no_int
 						//
-
+						utils.Debugf("\n Got seq: %d \n", seq_no_int)
 						timeStamps[seq_no_int] = uint(time.Now().UnixNano())
 						//				buffer.Write(message[eoc_byte_index:length])
 
