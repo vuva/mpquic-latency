@@ -14,7 +14,7 @@ import (
 	"github.com/lucas-clemente/quic-go/internal/handshake"
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 
-	// "github.com/lucas-clemente/quic-go/internal/utils"
+	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
 )
 
@@ -357,7 +357,7 @@ func (p *packetPacker) writeAndSealPacket(
 		frameByte := buffer.Bytes()[prevLen:buffer.Len()]
 		if frameByte[0]&0x80 == 0x80 && p.perspective == protocol.PerspectiveClient {
 			streamFrame, _ := wire.ParseStreamFrame(bytes.NewReader(frameByte), p.version)
-
+			utils.Debugf("\n VUVA StreamOffset: %d", streamFrame.Offset)
 			// logfile, err := os.OpenFile("sender-frame.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 			// if err != nil {
