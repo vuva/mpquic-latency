@@ -413,12 +413,13 @@ func startQUICServer(addr string, isMultipath bool) error {
 			buffer := make([]byte, 0)
 			defer stream.Close()
 			for {
-				time.Sleep(time.Microsecond)
+
 				message := make([]byte, 655360)
 				length, err := stream.Read(message)
 				if err != nil {
-					log.Println(err)
-					// break
+					// log.Println(err)
+					time.Sleep(time.Microsecond)
+					continue
 				}
 				if length > 0 {
 					message = message[0:length]
