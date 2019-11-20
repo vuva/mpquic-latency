@@ -339,7 +339,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 					}
 					defer stream.Close()
 					stream.Write(message)
-
+					stream.Close()
 				}()
 
 			} else if protocol == "tcp" {
