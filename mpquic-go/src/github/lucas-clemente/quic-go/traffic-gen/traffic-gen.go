@@ -419,7 +419,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 				if err != nil {
 					// log.Println(err)
 					time.Sleep(time.Microsecond)
-					continue
+
 				}
 				if length > 0 {
 					message = message[0:length]
