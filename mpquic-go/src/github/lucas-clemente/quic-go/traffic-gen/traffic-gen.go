@@ -388,58 +388,59 @@ func startQUICServer(addr string, isMultipath bool) error {
 	}
 	defer sess.Close(err)
 
-	stream, err := sess.AcceptStream()
-	if err != nil {
-		panic(err)
-	}
-	defer stream.Close()
-
-	// defer sess.Close(nil)
-
-	// Echo through the loggingWriter
-	// _, err = io.Copy(loggingWriter{stream}, stream)
 	timeStamps := make(map[uint]uint)
 	buffer := make([]byte, 0)
 	previous := BASE_SEQ_NO
+
 	for {
-		message := make([]byte, 65536)
-		length, err := stream.Read(message)
+		stream, err := sess.AcceptStream()
 		if err != nil {
-			log.Println(err)
-			break
+			panic(err)
 		}
-		if length > 0 {
-			message = message[0:length]
-			// utils.Debugf("\n RECEIVED: %x \n", message)
-			// manager.broadcast <- message
-			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
-			// log.Println(eoc_byte_index)
-
-			for eoc_byte_index != -1 {
-				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
-				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
-				// utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
-				// Get data chunk ID and record receive timestampt
-				seq_no := data_chunk[0:4]
-				seq_no_int := bytesToInt(seq_no)
-
-				// these lines to debug
-				if seq_no_int != previous+1 {
-					utils.Debugf("\n Unordered: %d \n", seq_no_int)
+		defer stream.Close()
+		go func(stream quic.Stream) {
+			for {
+				message := make([]byte, 65536)
+				length, err := stream.Read(message)
+				if err != nil {
+					log.Println(err)
+					break
 				}
-				previous = seq_no_int
-				//
+				if length > 0 {
+					message = message[0:length]
+					// utils.Debugf("\n RECEIVED: %x \n", message)
+					// manager.broadcast <- message
+					eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
+					// log.Println(eoc_byte_index)
 
-				timeStamps[seq_no_int] = uint(time.Now().UnixNano())
-				//				buffer.Write(message[eoc_byte_index:length])
+					for eoc_byte_index != -1 {
+						data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
+						//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
+						// utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
+						// Get data chunk ID and record receive timestampt
+						seq_no := data_chunk[0:4]
+						seq_no_int := bytesToInt(seq_no)
 
-				// Cut out recorded chunk
-				message = message[eoc_byte_index+4:]
-				buffer = make([]byte, 0)
-				eoc_byte_index = bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
+						// these lines to debug
+						if seq_no_int != previous+1 {
+							utils.Debugf("\n Unordered: %d \n", seq_no_int)
+						}
+						previous = seq_no_int
+						//
+
+						timeStamps[seq_no_int] = uint(time.Now().UnixNano())
+						//				buffer.Write(message[eoc_byte_index:length])
+
+						// Cut out recorded chunk
+						message = message[eoc_byte_index+4:]
+						buffer = make([]byte, 0)
+						eoc_byte_index = bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
+					}
+					buffer = append(buffer, message...)
+				}
 			}
-			buffer = append(buffer, message...)
-		}
+		}(stream)
+
 	}
 
 	writeToFile(LOG_PREFIX+"server-timestamp.log", timeStamps)
