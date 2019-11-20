@@ -449,6 +449,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 					buffer = append(buffer, message...)
 				}
 			}
+			stream.Close()
 		}(stream)
 
 	}
