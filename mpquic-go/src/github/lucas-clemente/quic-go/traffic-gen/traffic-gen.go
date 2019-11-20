@@ -418,7 +418,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 				length, err := stream.Read(message)
 				if err != nil {
 					log.Println(err)
-					break
+					// break
 				}
 				if length > 0 {
 					message = message[0:length]
