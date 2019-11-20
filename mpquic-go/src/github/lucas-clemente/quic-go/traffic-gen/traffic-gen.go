@@ -407,9 +407,10 @@ func startQUICServer(addr string, isMultipath bool) error {
 			utils.Errorf("AcceptStream: ", err)
 			break
 		}
-		defer stream.Close()
+		// defer stream.Close()
 		go func(stream quic.Stream) {
 			buffer := make([]byte, 0)
+			defer stream.Close()
 			for {
 				message := make([]byte, 65536)
 				length, err := stream.Read(message)
@@ -450,7 +451,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 					buffer = append(buffer, message...)
 				}
 			}
-			stream.Close()
+
 		}(stream)
 
 	}
