@@ -208,15 +208,15 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 func startClientMode(address string, protocol string, run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64, multipath bool, scheduler string, isBlockingCall bool) {
 	fmt.Println("Starting client...")
 
-	var stream quic.Stream
+	// var stream quic.Stream
 	var quic_session quic.Session
 	var connection *net.TCPConn
 	var err error
 
 	if protocol == "quic" {
 		addresses := []string{address}
-		quic_session, stream, err = startQUICClient(addresses, scheduler, multipath)
-		defer stream.Close()
+		quic_session, err = startQUICClient(addresses, scheduler, multipath)
+		// defer stream.Close()
 		defer quic_session.Close(nil)
 
 	} else if protocol == "tcp" {
@@ -331,10 +331,19 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 
 			if protocol == "quic" {
-				stream.Write(message)
+				go func() {
+					stream, err := quic_session.OpenStreamSync()
+					if err != nil {
+						utils.Debugf("Error OpenStreamSync:", err)
+						return
+					}
+					defer stream.Close()
+					stream.Write(message)
+
+				}()
 
 			} else if protocol == "tcp" {
-				connection.Write(message)
+				go connection.Write(message)
 
 			}
 
@@ -395,7 +404,8 @@ func startQUICServer(addr string, isMultipath bool) error {
 	for {
 		stream, err := sess.AcceptStream()
 		if err != nil {
-			panic(err)
+			utils.Errorf("AcceptStream: ", err)
+			break
 		}
 		defer stream.Close()
 		go func(stream quic.Stream) {
@@ -448,20 +458,16 @@ func startQUICServer(addr string, isMultipath bool) error {
 	return err
 }
 
-func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess quic.Session, stream quic.Stream, err error) {
+func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {
 
 	session, err := quic.DialAddr(urls[0], &tls.Config{InsecureSkipVerify: true}, &quic.Config{
 		CreatePaths: isMultipath,
 	})
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	quic.SetSchedulerAlgorithm(scheduler)
-	stream, err2 := session.OpenStreamSync()
-	if err2 != nil {
-		return nil, nil, err2
-	}
 
 	// fmt.Printf("Client: Sending '%s'\n", message)
 	// _, err = stream.Write([]byte(message))
@@ -476,7 +482,7 @@ func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess qu
 	// }
 	// fmt.Printf("Client: Got '%s'\n", buf)
 
-	return session, stream, nil
+	return session, nil
 }
 
 //func (client *Client) send(connection net.Conn,run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64) {
