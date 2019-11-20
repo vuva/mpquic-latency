@@ -409,10 +409,12 @@ func startQUICServer(addr string, isMultipath bool) error {
 		}
 		// defer stream.Close()
 		go func(stream quic.Stream) {
+			utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
 			buffer := make([]byte, 0)
 			defer stream.Close()
 			for {
-				message := make([]byte, 65536)
+				time.Sleep(time.Microsecond)
+				message := make([]byte, 655360)
 				length, err := stream.Read(message)
 				if err != nil {
 					log.Println(err)
@@ -421,7 +423,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 				if length > 0 {
 					message = message[0:length]
 					// utils.Debugf("\n RECEIVED: %x \n", message)
-					// manager.broadcast <- message
+
 					eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 					// log.Println(eoc_byte_index)
 
@@ -512,7 +514,7 @@ func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess qu
 // wait for interarrival_time nanosecond
 func wait(interarrival_time uint) {
 	waiting_time := time.Duration(interarrival_time) * time.Nanosecond
-	utils.Debugf("wait for %d ns \n", waiting_time.Nanoseconds())
+	// utils.Debugf("wait for %d ns \n", waiting_time.Nanoseconds())
 	time.Sleep(waiting_time)
 }
 

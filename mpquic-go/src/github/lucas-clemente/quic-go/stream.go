@@ -108,12 +108,12 @@ func (s *stream) Read(p []byte) (int, error) {
 	}
 
 	// Log read timestamps on client side for frame buffering
-	if s.perspective == protocol.PerspectiveClient {
-		if s.logBufferFile == nil {
-			filename := "Lat_read_F.log"
-			s.logBufferFile, _ = os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		}
-	}
+	// if s.perspective == protocol.PerspectiveClient {
+	// 	if s.logBufferFile == nil {
+	// 		filename := "Lat_read_F.log"
+	// 		s.logBufferFile, _ = os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// 	}
+	// }
 
 	bytesRead := 0
 	for bytesRead < len(p) {
