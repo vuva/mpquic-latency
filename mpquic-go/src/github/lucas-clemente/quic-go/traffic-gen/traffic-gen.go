@@ -398,7 +398,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	defer sess.Close(err)
 
 	timeStamps := make(map[uint]uint)
-	buffer := make([]byte, 0)
+
 	previous := BASE_SEQ_NO
 
 	for {
@@ -409,6 +409,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 		}
 		defer stream.Close()
 		go func(stream quic.Stream) {
+			buffer := make([]byte, 0)
 			for {
 				message := make([]byte, 65536)
 				length, err := stream.Read(message)
