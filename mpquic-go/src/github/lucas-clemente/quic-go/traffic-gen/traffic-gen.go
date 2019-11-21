@@ -210,7 +210,7 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 
 }
 
-func startClientMode(address string, protocol string, run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64, multipath bool, scheduler string, isBlockingCall bool) {
+func startClientMode(address string, protocol string, run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64, multipath bool, scheduler string, isBlockingCall bool, isMultiStream bool) {
 	fmt.Println("Starting client...")
 
 	// var stream quic.Stream
@@ -336,7 +336,12 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 
 			if protocol == "quic" {
-				go startQUICClientStream(quic_session, message)
+				if isMultiStream {
+					go startQUICClientStream(quic_session, message)
+				} else {
+					startQUICClientStream(quic_session, message)
+
+				}
 
 			} else if protocol == "tcp" {
 				go connection.Write(message)
@@ -431,7 +436,7 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	defer stream.Close()
 
 	for {
-
+		readTime := time.Now()
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
 
@@ -459,7 +464,7 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 				if seq_no_int >= BASE_SEQ_NO && seq_no_int < BASE_SEQ_NO+10000000 {
 					utils.Debugf("\n Got seq: %d \n", seq_no_int)
 					serverlog.lock.Lock()
-					serverlog.timeStamps[seq_no_int] = uint(time.Now().UnixNano())
+					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
 					serverlog.lock.Unlock()
 
 				}
@@ -677,6 +682,7 @@ func main() {
 	flagProtocol := flag.String("p", "tcp", "TCP or QUIC")
 	flagLog := flag.String("log", "", "Log folder")
 	flagMultipath := flag.Bool("m", false, "Enable multipath")
+	flagMultiStream := flag.Bool("mstr", false, "Enable multistream")
 	flagSched := flag.String("sched", "lrtt", "Scheduler")
 	flagDebug := flag.Bool("v", false, "Debug mode")
 	flagCong := flag.String("cc", "olia", "Congestion control")
@@ -693,6 +699,6 @@ func main() {
 		quic.SetSchedulerAlgorithm(sched)
 		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagLog)
 	} else {
-		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched, *flagBlock)
+		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched, *flagBlock, *flagMultiStream)
 	}
 }

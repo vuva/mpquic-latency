@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
-n=2;
+n=1;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-mptcp-c-20-c-100000';
+exp_name = 'app-delay-quic-c-2-c-100000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
