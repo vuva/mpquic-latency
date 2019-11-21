@@ -582,7 +582,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	if err != nil || packet == nil {
 		return nil, false, err
 	}
-	utils.Debugf("\n Path: %d Pkt no.: %d size %d", pth.pathID, packet.number, protocol.ByteCount(len(packet.raw)))
+	// utils.Debugf("\n Path: %d Pkt no.: %d size %d", pth.pathID, packet.number, protocol.ByteCount(len(packet.raw)))
 	if err = s.sendPackedPacket(packet, pth); err != nil {
 		return nil, false, err
 	}
