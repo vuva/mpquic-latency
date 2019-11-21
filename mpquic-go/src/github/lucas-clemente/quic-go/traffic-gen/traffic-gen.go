@@ -435,13 +435,13 @@ receiveloop:
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
 		if err != nil {
-			// log.Println(err)
+			log.Println(err)
 			time.Sleep(time.Microsecond)
 			continue receiveloop
 		}
 		if length > 0 {
 			message = message[0:length]
-			// utils.Debugf("\n RECEIVED: %x \n", message)
+			utils.Debugf("\n RECEIVED: %x \n", message[0:4], message[length-4:length])
 
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			// log.Println(eoc_byte_index)
@@ -449,7 +449,7 @@ receiveloop:
 			for eoc_byte_index != -1 {
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
 				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
-				// utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
+				utils.Debugf("\n CHUNK: %x...%x  \n  length %d \n", data_chunk[0:4], data_chunk[len(data_chunk)-4:len(data_chunk)], len(data_chunk))
 				// Get data chunk ID and record receive timestampt
 				seq_no := data_chunk[0:4]
 				seq_no_int := bytesToInt(seq_no)
