@@ -435,7 +435,8 @@ func startServerStream(stream quic.Stream, serverlog ServerLog) {
 		length, err := stream.Read(message)
 		if err != nil {
 			// log.Println(err)
-			time.Sleep(time.Microsecond)
+			// time.Sleep(time.Microsecond)
+			break
 
 		}
 		if length > 0 {
