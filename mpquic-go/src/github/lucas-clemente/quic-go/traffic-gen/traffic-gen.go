@@ -215,7 +215,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	if protocol == "quic" {
 		addresses := []string{address}
-		quic_session, err = startQUICClient(addresses, scheduler, multipath)
+		quic_session, err = startQUICSession(addresses, scheduler, multipath)
 		// defer stream.Close()
 		defer quic_session.Close(nil)
 
@@ -331,16 +331,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 
 			if protocol == "quic" {
-				go func() {
-					stream, err := quic_session.OpenStreamSync()
-					if err != nil {
-						utils.Debugf("Error OpenStreamSync:", err)
-						return
-					}
-					defer stream.Close()
-					stream.Write(message)
-					stream.Close()
-				}()
+				go startQUICClientStream(quic_session, message)
 
 			} else if protocol == "tcp" {
 				go connection.Write(message)
@@ -384,6 +375,17 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	// }()
 }
 
+func startQUICClientStream(quic_session quic.Session, message []byte) {
+	stream, err := quic_session.OpenStreamSync()
+	if err != nil {
+		utils.Debugf("Error OpenStreamSync:", err)
+		return
+	}
+	defer stream.Close()
+	stream.Write(message)
+	stream.Close()
+}
+
 func startQUICServer(addr string, isMultipath bool) error {
 	listener, err := quic.ListenAddr(addr, generateTLSConfig(), &quic.Config{
 		CreatePaths: isMultipath,
@@ -399,7 +401,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 
 	timeStamps := make(map[uint]uint)
 
-	previous := BASE_SEQ_NO
+	// previous := BASE_SEQ_NO
 
 	for {
 		stream, err := sess.AcceptStream()
@@ -408,54 +410,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 			break
 		}
 		// defer stream.Close()
-		go func(stream quic.Stream) {
-			utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
-			buffer := make([]byte, 0)
-			defer stream.Close()
-			for {
-
-				message := make([]byte, 655360)
-				length, err := stream.Read(message)
-				if err != nil {
-					// log.Println(err)
-					time.Sleep(time.Microsecond)
-
-				}
-				if length > 0 {
-					message = message[0:length]
-					// utils.Debugf("\n RECEIVED: %x \n", message)
-
-					eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
-					// log.Println(eoc_byte_index)
-
-					for eoc_byte_index != -1 {
-						data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
-						//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
-						// utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
-						// Get data chunk ID and record receive timestampt
-						seq_no := data_chunk[0:4]
-						seq_no_int := bytesToInt(seq_no)
-
-						// these lines to debug
-						if seq_no_int != previous+1 {
-							utils.Debugf("\n Unordered: %d \n", seq_no_int)
-						}
-						previous = seq_no_int
-						//
-						utils.Debugf("\n Got seq: %d \n", seq_no_int)
-						timeStamps[seq_no_int] = uint(time.Now().UnixNano())
-						//				buffer.Write(message[eoc_byte_index:length])
-
-						// Cut out recorded chunk
-						message = message[eoc_byte_index+4:]
-						buffer = make([]byte, 0)
-						eoc_byte_index = bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
-					}
-					buffer = append(buffer, message...)
-				}
-			}
-
-		}(stream)
+		go startServerStream(stream, timeStamps)
 
 	}
 
@@ -464,7 +419,55 @@ func startQUICServer(addr string, isMultipath bool) error {
 	return err
 }
 
-func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {
+func startServerStream(stream quic.Stream, timeStamps map[uint]uint) {
+	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
+	buffer := make([]byte, 0)
+	defer stream.Close()
+	for {
+
+		message := make([]byte, 65536)
+		length, err := stream.Read(message)
+		if err != nil {
+			// log.Println(err)
+			time.Sleep(time.Microsecond)
+
+		}
+		if length > 0 {
+			message = message[0:length]
+			// utils.Debugf("\n RECEIVED: %x \n", message)
+
+			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
+			// log.Println(eoc_byte_index)
+
+			for eoc_byte_index != -1 {
+				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
+				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
+				// utils.Debugf("\n CHUNK: %x \n  length %d \n", data_chunk, len(data_chunk))
+				// Get data chunk ID and record receive timestampt
+				seq_no := data_chunk[0:4]
+				seq_no_int := bytesToInt(seq_no)
+
+				// these lines to debug
+				// if seq_no_int != previous+1 {
+				// 	utils.Debugf("\n Unordered: %d \n", seq_no_int)
+				// }
+				// previous = seq_no_int
+				//
+				utils.Debugf("\n Got seq: %d \n", seq_no_int)
+				timeStamps[seq_no_int] = uint(time.Now().UnixNano())
+				//				buffer.Write(message[eoc_byte_index:length])
+
+				// Cut out recorded chunk
+				message = message[eoc_byte_index+4:]
+				buffer = make([]byte, 0)
+				eoc_byte_index = bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
+			}
+			buffer = append(buffer, message...)
+		}
+	}
+}
+
+func startQUICSession(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {
 
 	session, err := quic.DialAddr(urls[0], &tls.Config{InsecureSkipVerify: true}, &quic.Config{
 		CreatePaths: isMultipath,
@@ -474,19 +477,6 @@ func startQUICClient(urls []string, scheduler string, isMultipath bool) (sess qu
 		return nil, err
 	}
 	quic.SetSchedulerAlgorithm(scheduler)
-
-	// fmt.Printf("Client: Sending '%s'\n", message)
-	// _, err = stream.Write([]byte(message))
-	// if err != nil {
-	// 	return err
-	// }
-
-	// buf := make([]byte, len(message))
-	// _, err = io.ReadFull(stream, buf)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Printf("Client: Got '%s'\n", buf)
 
 	return session, nil
 }
