@@ -539,11 +539,11 @@ func (h *sentPacketHandler) GetStopWaitingFrame(force bool) *wire.StopWaitingFra
 func (h *sentPacketHandler) SendingAllowed() bool {
 	congestionLimited := h.bytesInFlight > h.congestion.GetCongestionWindow()
 	maxTrackedLimited := protocol.PacketNumber(len(h.retransmissionQueue)+h.packetHistory.Len()) >= protocol.MaxTrackedSentPackets
-	if congestionLimited {
-		utils.Debugf("Congestion limited path %d: bytes in flight %d, windows %d RTT %d",
-			h.pathID, h.bytesInFlight,
-			h.congestion.GetCongestionWindow(), h.rttStats.SmoothedRTT())
-	}
+	// if congestionLimited {
+	// utils.Debugf("Congestion limited path %d: bytes in flight %d, windows %d RTT %d",
+	// 		h.pathID, h.bytesInFlight,
+	// 		h.congestion.GetCongestionWindow(), h.rttStats.SmoothedRTT())
+	// }
 	// Workaround for #555:
 	// Always allow sending of retransmissions. This should probably be limited
 	// to RTOs, but we currently don't have a nice way of distinguishing them.
@@ -556,7 +556,7 @@ func (h *sentPacketHandler) SendingAllowedWithReserved(reservedPackets protocol.
 	congestionLimited := h.bytesInFlight > h.congestion.GetCongestionWindow()-protocol.MaxPacketSize*reservedPackets
 	maxTrackedLimited := protocol.PacketNumber(len(h.retransmissionQueue)+h.packetHistory.Len()) >= protocol.MaxTrackedSentPackets
 	if congestionLimited {
-		utils.Debugf("Congestion limited path %d: bytes in flight %d, windows %d RTT %d",
+		utils.Debugf("Congestion reserved limited path %d: bytes in flight %d, windows %d RTT %d",
 			h.pathID, h.bytesInFlight,
 			h.congestion.GetCongestionWindow(), h.rttStats.SmoothedRTT())
 	}

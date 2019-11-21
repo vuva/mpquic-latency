@@ -842,7 +842,7 @@ func (s *session) sendConnectionClose(quicErr *qerr.QuicError) error {
 	if err != nil {
 		return err
 	}
-	s.logPacket(packet, protocol.InitialPathID)
+	// s.logPacket(packet, protocol.InitialPathID)
 	// XXX (QDC): seems reasonable to send on pathID 0, but this can change
 	return s.paths[protocol.InitialPathID].conn.Write(packet.raw)
 }
