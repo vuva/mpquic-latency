@@ -434,11 +434,7 @@ receiveloop:
 
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
-		if err != nil {
-			// log.Println(err)
-			time.Sleep(time.Microsecond)
-			continue receiveloop
-		}
+
 		if length > 0 {
 			message = message[0:length]
 			utils.Debugf("\n RECEIVED from stream %d mes_len %d buffer %d: %x...%x \n", stream.StreamID(), length, len(buffer), message[0:4], message[length-4:length])
@@ -475,6 +471,12 @@ receiveloop:
 				eoc_byte_index = bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			}
 			buffer = append(buffer, message...)
+		}
+
+		if err != nil {
+			// log.Println(err)
+			time.Sleep(time.Microsecond)
+			continue receiveloop
 		}
 	}
 }
