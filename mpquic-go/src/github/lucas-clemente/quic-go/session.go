@@ -520,7 +520,7 @@ func (s *session) handlePacketImpl(p *receivedPacket) error {
 func (s *session) handleFrames(fs []wire.Frame, p *path, rcvTime time.Time) error {
 	for _, ff := range fs {
 		var err error
-		wire.LogFrame(ff, false)
+		// wire.LogFrame(ff, false)
 		switch frame := ff.(type) {
 		case *wire.StreamFrame:
 			err = s.handleStreamFrame(frame)
