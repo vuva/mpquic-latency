@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
-n=10;
-folder='D:\Work\Data\mp-quic-logs\test\';
+n=2;
+folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-20-c-100000';
+exp_name = 'app-delay-mptcp-c-20-c-100000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -29,8 +29,8 @@ set(groot,'DefaultFigureColormap',feval('colorcube'));
       'DefaultAxesTitleFontSizeMultiplier', 1) ;
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","opp","nt","nt2"];
-labels=["LowRTT","RoundRobin","Opp-Redundant","NineTails","nt"];
+scheds=["lrtt","rr","opp","nt"];
+labels=["LowRTT","RoundRobin","Opp-Redundant","NineTails"];
 
 app_latencies={};
 send_latencies={};
