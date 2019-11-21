@@ -39,6 +39,11 @@ import (
 
 type binds []string
 
+type ServerLog struct {
+	timeStamps map[uint]uint
+	lock       sync.RWMutex
+}
+
 func (b binds) String() string {
 	return strings.Join(b, ",")
 }
@@ -387,6 +392,7 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 }
 
 func startQUICServer(addr string, isMultipath bool) error {
+
 	listener, err := quic.ListenAddr(addr, generateTLSConfig(), &quic.Config{
 		CreatePaths: isMultipath,
 	})
@@ -399,7 +405,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	}
 	defer sess.Close(err)
 
-	timeStamps := make(map[uint]uint)
+	serverlog := ServerLog{timeStamps: make(map[uint]uint)}
 
 	// previous := BASE_SEQ_NO
 
@@ -410,16 +416,16 @@ func startQUICServer(addr string, isMultipath bool) error {
 			break
 		}
 		// defer stream.Close()
-		go startServerStream(stream, timeStamps)
+		go startServerStream(stream, serverlog)
 
 	}
 
-	writeToFile(LOG_PREFIX+"server-timestamp.log", timeStamps)
+	writeToFile(LOG_PREFIX+"server-timestamp.log", serverlog.timeStamps)
 
 	return err
 }
 
-func startServerStream(stream quic.Stream, timeStamps map[uint]uint) {
+func startServerStream(stream quic.Stream, serverlog ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
 	buffer := make([]byte, 0)
 	defer stream.Close()
@@ -453,8 +459,13 @@ func startServerStream(stream quic.Stream, timeStamps map[uint]uint) {
 				// }
 				// previous = seq_no_int
 				//
-				utils.Debugf("\n Got seq: %d \n", seq_no_int)
-				timeStamps[seq_no_int] = uint(time.Now().UnixNano())
+				if seq_no_int >= BASE_SEQ_NO && seq_no_int < BASE_SEQ_NO+10000000 {
+					utils.Debugf("\n Got seq: %d \n", seq_no_int)
+					serverlog.lock.Lock()
+					serverlog.timeStamps[seq_no_int] = uint(time.Now().UnixNano())
+					serverlog.lock.Unlock()
+
+				}
 				//				buffer.Write(message[eoc_byte_index:length])
 
 				// Cut out recorded chunk
