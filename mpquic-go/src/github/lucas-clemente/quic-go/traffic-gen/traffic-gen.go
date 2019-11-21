@@ -330,7 +330,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			}
 			queue_font := send_queue.mess_list.Front()
 			message, _ := queue_font.Value.([]byte)
-			beforesent := time.Now()
+			// beforesent := time.Now()
 			if isBlockingCall {
 				// Get time at the moment message put in stream
 				timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
@@ -365,7 +365,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			send_queue.mutex.Unlock()
 
 			if isBlockingCall {
-				utils.Debugf("Sent time: %d ", time.Now().Sub(beforesent).Nanoseconds())
+				// utils.Debugf("Sent time: %d ", time.Now().Sub(beforesent).Nanoseconds())
 				var wait_time uint
 				if time.Now().Before(startTime) {
 					wait_time = 1000000000
@@ -435,7 +435,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	}
 
 	writeToFile(LOG_PREFIX+"server-timestamp.log", serverlog.timeStamps)
-	fmt.Println("Finish receive")
+	fmt.Println("Finish receive: %d messages", len(serverlog.timeStamps))
 	return err
 }
 
@@ -493,6 +493,8 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 			break
 		}
 	}
+
+	utils.Debugf("\n Finish Stream: %d \n", stream.StreamID())
 }
 
 func startQUICSession(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {
