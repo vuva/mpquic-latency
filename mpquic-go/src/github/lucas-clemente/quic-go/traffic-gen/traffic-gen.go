@@ -435,7 +435,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	}
 
 	writeToFile(LOG_PREFIX+"server-timestamp.log", serverlog.timeStamps)
-	fmt.Println("Finish receive: %d messages", len(serverlog.timeStamps))
+	fmt.Printf("\nFinish receive: %d messages", len(serverlog.timeStamps))
 	return err
 }
 
@@ -470,7 +470,7 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 				// }
 				// previous = seq_no_int
 				//
-				if seq_no_int >= BASE_SEQ_NO && seq_no_int < BASE_SEQ_NO+10000000 {
+				if seq_no_int >= BASE_SEQ_NO {
 					utils.Debugf("\n Got seq: %d \n", seq_no_int)
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
