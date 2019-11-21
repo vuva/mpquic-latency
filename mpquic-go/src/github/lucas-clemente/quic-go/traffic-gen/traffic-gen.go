@@ -421,7 +421,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	}
 
 	writeToFile(LOG_PREFIX+"server-timestamp.log", serverlog.timeStamps)
-
+	fmt.Println("Finish receive")
 	return err
 }
 
