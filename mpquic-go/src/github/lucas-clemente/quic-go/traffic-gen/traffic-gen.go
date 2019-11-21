@@ -321,6 +321,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	go func() {
 		sent_counter := 0
+		var current_stream quic.Stream
 
 		for !gen_finished {
 			time.Sleep(time.Nanosecond)
@@ -339,7 +340,16 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				if isMultiStream {
 					go startQUICClientStream(quic_session, message)
 				} else {
-					startQUICClientStream(quic_session, message)
+					if current_stream == nil {
+						current_stream, err = quic_session.OpenStreamSync()
+						if err != nil {
+							utils.Debugf("Error OpenStreamSync:", err)
+							return
+						}
+
+						defer current_stream.Close()
+					}
+					current_stream.Write(message)
 
 				}
 
@@ -393,7 +403,6 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 	}
 	defer stream.Close()
 	stream.Write(message)
-	stream.Close()
 }
 
 func startQUICServer(addr string, isMultipath bool) error {
