@@ -405,7 +405,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	}
 	defer sess.Close(err)
 
-	serverlog := ServerLog{timeStamps: make(map[uint]uint)}
+	serverlog := ServerLog{timeStamps: make(map[uint]uint), lock: sync.RWMutex{}}
 
 	// previous := BASE_SEQ_NO
 
@@ -416,7 +416,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 			break
 		}
 		// defer stream.Close()
-		go startServerStream(stream, serverlog)
+		go startServerStream(stream, &serverlog)
 
 	}
 
@@ -425,7 +425,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	return err
 }
 
-func startServerStream(stream quic.Stream, serverlog ServerLog) {
+func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
 	buffer := make([]byte, 0)
 	defer stream.Close()
