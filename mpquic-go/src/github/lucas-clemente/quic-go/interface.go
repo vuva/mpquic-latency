@@ -81,7 +81,7 @@ type Session interface {
 
 	//VUVA
 	GetOpenStreamNo() uint32
-	RemoveStream(protocol.StreamID) error
+	RemoveStream(streamID protocol.StreamID) error
 }
 
 // A NonFWSession is a QUIC connection between two peers half-way through the handshake.
