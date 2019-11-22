@@ -333,5 +333,5 @@ func (m *streamsMap) CloseWithError(err error) {
 }
 
 func (m *streamsMap) GetNumOutGoingStream() uint32 {
-	return m.numOutgoingStreams
+	return uint32(len(m.openStreams))
 }
