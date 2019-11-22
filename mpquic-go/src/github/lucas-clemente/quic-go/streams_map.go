@@ -331,3 +331,7 @@ func (m *streamsMap) CloseWithError(err error) {
 		m.streams[s].Cancel(err)
 	}
 }
+
+func (m *streamsMap) GetNumOutGoingStream() uint32 {
+	return m.numOutgoingStreams
+}

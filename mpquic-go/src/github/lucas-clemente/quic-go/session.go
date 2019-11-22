@@ -1011,3 +1011,7 @@ func (s *session) RemoteAddr() net.Addr {
 func (s *session) GetVersion() protocol.VersionNumber {
 	return s.version
 }
+
+func (s *session) GetOpenStreamNo() uint32 {
+	return s.streamsMap.GetNumOutGoingStream()
+}
