@@ -283,17 +283,17 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
 
-			// if !isBlockingCall {
-			// 	var wait_time uint
-			// 	if time.Now().Before(startTime) {
-			// 		wait_time = 1000000000
-			// 	} else {
-			// 		wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
-			// 	}
-			// 	if wait_time > 0 {
-			// 		wait(wait_time)
-			// 	}
-			// }
+			if !isBlockingCall {
+				var wait_time uint
+				if time.Now().Before(startTime) {
+					wait_time = 1000000000
+				} else {
+					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
+				}
+				if wait_time > 0 {
+					wait(wait_time)
+				}
+			}
 
 			// if !isBlockingCall {
 			// Get time at the moment message generated
@@ -330,10 +330,10 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			queue_font := send_queue.mess_list.Front()
 			message, _ := queue_font.Value.([]byte)
 			// beforesent := time.Now()
-			if isBlockingCall {
-				// Get time at the moment message put in stream
-				timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
-			}
+			// if isBlockingCall {
+			// 	// Get time at the moment message put in stream
+			// 	timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
+			// }
 
 			// send_queue.mutex.Lock()
 			// send_queue.isSending = true
@@ -368,20 +368,20 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			send_queue.mess_list.Remove(queue_font)
 			send_queue.mutex.Unlock()
 
-			if isBlockingCall {
-				// utils.Debugf("Sent time: %d ", time.Now().Sub(beforesent).Nanoseconds())
-				var wait_time uint
-				if time.Now().Before(startTime) {
-					wait_time = 1000000000
-				} else {
-					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[bytesToInt(message[0:4])])
-					// wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
+			// if isBlockingCall {
+			// 	// utils.Debugf("Sent time: %d ", time.Now().Sub(beforesent).Nanoseconds())
+			// 	var wait_time uint
+			// 	if time.Now().Before(startTime) {
+			// 		wait_time = 1000000000
+			// 	} else {
+			// 		wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[bytesToInt(message[0:4])])
+			// 		// wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 
-				}
-				if wait_time > 0 {
-					wait(wait_time)
-				}
-			}
+			// 	}
+			// 	if wait_time > 0 {
+			// 		wait(wait_time)
+			// 	}
+			// }
 
 		}
 		utils.Debugf("Sent total: %d messages", sent_counter)
