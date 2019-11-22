@@ -406,9 +406,12 @@ func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, h
 	s.streamsMap.mutex.RLock()
 	var next_stream *stream
 	// numStreams := uint32(len(m.streams))
-	for _, datastream := range s.streamsMap.streams {
-		// utils.Debugf("\n vuva: id %d stream %p", id, datastream)
-		next_stream = datastream
+	for id, datastream := range s.streamsMap.streams {
+
+		if datastream.StreamID() != 1 && len(datastream.dataForWriting) > 0 {
+			next_stream = datastream
+			utils.Debugf("\n vuva: id %d stream %p", id, datastream)
+		}
 	}
 	s.streamsMap.mutex.RUnlock()
 	// next_stream := s.streamsMap.streams[s.streamsMap.nextStreamToAccept]
