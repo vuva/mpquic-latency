@@ -55,8 +55,8 @@ func (b *binds) Set(v string) error {
 
 type MessageList struct {
 	mess_list *list.List
-	isSending bool
-	mutex     sync.RWMutex
+	// isSending bool
+	mutex sync.RWMutex
 }
 
 var BASE_SEQ_NO uint = 2147483648 // 0x80000000
@@ -269,16 +269,16 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	gen_finished := false
 
 	go func() {
-		gen_counter := 0
+		gen_counter := 1
 		for i := 1; time.Now().Before(endTime); i++ {
-			if isBlockingCall && (send_queue.mess_list.Len() > 0 || send_queue.isSending) {
-				time.Sleep(time.Microsecond)
+			if isBlockingCall && send_queue.mess_list.Len() > 0 {
+				time.Sleep(time.Nanosecond)
 				continue
 			}
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-			message, seq := generateMessage(uint(i), csize_distro, csize_value)
+			message, seq := generateMessage(uint(gen_counter), csize_distro, csize_value)
 			gen_counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
@@ -298,9 +298,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				if time.Now().Before(startTime) {
 					wait_time = 1000000000
 				} else {
-
 					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq])
-
 				}
 				if wait_time > 0 {
 					wait(wait_time)
@@ -337,9 +335,9 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
 			// }
 
-			send_queue.mutex.Lock()
-			send_queue.isSending = true
-			send_queue.mutex.Unlock()
+			// send_queue.mutex.Lock()
+			// send_queue.isSending = true
+			// send_queue.mutex.Unlock()
 			if protocol == "quic" {
 				if isMultiStream {
 					go startQUICClientStream(quic_session, message)
@@ -364,7 +362,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 			sent_counter++
 			send_queue.mutex.Lock()
-			send_queue.isSending = false
+			// send_queue.isSending = false
 			send_queue.mess_list.Remove(queue_font)
 			send_queue.mutex.Unlock()
 
