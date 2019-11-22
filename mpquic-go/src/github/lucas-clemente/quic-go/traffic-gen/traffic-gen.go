@@ -343,7 +343,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// utils.Debugf("Time in queue: %d \n", uint(time.Now().UnixNano())-timeStamps[bytesToInt(message[0:4])])
 			if protocol == "quic" {
 				if isMultiStream {
-					utils.Debugf("OpenStream no.: %d", quic_session.GetOpenStreamNo())
+
 					go startQUICClientStream(quic_session, message)
 				} else {
 					if current_stream == nil {
@@ -408,6 +408,7 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 		utils.Debugf("Error OpenStreamSync:", err)
 		return
 	}
+	utils.Debugf("OpenStream no.: %d", quic_session.GetOpenStreamNo())
 	beforeWrite := time.Now()
 	defer stream.Close()
 	stream.Write(message)
