@@ -283,6 +283,18 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
 
+			if !isBlockingCall {
+				var wait_time uint
+				if time.Now().Before(startTime) {
+					wait_time = 1000000000
+				} else {
+					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
+				}
+				if wait_time > 0 {
+					wait(wait_time)
+				}
+			}
+
 			// if !isBlockingCall {
 			// Get time at the moment message generated
 			timeStamps[seq] = uint(time.Now().UnixNano())
@@ -292,18 +304,6 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			send_queue.mutex.Lock()
 			send_queue.mess_list.PushBack(message)
 			send_queue.mutex.Unlock()
-
-			if !isBlockingCall {
-				var wait_time uint
-				if time.Now().Before(startTime) {
-					wait_time = 1000000000
-				} else {
-					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq])
-				}
-				if wait_time > 0 {
-					wait(wait_time)
-				}
-			}
 
 			// writeTime[seq] = uint(time.Now().UnixNano()) - timeStamps[seq]
 
