@@ -340,7 +340,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// send_queue.isSending = true
 			// send_queue.mutex.Unlock()
 
-			utils.Debugf("Time in queue: %d \n", uint(time.Now().UnixNano())-timeStamps[bytesToInt(message[0:4])])
+			// utils.Debugf("Time in queue: %d \n", uint(time.Now().UnixNano())-timeStamps[bytesToInt(message[0:4])])
 			if protocol == "quic" {
 				if isMultiStream {
 					go startQUICClientStream(quic_session, message)
@@ -401,13 +401,16 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 }
 
 func startQUICClientStream(quic_session quic.Session, message []byte) {
+	beforeOpen := time.Now()
 	stream, err := quic_session.OpenStreamSync()
 	if err != nil {
 		utils.Debugf("Error OpenStreamSync:", err)
 		return
 	}
+	beforeWrite := time.Now()
 	defer stream.Close()
 	stream.Write(message)
+	utils.Debugf("StreamID: %d open %d write %", stream.StreamID, beforeWrite.Sub(beforeOpen).Nanoseconds(), time.Now().Sub(beforeWrite).Nanoseconds())
 }
 
 func startQUICServer(addr string, isMultipath bool) error {
@@ -540,7 +543,7 @@ func startQUICSession(urls []string, scheduler string, isMultipath bool) (sess q
 // wait for interarrival_time nanosecond
 func wait(interarrival_time uint) {
 	waiting_time := time.Duration(interarrival_time) * time.Nanosecond
-	utils.Debugf("wait for %d ns \n", waiting_time.Nanoseconds())
+	// utils.Debugf("wait for %d ns \n", waiting_time.Nanoseconds())
 	time.Sleep(waiting_time)
 }
 
