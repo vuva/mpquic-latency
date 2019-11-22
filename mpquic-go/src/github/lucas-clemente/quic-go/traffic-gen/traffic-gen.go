@@ -408,11 +408,12 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 		utils.Debugf("Error OpenStreamSync:", err)
 		return
 	}
+	defer stream.Close()
 	utils.Debugf("OpenStream no.: %d", quic_session.GetOpenStreamNo())
 	beforeWrite := time.Now()
-	defer stream.Close()
 	stream.Write(message)
 	utils.Debugf("StreamID: %d open %d write %d", stream.StreamID, beforeWrite.Sub(beforeOpen).Nanoseconds(), time.Now().Sub(beforeWrite).Nanoseconds())
+	quic_session.streamsMap.RemoveStream(stream.StreamID)
 }
 
 func startQUICServer(addr string, isMultipath bool) error {

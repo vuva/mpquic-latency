@@ -1012,6 +1012,10 @@ func (s *session) GetVersion() protocol.VersionNumber {
 	return s.version
 }
 
+// VUVA
 func (s *session) GetOpenStreamNo() uint32 {
 	return s.streamsMap.GetNumOutGoingStream()
+}
+func (s *session) RemoveStream(streamID protocol.StreamID) error {
+	return s.streamsMap.RemoveStream(streamID)
 }
