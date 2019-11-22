@@ -339,7 +339,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// send_queue.isSending = true
 			// send_queue.mutex.Unlock()
 
-			utils.Debugf("Time in queue: %d \n", uint(time.Now().Nanosecond())-timeStamps[bytesToInt(message[0:4])])
+			utils.Debugf("Time in queue: %d \n", uint(time.Now().UnixNano())-timeStamps[bytesToInt(message[0:4])])
 			if protocol == "quic" {
 				if isMultiStream {
 					go startQUICClientStream(quic_session, message)
