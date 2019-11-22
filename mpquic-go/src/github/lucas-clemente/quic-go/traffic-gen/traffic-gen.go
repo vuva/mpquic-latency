@@ -330,10 +330,10 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			queue_font := send_queue.mess_list.Front()
 			message, _ := queue_font.Value.([]byte)
 			// beforesent := time.Now()
-			// if isBlockingCall {
-			// Get time at the moment message put in stream
-			// timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
-			// }
+			if isBlockingCall {
+				// Get time at the moment message put in stream
+				timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
+			}
 
 			// send_queue.mutex.Lock()
 			// send_queue.isSending = true
