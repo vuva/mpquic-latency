@@ -1017,5 +1017,10 @@ func (s *session) GetOpenStreamNo() uint32 {
 	return s.streamsMap.GetNumOutGoingStream()
 }
 func (s *session) RemoveStream(streamID protocol.StreamID) error {
-	return s.streamsMap.RemoveStream(streamID)
+	err := s.streamsMap.RemoveStream(streamID)
+	if err != nil {
+		return err
+	}
+	s.flowControlManager.RemoveStream(streamID)
+	return err
 }
