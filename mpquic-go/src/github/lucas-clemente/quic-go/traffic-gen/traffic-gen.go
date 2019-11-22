@@ -338,7 +338,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// }
 
 			send_queue.mutex.Lock()
-			send_queue.isSending = false
+			send_queue.isSending = true
 			send_queue.mutex.Unlock()
 			if protocol == "quic" {
 				if isMultiStream {
