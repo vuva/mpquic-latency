@@ -55,6 +55,7 @@ func (b *binds) Set(v string) error {
 
 type MessageList struct {
 	mess_list *list.List
+	isSending bool
 	mutex     sync.RWMutex
 }
 
@@ -270,7 +271,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	go func() {
 		gen_counter := 0
 		for i := 1; time.Now().Before(endTime); i++ {
-			if isBlockingCall && send_queue.mess_list.Len() > 0 {
+			if isBlockingCall && (send_queue.mess_list.Len() > 0 || send_queue.isSending) {
 				time.Sleep(time.Microsecond)
 				continue
 			}
@@ -336,6 +337,9 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// timeStamps[bytesToInt(message[0:4])] = uint(time.Now().UnixNano())
 			// }
 
+			send_queue.mutex.Lock()
+			send_queue.isSending = false
+			send_queue.mutex.Unlock()
 			if protocol == "quic" {
 				if isMultiStream {
 					go startQUICClientStream(quic_session, message)
@@ -360,7 +364,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 			sent_counter++
 			send_queue.mutex.Lock()
-
+			send_queue.isSending = false
 			send_queue.mess_list.Remove(queue_font)
 			send_queue.mutex.Unlock()
 
