@@ -290,6 +290,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				} else {
 					wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 				}
+				log.Println(wait_time)
 				if wait_time > 0 {
 					wait(wait_time)
 				}
