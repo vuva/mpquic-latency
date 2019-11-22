@@ -1017,10 +1017,13 @@ func (s *session) GetOpenStreamNo() uint32 {
 	return s.streamsMap.GetNumOutGoingStream()
 }
 func (s *session) RemoveStream(streamID protocol.StreamID) error {
+	s.streamsMap.mutex.Lock()
 	err := s.streamsMap.RemoveStream(streamID)
 	if err != nil {
 		return err
 	}
+	s.streamsMap.mutex.Unlock()
+
 	s.flowControlManager.RemoveStream(streamID)
 	return err
 }
