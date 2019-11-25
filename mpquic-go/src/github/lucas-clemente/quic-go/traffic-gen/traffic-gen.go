@@ -457,7 +457,7 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	beginstream := time.Now()
 	buffer := make([]byte, 0)
 	defer stream.Close()
-
+messageLoop:
 	for {
 		readTime := time.Now()
 		message := make([]byte, 65536)
@@ -489,7 +489,8 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
 					serverlog.lock.Unlock()
-
+					stream.Close()
+					break messageLoop
 				}
 				//				buffer.Write(message[eoc_byte_index:length])
 
