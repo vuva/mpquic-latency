@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
 n=1;
-folder='C:\Work\Data\mp-quic-logs\';
+folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-20-c-100000';
+exp_name = 'app-delay-quic-c-1-c-100000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -59,7 +59,7 @@ for j = 1:length(scheds)
         %     sched_latencies{length(sched_latencies)+1} = sched_latency/10^6;
         eval(['[~, row1, row2] = intersect(' sched '_client_dat(:,1),' sched '_server_dat(:,1),"sorted");']);
         eval([sched '_all_timestp = [' sched '_client_dat(row1,[1,2]), ' sched '_server_dat(row2,2)];']);
-        eval([sched '_all_timestp = ' sched '_all_timestp(40:end,:);']);
+        eval([sched '_all_timestp = ' sched '_all_timestp(1:end,:);']);
         
         
         
