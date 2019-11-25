@@ -566,7 +566,7 @@ func (s *session) handleFrames(fs []wire.Frame, p *path, rcvTime time.Time) erro
 			s.pathsLock.RLock()
 			for i := 0; i < int(frame.NumPaths); i++ {
 				s.remoteRTTs[frame.PathIDs[i]] = frame.RemoteRTTs[i]
-				if frame.RemoteRTTs[i] >= 30*time.Minute {
+				if frame.RemoteRTTs[i] >= 30*time.Minute && s.paths[frame.PathIDs[i]] != nil {
 					// Path is potentially failed
 					s.paths[frame.PathIDs[i]].potentiallyFailed.Set(true)
 				}
