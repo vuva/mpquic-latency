@@ -460,7 +460,7 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 messageLoop:
 	for {
 		readTime := time.Now()
-		message := make([]byte, 65536)
+		message := make([]byte, 655360)
 		length, err := stream.Read(message)
 
 		if length > 0 {
@@ -504,7 +504,7 @@ messageLoop:
 
 		if err != nil {
 			// log.Println(err)
-			time.Sleep(time.Microsecond)
+
 			break messageLoop
 		}
 	}
