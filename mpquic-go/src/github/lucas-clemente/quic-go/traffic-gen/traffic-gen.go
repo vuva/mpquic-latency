@@ -455,6 +455,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
 	beginstream := time.Now()
+	prevTime := time.Now()
 	buffer := make([]byte, 0)
 	defer stream.Close()
 messageLoop:
@@ -485,11 +486,11 @@ messageLoop:
 				// previous = seq_no_int
 				//
 				if seq_no_int >= BASE_SEQ_NO {
-					utils.Debugf("\n Got seq: %d \n", seq_no_int)
+					utils.Debugf("\n Got seq: %d in %d ns \n", seq_no_int, time.Now().Sub(prevTime))
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
 					serverlog.lock.Unlock()
-
+					prevTime = time.Now()
 				}
 				//				buffer.Write(message[eoc_byte_index:length])
 
