@@ -403,7 +403,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 func startQUICClientStream(quic_session quic.Session, message []byte) {
 	beforeOpen := time.Now()
-	stream, err := quic_session.OpenStreamSync()
+	stream, err := quic_session.OpenStream()
 	if err != nil {
 		utils.Debugf("Error OpenStreamSync:", err)
 		return
