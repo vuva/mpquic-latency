@@ -455,9 +455,9 @@ func startQUICServer(addr string, isMultipath bool) error {
 func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
 	beginstream := time.Now()
-	prevTime := time.Now()
 	buffer := make([]byte, 0)
 	defer stream.Close()
+	prevTime := time.Now()
 messageLoop:
 	for {
 		readTime := time.Now()
@@ -466,8 +466,8 @@ messageLoop:
 
 		if length > 0 {
 			message = message[0:length]
-			// utils.Debugf("\n RECEIVED from stream %d mes_len %d buffer %d: %x...%x \n", stream.StreamID(), length, len(buffer), message[0:4], message[length-4:length])
-
+			utils.Debugf("\n after %d RECEIVED from stream %d mes_len %d buffer %d: %x...%x \n", time.Now().Sub(prevTime).Nanoseconds(), stream.StreamID(), length, len(buffer), message[0:4], message[length-4:length])
+			prevTime = time.Now()
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			// log.Println(eoc_byte_index)
 
@@ -486,11 +486,11 @@ messageLoop:
 				// previous = seq_no_int
 				//
 				if seq_no_int >= BASE_SEQ_NO {
-					utils.Debugf("\n Got seq: %d in %d ns \n", seq_no_int, time.Now().Sub(prevTime))
+					utils.Debugf("\n Got seq: %d \n", seq_no_int)
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
 					serverlog.lock.Unlock()
-					prevTime = time.Now()
+
 				}
 				//				buffer.Write(message[eoc_byte_index:length])
 

@@ -138,7 +138,7 @@ end
 %% =========== plot DATA ==============
 % latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
 plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
-plotMeanLatency(labels,app_latencies);
+% plotMeanLatency(labels,app_latencies);
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
 % plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
 % plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
