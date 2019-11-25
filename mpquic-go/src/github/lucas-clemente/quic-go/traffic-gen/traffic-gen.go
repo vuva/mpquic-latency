@@ -454,6 +454,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 
 func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
+	beginstream := time.Now()
 	buffer := make([]byte, 0)
 	defer stream.Close()
 
@@ -507,7 +508,7 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 		}
 	}
 
-	utils.Debugf("\n Finish Stream: %d \n", stream.StreamID())
+	utils.Debugf("\n Finish Stream: %d in %d ns \n", stream.StreamID(), time.Now().Sub(beginstream).Nanoseconds())
 }
 
 func startQUICSession(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {
