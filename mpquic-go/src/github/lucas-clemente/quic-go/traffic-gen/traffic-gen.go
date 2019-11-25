@@ -505,7 +505,7 @@ messageLoop:
 		if err != nil {
 			// log.Println(err)
 			time.Sleep(time.Microsecond)
-			break
+			break messageLoop
 		}
 	}
 
