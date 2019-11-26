@@ -474,7 +474,7 @@ messageLoop:
 		if length > 0 {
 			// deadline = time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 			message = message[0:length]
-			utils.Debugf("\n after %d RECEIVED from stream %d mes_len %d buffer %d: %x...%x \n", time.Now().Sub(prevTime).Nanoseconds(), stream.StreamID(), length, len(buffer), message[0:4], message[length-4:length])
+			// utils.Debugf("\n after %d RECEIVED from stream %d mes_len %d buffer %d: %x...%x \n", time.Now().Sub(prevTime).Nanoseconds(), stream.StreamID(), length, len(buffer), message[0:4], message[length-4:length])
 			prevTime = time.Now()
 			eoc_byte_index := bytes.Index(message, intToBytes(uint(BASE_SEQ_NO-1), 4))
 			// log.Println(eoc_byte_index)
