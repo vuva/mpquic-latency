@@ -417,7 +417,7 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 	beforeWrite := time.Now()
 	stream.Write(message)
 	utils.Debugf("StreamID: %d open %d write %d", stream.StreamID(), beforeWrite.Sub(beforeOpen).Nanoseconds(), time.Now().Sub(beforeWrite).Nanoseconds())
-	// quic_session.RemoveStream(stream.StreamID())
+	quic_session.RemoveStream(stream.StreamID())
 }
 
 func startQUICServer(addr string, isMultipath bool) error {
@@ -445,7 +445,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 			break
 		}
 		// defer stream.Close()
-		go startServerStream(stream, &serverlog)
+		go startServerStream(sess, stream, &serverlog)
 
 	}
 
@@ -454,7 +454,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	return err
 }
 
-func startServerStream(stream quic.Stream, serverlog *ServerLog) {
+func startServerStream(sess quic.Session, stream quic.Stream, serverlog *ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
 	beginstream := time.Now()
 	buffer := make([]byte, 0)
@@ -510,7 +510,7 @@ messageLoop:
 			break messageLoop
 		}
 	}
-
+	sess.RemoveStream(stream.StreamID())
 	utils.Debugf("\n Finish Stream: %d in %d ns \n", stream.StreamID(), time.Now().Sub(beginstream).Nanoseconds())
 }
 
