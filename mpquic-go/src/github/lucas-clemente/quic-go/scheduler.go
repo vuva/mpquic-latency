@@ -690,6 +690,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 		// Select the path here
 		s.pathsLock.RLock()
 		pth = sch.selectPath(s, hasRetransmission, hasStreamRetransmission, fromPth)
+		utils.Debugf("\n SelectedPath: %d", pth.pathID)
 		s.pathsLock.RUnlock()
 
 		// Update latest scheduler decision
