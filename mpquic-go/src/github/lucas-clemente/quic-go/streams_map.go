@@ -259,7 +259,6 @@ func (m *streamsMap) RoundRobinIterate(fn streamLambda) error {
 		if streamID == 1 || streamID == 3 {
 			continue
 		}
-		fmt.Printf("\n StreamRR ID: %d \n", streamID)
 
 		cont, err := m.iterateFunc(streamID, fn)
 		if err != nil {
