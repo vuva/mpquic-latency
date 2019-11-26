@@ -256,10 +256,10 @@ func (m *streamsMap) RoundRobinIterate(fn streamLambda) error {
 
 	for i := uint32(0); i < numStreams; i++ {
 		streamID := m.openStreams[(i+startIndex)%numStreams]
-		fmt.Printf("\n StreamRR ID: %d", streamID)
 		if streamID == 1 || streamID == 3 {
 			continue
 		}
+		fmt.Printf("\n StreamRR ID: %d", streamID)
 
 		cont, err := m.iterateFunc(streamID, fn)
 		if err != nil {
