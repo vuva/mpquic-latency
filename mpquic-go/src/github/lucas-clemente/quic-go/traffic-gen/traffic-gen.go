@@ -460,15 +460,9 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	buffer := make([]byte, 0)
 	defer stream.Close()
 	// prevTime := time.Now()
-	deadline := time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 messageLoop:
 	for {
 		readTime := time.Now()
-		if time.Now().After(deadline) {
-			stream.Close()
-			utils.Debugf("\n Stream %d timeout. \n", stream.StreamID())
-			return
-		}
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
 
@@ -480,7 +474,6 @@ messageLoop:
 			// log.Println(eoc_byte_index)
 
 			for eoc_byte_index != -1 {
-				deadline = time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
 				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
 				// utils.Debugf("\n CHUNK: %x...%x  \n  length %d \n", data_chunk[0:4], data_chunk[len(data_chunk)-4:len(data_chunk)], len(data_chunk))
@@ -499,7 +492,7 @@ messageLoop:
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
 					serverlog.lock.Unlock()
-
+					break messageLoop
 				}
 				//				buffer.Write(message[eoc_byte_index:length])
 
