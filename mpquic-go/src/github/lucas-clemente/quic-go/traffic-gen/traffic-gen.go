@@ -346,7 +346,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 					go startQUICClientStream(quic_session, message)
 				} else {
-					if current_stream == nil {
+					if current_stream == nil || current_stream.StreamID() == 3 {
 						current_stream, err = quic_session.OpenStreamSync()
 						if err != nil {
 							utils.Debugf("Error OpenStreamSync:", err)
