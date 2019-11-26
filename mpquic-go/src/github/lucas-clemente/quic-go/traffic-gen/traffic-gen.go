@@ -358,7 +358,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 					}
 					utils.Debugf("OpenStream count: %d", quic_session.GetOpenStreamNo())
 					beforeWrite := time.Now()
-					go current_stream.Write(message)
+					current_stream.Write(message)
 					utils.Debugf("StreamID: %d write %d", current_stream.StreamID(), time.Now().Sub(beforeWrite).Nanoseconds())
 
 				}
@@ -417,7 +417,7 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 	beforeWrite := time.Now()
 	stream.Write(message)
 	utils.Debugf("StreamID: %d open %d write %d", stream.StreamID(), beforeWrite.Sub(beforeOpen).Nanoseconds(), time.Now().Sub(beforeWrite).Nanoseconds())
-	quic_session.RemoveStream(stream.StreamID())
+	// quic_session.RemoveStream(stream.StreamID())
 }
 
 func startQUICServer(addr string, isMultipath bool) error {
