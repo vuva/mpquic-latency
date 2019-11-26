@@ -763,32 +763,32 @@ func (sch *scheduler) sendPacket(s *session) error {
 		// Duplicate traffic when it was sent on an unknown performing path
 		// FIXME adapt for new paths coming during the connection
 		// DERA: redundant schedulers will duplicate packet anyways.
-		// if pth.rttStats.SmoothedRTT() == 0 && !RedundantSending {
-		// 	currentQuota := sch.quotas[pth.pathID]
-		// Was the packet duplicated on all potential paths?
-		// duplicateLoop:
-		// 	for pathID, tmpPth := range s.paths {
-		// 		if pathID == protocol.InitialPathID || pathID == pth.pathID {
-		// 			continue
-		// 		}
-		// 		if sch.quotas[pathID] < currentQuota && tmpPth.sentPacketHandler.SendingAllowed() {
-		// 			// Duplicate it
-		// 			pth.sentPacketHandler.DuplicatePacket(pkt)
-		// 			break duplicateLoop
-		// 		}
-		// 	}
-		// }
+		if pth.rttStats.SmoothedRTT() == 0 && !RedundantSending {
+			currentQuota := sch.quotas[pth.pathID]
+			// Was the packet duplicated on all potential paths?
+		duplicateLoop:
+			for pathID, tmpPth := range s.paths {
+				if pathID == protocol.InitialPathID || pathID == pth.pathID {
+					continue
+				}
+				if sch.quotas[pathID] < currentQuota && tmpPth.sentPacketHandler.SendingAllowed() {
+					// Duplicate it
+					pth.sentPacketHandler.DuplicatePacket(pkt)
+					break duplicateLoop
+				}
+			}
+		}
 		// Redundant retranmissions
-		// if RedundantSending {
-		// 	err := sch.redSendPacket(s, pth, pkt, windowUpdateFrames)
+		if RedundantSending {
+			err := sch.redSendPacket(s, pth, pkt, windowUpdateFrames)
 
-		// 	// VUVA: update send rate
-		// 	pth.rttStats.UpdateSendRate(uint64(pkt.Length))
+			// VUVA: update send rate
+			pth.rttStats.UpdateSendRate(uint64(pkt.Length))
 
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
+			if err != nil {
+				return err
+			}
+		}
 
 		// And try pinging on potentially failed paths
 		if fromPth != nil && fromPth.potentiallyFailed.Get() {

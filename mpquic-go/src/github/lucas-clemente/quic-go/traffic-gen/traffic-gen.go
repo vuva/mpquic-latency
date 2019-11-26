@@ -344,7 +344,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			if protocol == "quic" {
 				if isMultiStream {
 
-					go startQUICClientStream(quic_session, message)
+					startQUICClientStream(quic_session, message)
 				} else {
 					if current_stream == nil {
 						current_stream, err = quic_session.OpenStreamSync()
