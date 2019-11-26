@@ -460,18 +460,19 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	buffer := make([]byte, 0)
 	defer stream.Close()
 	prevTime := time.Now()
-	deadline := time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
+	// deadline := time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 messageLoop:
 	for {
 		readTime := time.Now()
-		if time.Now().After(deadline) {
-			break messageLoop
-		}
+		// if time.Now().After(deadline) {
+		// 	stream.Close()
+		// 	break
+		// }
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
 
 		if length > 0 {
-			deadline = time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
+			// deadline = time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 			message = message[0:length]
 			utils.Debugf("\n after %d RECEIVED from stream %d mes_len %d buffer %d: %x...%x \n", time.Now().Sub(prevTime).Nanoseconds(), stream.StreamID(), length, len(buffer), message[0:4], message[length-4:length])
 			prevTime = time.Now()
