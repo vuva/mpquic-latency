@@ -466,7 +466,8 @@ messageLoop:
 		readTime := time.Now()
 		if time.Now().After(deadline) {
 			stream.Close()
-			break
+			utils.Debugf("\n Stream %d timeout. \n", stream.StreamID())
+			return
 		}
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
