@@ -213,8 +213,8 @@ pathLoop:
 		if pathID == protocol.InitialPathID {
 			continue pathLoop
 		}
-
 		currentRTT = pth.rttStats.SmoothedRTT()
+		utils.Debugf("\n Path %d sRTT %d", pathID, currentRTT)
 
 		// Prefer staying single-path if not blocked by current path
 		// Don't consider this sample if the smoothed RTT is 0
@@ -244,7 +244,10 @@ pathLoop:
 		selectedPath = pth
 		selectedPathID = pathID
 	}
-	utils.Debugf("\n selectedPath: %d", selectedPath.pathID)
+	if selectedPath != nil {
+
+		utils.Debugf("\n selectedPath: %d", selectedPath.pathID)
+	}
 	return selectedPath
 }
 
