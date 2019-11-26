@@ -459,7 +459,7 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 	beginstream := time.Now()
 	buffer := make([]byte, 0)
 	defer stream.Close()
-	prevTime := time.Now()
+	// prevTime := time.Now()
 	// deadline := time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 messageLoop:
 	for {
