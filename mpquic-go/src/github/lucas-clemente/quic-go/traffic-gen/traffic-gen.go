@@ -64,6 +64,7 @@ var LOG_PREFIX string = ""
 var SERVER_ADDRESS string = "10.1.1.2"
 var SERVER_TCP_PORT int = 2121
 var SERVER_QUIC_PORT int = 4343
+var STREAM_TIMEOUT int = 5
 
 type ClientManager struct {
 	clients    map[*Client]bool
@@ -462,6 +463,9 @@ func startServerStream(stream quic.Stream, serverlog *ServerLog) {
 messageLoop:
 	for {
 		readTime := time.Now()
+		if readTime.After(beginstream.Add(time.Duration(STREAM_TIMEOUT) * time.Second)) {
+			break messageLoop
+		}
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
 
