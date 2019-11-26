@@ -473,7 +473,6 @@ messageLoop:
 		length, err := stream.Read(message)
 
 		if length > 0 {
-			deadline = time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 			message = message[0:length]
 			// utils.Debugf("\n after %d RECEIVED from stream %d mes_len %d buffer %d: %x...%x \n", time.Now().Sub(prevTime).Nanoseconds(), stream.StreamID(), length, len(buffer), message[0:4], message[length-4:length])
 			// prevTime = time.Now()
@@ -481,6 +480,7 @@ messageLoop:
 			// log.Println(eoc_byte_index)
 
 			for eoc_byte_index != -1 {
+				deadline = time.Now().Add(time.Duration(STREAM_TIMEOUT) * time.Second)
 				data_chunk := append(buffer, message[0:eoc_byte_index+4]...)
 				//				seq_no := message[eoc_byte_index-4:eoc_byte_index]
 				// utils.Debugf("\n CHUNK: %x...%x  \n  length %d \n", data_chunk[0:4], data_chunk[len(data_chunk)-4:len(data_chunk)], len(data_chunk))
