@@ -200,6 +200,7 @@ pathLoop:
 		// Don't block path usage if we retransmit, even on another path
 		// DERA: Only consider paths, that have space in their cwnd for 'new' packets.
 		//		 Or consider all valid paths for outstanding retransmissions.
+		utils.Debugf("\n Path %d check allowed", pathID)
 		if !hasRetransmission && !pth.SendingAllowed() {
 			continue pathLoop
 		}
