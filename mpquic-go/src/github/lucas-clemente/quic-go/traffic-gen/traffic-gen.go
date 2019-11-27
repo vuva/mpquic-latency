@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"math/big"
 	"math/rand"
 	"net"
@@ -31,7 +32,9 @@ import (
 
 	// "github.com/lucas-clemente/quic-go/h2quic"
 	// "github.com/lucas-clemente/quic-go/internal/testdata"
+	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/utils"
+
 	// "quic-go"
 	//	"io/ioutil"
 	"container/list"
@@ -59,12 +62,14 @@ type MessageList struct {
 	mutex sync.RWMutex
 }
 
-var BASE_SEQ_NO uint = 2147483648 // 0x80000000
+const BASE_SEQ_NO uint = 2147483648 // 0x80000000
 var LOG_PREFIX string = ""
-var SERVER_ADDRESS string = "10.1.1.2"
-var SERVER_TCP_PORT int = 2121
-var SERVER_QUIC_PORT int = 4343
-var STREAM_TIMEOUT int = 5
+
+const SERVER_ADDRESS string = "10.1.1.2"
+const SERVER_TCP_PORT int = 2121
+const SERVER_QUIC_PORT int = 4343
+const STREAM_TIMEOUT int = 5
+const MB = 1 << 20
 
 type ClientManager struct {
 	clients    map[*Client]bool
@@ -172,7 +177,7 @@ func (manager *ClientManager) send(client *Client) {
 	}
 }
 
-func startServerMode(address string, protocol string, multipath bool, log_file string) {
+func startServerMode(address string, protocol string, multipath bool, multiStream bool, log_file string) {
 	fmt.Println("Starting server...")
 	var listener net.Listener
 	var err error
@@ -206,7 +211,7 @@ func startServerMode(address string, protocol string, multipath bool, log_file s
 		}
 	case "quic":
 
-		startQUICServer(address, multipath)
+		startQUICServer(address, multipath, multiStream)
 
 	}
 
@@ -420,10 +425,12 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 	quic_session.RemoveStream(stream.StreamID())
 }
 
-func startQUICServer(addr string, isMultipath bool) error {
+func startQUICServer(addr string, isMultipath bool, isMultiStream bool) error {
 
 	listener, err := quic.ListenAddr(addr, generateTLSConfig(), &quic.Config{
-		CreatePaths: isMultipath,
+		CreatePaths:                           isMultipath,
+		MaxReceiveStreamFlowControlWindow:     uint64(protocol.ByteCount(math.Floor(100 * MB))),
+		MaxReceiveConnectionFlowControlWindow: uint64(protocol.ByteCount(math.Floor(100 * MB))),
 	})
 	if err != nil {
 		return err
@@ -445,7 +452,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 			break
 		}
 		// defer stream.Close()
-		go startServerStream(sess, stream, &serverlog)
+		go startServerStream(sess, stream, isMultiStream, &serverlog)
 
 	}
 
@@ -454,7 +461,7 @@ func startQUICServer(addr string, isMultipath bool) error {
 	return err
 }
 
-func startServerStream(sess quic.Session, stream quic.Stream, serverlog *ServerLog) {
+func startServerStream(sess quic.Session, stream quic.Stream, isMultistream bool, serverlog *ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
 	beginstream := time.Now()
 	buffer := make([]byte, 0)
@@ -492,7 +499,10 @@ messageLoop:
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
 					serverlog.lock.Unlock()
-					break messageLoop
+					if isMultistream {
+						break messageLoop
+
+					}
 				}
 				//				buffer.Write(message[eoc_byte_index:length])
 
@@ -517,7 +527,9 @@ messageLoop:
 func startQUICSession(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {
 
 	session, err := quic.DialAddr(urls[0], &tls.Config{InsecureSkipVerify: true}, &quic.Config{
-		CreatePaths: isMultipath,
+		CreatePaths:                           isMultipath,
+		MaxReceiveStreamFlowControlWindow:     uint64(protocol.ByteCount(math.Floor(100 * MB))),
+		MaxReceiveConnectionFlowControlWindow: uint64(protocol.ByteCount(math.Floor(100 * MB))),
 	})
 
 	if err != nil {
@@ -725,7 +737,7 @@ func main() {
 	sched := schedNameConvert(*flagProtocol, *flagSched)
 	if strings.ToLower(*flagMode) == "server" {
 		quic.SetSchedulerAlgorithm(sched)
-		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagLog)
+		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagMultiStream, *flagLog)
 	} else {
 		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched, *flagBlock, *flagMultiStream)
 	}

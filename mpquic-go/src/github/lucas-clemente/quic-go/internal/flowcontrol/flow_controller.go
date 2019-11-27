@@ -105,7 +105,7 @@ func (c *flowController) UpdateSendWindow(newOffset protocol.ByteCount) bool {
 
 func (c *flowController) SendWindowSize() protocol.ByteCount {
 	sendWindow := c.getSendWindow()
-	if c.streamID != 0 {
+	if c.streamID > 3 {
 		utils.Debugf("\n on Stream %d SendWindowSize() %d sendWindow %d", c.streamID, sendWindow-c.bytesSent, sendWindow)
 	}
 	if c.bytesSent > sendWindow { // should never happen, but make sure we don't do an underflow here
@@ -203,7 +203,7 @@ func (c *flowController) maybeAdjustWindowIncrement() {
 	// debug log, if the window size was actually increased
 	if oldWindowSize < c.receiveWindowIncrement {
 		newWindowSize := c.receiveWindowIncrement / (1 << 10)
-		if c.streamID > 3 {
+		if c.streamID == 0 {
 			utils.Debugf("Increasing receive flow control window for the connection to %d kB", newWindowSize)
 		} else {
 			utils.Debugf("Increasing receive flow control window increment for stream %d to %d kB", c.streamID, newWindowSize)
