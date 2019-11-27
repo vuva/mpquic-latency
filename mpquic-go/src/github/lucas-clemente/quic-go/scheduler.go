@@ -763,7 +763,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 
 		// VUVA: update send rate
 		pth.rttStats.UpdateSendRate(uint64(pkt.Length))
-		utils.Debugf("\n Ninetails: pktsent at path %d sendrate %d quota %d", pth.pathID, pth.rttStats.GetSendRate(), sch.quotas[pth.pathID])
+		// utils.Debugf("\n Ninetails: pktsent at path %d sendrate %d quota %d", pth.pathID, pth.rttStats.GetSendRate(), sch.quotas[pth.pathID])
 
 		// Duplicate traffic when it was sent on an unknown performing path
 		// FIXME adapt for new paths coming during the connection
