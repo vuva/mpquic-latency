@@ -38,7 +38,9 @@ const ReceiveStreamFlowControlWindow = (1 << 10) * 128 // 128 kB
 
 // ReceiveConnectionFlowControlWindow is the connection-level flow control window for receiving data
 // This is the value that Google servers are using
-const ReceiveConnectionFlowControlWindow = (1 << 10) * 48 // 48 kB
+// const ReceiveConnectionFlowControlWindow = (1 << 10) * 48 // 48 kB
+// VUVA: change it value to start stream faster
+const ReceiveConnectionFlowControlWindow = (1 << 10) * 128 // 128 kB
 
 // DefaultMaxReceiveStreamFlowControlWindowServer is the default maximum stream-level flow control window for receiving data, for the server
 // This is the value that Google servers are using
