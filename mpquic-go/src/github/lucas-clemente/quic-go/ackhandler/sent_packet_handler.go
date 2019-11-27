@@ -16,7 +16,7 @@ import (
 const (
 	// Maximum reordering in time space before time based loss detection considers a packet lost.
 	// In fraction of an RTT.
-	timeReorderingFraction = 1.0 / 1
+	timeReorderingFraction = 1.0 / 8
 	// defaultRTOTimeout is the RTO time on new connections
 	defaultRTOTimeout = 500 * time.Millisecond
 	// Minimum time in the future an RTO alarm may be set for.
