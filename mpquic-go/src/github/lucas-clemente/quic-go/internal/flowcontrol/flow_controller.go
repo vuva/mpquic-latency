@@ -94,7 +94,10 @@ func (c *flowController) GetBytesRetrans() protocol.ByteCount {
 func (c *flowController) UpdateSendWindow(newOffset protocol.ByteCount) bool {
 	if newOffset > c.sendWindow {
 		c.sendWindow = newOffset
-		utils.Debugf("\n on Stream %d UpdateSendWindow() newOffset %d", c.streamID, newOffset)
+
+		if c.streamID != 0 {
+			utils.Debugf("\n on Stream %d UpdateSendWindow() c.sendWindow %d newOffset %d", c.streamID, c.sendWindow, newOffset)
+		}
 		return true
 	}
 	return false
@@ -102,7 +105,9 @@ func (c *flowController) UpdateSendWindow(newOffset protocol.ByteCount) bool {
 
 func (c *flowController) SendWindowSize() protocol.ByteCount {
 	sendWindow := c.getSendWindow()
-	utils.Debugf("\n on Stream %d SendWindowSize() %d sendWindow %d", c.streamID, sendWindow-c.bytesSent, sendWindow)
+	if c.streamID != 0 {
+		utils.Debugf("\n on Stream %d SendWindowSize() %d sendWindow %d", c.streamID, sendWindow-c.bytesSent, sendWindow)
+	}
 	if c.bytesSent > sendWindow { // should never happen, but make sure we don't do an underflow here
 		return 0
 	}

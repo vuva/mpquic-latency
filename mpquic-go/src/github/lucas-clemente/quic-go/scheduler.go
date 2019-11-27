@@ -633,6 +633,7 @@ func (sch *scheduler) ackRemainingPaths(s *session, totalWindowUpdateFrames []*w
 	for _, pthTmp := range s.paths {
 		ackTmp := pthTmp.GetAckFrame()
 		for _, wuf := range windowUpdateFrames {
+			utils.Debugf("wuf.StreamID %d wuf.ByteOffset %d", wuf.StreamID, wuf.ByteOffset)
 			s.packer.QueueControlFrame(wuf, pthTmp)
 		}
 		if ackTmp != nil || len(windowUpdateFrames) > 0 {
@@ -680,6 +681,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 	// this call triggers the flow controller to increase the flow control windows, if necessary
 	windowUpdateFrames := s.getWindowUpdateFrames(false)
 	for _, wuf := range windowUpdateFrames {
+		utils.Debugf("wuf.StreamID %d wuf.ByteOffset %d", wuf.StreamID, wuf.ByteOffset)
 		s.packer.QueueControlFrame(wuf, pth)
 	}
 
