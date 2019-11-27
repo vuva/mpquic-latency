@@ -505,7 +505,7 @@ messageLoop:
 		}
 
 		if err != nil {
-			utils.Debugf(err)
+			utils.Debugf("Error getting mess: ", err)
 
 			break messageLoop
 		}
