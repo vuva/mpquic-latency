@@ -16,7 +16,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math"
+
+	// "math"
 	"math/big"
 	"math/rand"
 	"net"
@@ -32,7 +33,7 @@ import (
 
 	// "github.com/lucas-clemente/quic-go/h2quic"
 	// "github.com/lucas-clemente/quic-go/internal/testdata"
-	"github.com/lucas-clemente/quic-go/internal/protocol"
+	// "github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/utils"
 
 	// "quic-go"
@@ -428,9 +429,9 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 func startQUICServer(addr string, isMultipath bool, isMultiStream bool) error {
 
 	listener, err := quic.ListenAddr(addr, generateTLSConfig(), &quic.Config{
-		CreatePaths:                           isMultipath,
-		MaxReceiveStreamFlowControlWindow:     uint64(protocol.ByteCount(math.Floor(100 * MB))),
-		MaxReceiveConnectionFlowControlWindow: uint64(protocol.ByteCount(math.Floor(100 * MB))),
+		CreatePaths: isMultipath,
+		// MaxReceiveStreamFlowControlWindow:     uint64(protocol.ByteCount(math.Floor(100 * MB))),
+		// MaxReceiveConnectionFlowControlWindow: uint64(protocol.ByteCount(math.Floor(100 * MB))),
 	})
 	if err != nil {
 		return err
@@ -527,9 +528,9 @@ messageLoop:
 func startQUICSession(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {
 
 	session, err := quic.DialAddr(urls[0], &tls.Config{InsecureSkipVerify: true}, &quic.Config{
-		CreatePaths:                           isMultipath,
-		MaxReceiveStreamFlowControlWindow:     uint64(protocol.ByteCount(math.Floor(100 * MB))),
-		MaxReceiveConnectionFlowControlWindow: uint64(protocol.ByteCount(math.Floor(100 * MB))),
+		CreatePaths: isMultipath,
+		// MaxReceiveStreamFlowControlWindow:     uint64(protocol.ByteCount(math.Floor(100 * MB))),
+		// MaxReceiveConnectionFlowControlWindow: uint64(protocol.ByteCount(math.Floor(100 * MB))),
 	})
 
 	if err != nil {
