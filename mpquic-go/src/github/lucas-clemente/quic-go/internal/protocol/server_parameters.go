@@ -32,7 +32,9 @@ const AckSendDelay = 25 * time.Millisecond
 
 // ReceiveStreamFlowControlWindow is the stream-level flow control window for receiving data
 // This is the value that Google servers are using
-const ReceiveStreamFlowControlWindow = (1 << 10) * 32 // 32 kB
+// const ReceiveStreamFlowControlWindow = (1 << 10) * 32 // 32 kB
+// VUVA: change it value to start stream faster
+const ReceiveStreamFlowControlWindow = (1 << 10) * 128 // 128 kB
 
 // ReceiveConnectionFlowControlWindow is the connection-level flow control window for receiving data
 // This is the value that Google servers are using
@@ -59,9 +61,14 @@ const DefaultMaxReceiveConnectionFlowControlWindowClient = 24 * (1 << 20) // 24 
 const ConnectionFlowControlMultiplier = 1.5
 
 // MaxStreamsPerConnection is the maximum value accepted for the number of streams per connection
+// const MaxIncomingDynamicStreamsPerConnection = 1000
+// const MaxStreamsPerConnection = 1000
+// VUVA: change it value support multi flow
 const MaxStreamsPerConnection = 1000009
 
 // MaxIncomingDynamicStreamsPerConnection is the maximum value accepted for the incoming number of dynamic streams per connection
+// const MaxIncomingDynamicStreamsPerConnection = 1000
+// VUVA: change it value support multi flow
 const MaxIncomingDynamicStreamsPerConnection = 1000009
 
 // MaxStreamsMultiplier is the slack the client is allowed for the maximum number of streams per connection, needed e.g. when packets are out of order or dropped. The minimum of this procentual increase and the absolute increment specified by MaxStreamsMinimumIncrement is used.
