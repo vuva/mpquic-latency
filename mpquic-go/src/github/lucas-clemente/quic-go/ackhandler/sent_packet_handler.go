@@ -16,7 +16,7 @@ import (
 const (
 	// Maximum reordering in time space before time based loss detection considers a packet lost.
 	// In fraction of an RTT.
-	timeReorderingFraction = 1.0 / 8
+	timeReorderingFraction = 1.0 / 1
 	// defaultRTOTimeout is the RTO time on new connections
 	defaultRTOTimeout = 500 * time.Millisecond
 	// Minimum time in the future an RTO alarm may be set for.
@@ -442,6 +442,7 @@ func (h *sentPacketHandler) detectLostPackets() {
 		for _, p := range lostPackets {
 			h.queuePacketForRetransmission(p)
 			h.congestion.OnPacketLost(p.Value.PacketNumber, p.Value.Length, h.bytesInFlight)
+			utils.Debugf("Detect loss: PacketNumber %d sent at %d", p.Value.PacketNumber, p.Value.SendTime.UnixNano())
 		}
 	}
 }
