@@ -200,7 +200,7 @@ pathLoop:
 		// Don't block path usage if we retransmit, even on another path
 		// DERA: Only consider paths, that have space in their cwnd for 'new' packets.
 		//		 Or consider all valid paths for outstanding retransmissions.
-		utils.Debugf("\n Path %d check allowed", pathID)
+		// utils.Debugf("\n Path %d check allowed", pathID)
 		if !hasRetransmission && !pth.SendingAllowed() {
 			continue pathLoop
 		}
@@ -215,7 +215,7 @@ pathLoop:
 			continue pathLoop
 		}
 		currentRTT = pth.rttStats.SmoothedRTT()
-		utils.Debugf("\n Path %d sRTT %d", pathID, currentRTT)
+		// utils.Debugf("\n Path %d sRTT %d", pathID, currentRTT)
 
 		// Prefer staying single-path if not blocked by current path
 		// Don't consider this sample if the smoothed RTT is 0
@@ -245,10 +245,10 @@ pathLoop:
 		selectedPath = pth
 		selectedPathID = pathID
 	}
-	if selectedPath != nil {
+	// if selectedPath != nil {
 
-		utils.Debugf("\n selectedPath: %d", selectedPath.pathID)
-	}
+	// 	utils.Debugf("\n selectedPath: %d", selectedPath.pathID)
+	// }
 	return selectedPath
 }
 
