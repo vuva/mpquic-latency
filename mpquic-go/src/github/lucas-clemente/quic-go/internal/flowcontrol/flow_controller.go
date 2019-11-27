@@ -94,7 +94,7 @@ func (c *flowController) GetBytesRetrans() protocol.ByteCount {
 func (c *flowController) UpdateSendWindow(newOffset protocol.ByteCount) bool {
 	if newOffset > c.sendWindow {
 		c.sendWindow = newOffset
-		utils.Debugf("\n on Stream %d UpdateSendWindow() %d newOffset %d", c.streamID, newOffset)
+		utils.Debugf("\n on Stream %d UpdateSendWindow() newOffset %d", c.streamID, newOffset)
 		return true
 	}
 	return false
