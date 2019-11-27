@@ -96,7 +96,7 @@ func (c *flowController) UpdateSendWindow(newOffset protocol.ByteCount) bool {
 		c.sendWindow = newOffset
 
 		if c.streamID > 3 {
-			utils.Debugf("\n on Stream %d UpdateSendWindow() c.sendWindow %d newOffset %d", c.streamID, c.sendWindow, newOffset)
+			utils.Debugf("\n on Stream %d UpdateSendWindow() c.sendWindow %d newOffset %d at %d", c.streamID, c.sendWindow, newOffset, time.Now().UnixNano())
 		}
 		return true
 	}

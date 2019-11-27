@@ -419,7 +419,7 @@ func startQUICClientStream(quic_session quic.Session, message []byte) {
 		return
 	}
 	defer stream.Close()
-	utils.Debugf("OpenStream count: %d", quic_session.GetOpenStreamNo())
+	utils.Debugf("OpenStream count: %d at %d", quic_session.GetOpenStreamNo(), time.Now().UnixNano())
 	beforeWrite := time.Now()
 	stream.Write(message)
 	utils.Debugf("StreamID: %d open %d write %d", stream.StreamID(), beforeWrite.Sub(beforeOpen).Nanoseconds(), time.Now().Sub(beforeWrite).Nanoseconds())
