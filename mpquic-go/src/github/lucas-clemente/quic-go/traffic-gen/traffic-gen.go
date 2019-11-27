@@ -505,7 +505,7 @@ messageLoop:
 		}
 
 		if err != nil {
-			// log.Println(err)
+			utils.Debug(err)
 
 			break messageLoop
 		}

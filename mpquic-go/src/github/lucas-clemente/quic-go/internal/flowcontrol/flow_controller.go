@@ -95,7 +95,7 @@ func (c *flowController) UpdateSendWindow(newOffset protocol.ByteCount) bool {
 	if newOffset > c.sendWindow {
 		c.sendWindow = newOffset
 
-		if c.streamID != 0 {
+		if c.streamID > 3 {
 			utils.Debugf("\n on Stream %d UpdateSendWindow() c.sendWindow %d newOffset %d", c.streamID, c.sendWindow, newOffset)
 		}
 		return true
@@ -203,7 +203,7 @@ func (c *flowController) maybeAdjustWindowIncrement() {
 	// debug log, if the window size was actually increased
 	if oldWindowSize < c.receiveWindowIncrement {
 		newWindowSize := c.receiveWindowIncrement / (1 << 10)
-		if c.streamID == 0 {
+		if c.streamID > 3 {
 			utils.Debugf("Increasing receive flow control window for the connection to %d kB", newWindowSize)
 		} else {
 			utils.Debugf("Increasing receive flow control window increment for stream %d to %d kB", c.streamID, newWindowSize)
