@@ -492,7 +492,7 @@ messageLoop:
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
 					serverlog.lock.Unlock()
-					// break messageLoop
+					break messageLoop
 				}
 				//				buffer.Write(message[eoc_byte_index:length])
 
