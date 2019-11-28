@@ -156,7 +156,7 @@ func (c *flowController) AddBytesRead(n protocol.ByteCount) {
 func (c *flowController) MaybeUpdateWindow() (bool, protocol.ByteCount /* new increment */, protocol.ByteCount /* new offset */) {
 	diff := c.receiveWindow - c.bytesRead
 	if c.streamID > 3 {
-		utils.Debugf("\n MaybeUpdateWindow diff %d c.receiveWindow %d c.bytesRead %d", diff, c.receiveWindow, c.bytesRead)
+		utils.Debugf("\n MaybeUpdateWindow diff %d c.receiveWindow %d c.bytesRead %d at %d", diff, c.receiveWindow, c.bytesRead, time.Now().UnixNano())
 
 	}
 	// Chromium implements the same threshold
