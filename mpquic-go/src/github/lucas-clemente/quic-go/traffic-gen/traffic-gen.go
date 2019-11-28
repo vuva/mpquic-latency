@@ -463,8 +463,8 @@ func startQUICServer(addr string, isMultipath bool, isMultiStream bool) error {
 }
 
 func startServerStream(sess quic.Session, stream quic.Stream, isMultistream bool, serverlog *ServerLog) {
-	utils.Debugf("\n Get data from stream: %d \n", stream.StreamID())
-	beginstream := time.Now()
+	utils.Debugf("\n Get data from stream: %d \n at ", stream.StreamID(), time.Now().UnixNano())
+	// beginstream := time.Now()
 	buffer := make([]byte, 0)
 	defer stream.Close()
 	// prevTime := time.Now()
@@ -522,7 +522,7 @@ messageLoop:
 		}
 	}
 	sess.RemoveStream(stream.StreamID())
-	utils.Debugf("\n Finish Stream: %d in %d ns \n", stream.StreamID(), time.Now().Sub(beginstream).Nanoseconds())
+	utils.Debugf("\n Finish Stream: %d at %d \n", stream.StreamID(), time.Now().UnixNano())
 }
 
 func startQUICSession(urls []string, scheduler string, isMultipath bool) (sess quic.Session, err error) {

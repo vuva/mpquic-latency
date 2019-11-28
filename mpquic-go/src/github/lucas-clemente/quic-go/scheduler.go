@@ -601,7 +601,7 @@ func (sch *scheduler) performPacketSending(s *session, windowUpdateFrames []*wir
 	// send every window update twice
 	for _, f := range windowUpdateFrames {
 		s.packer.QueueControlFrame(f, pth)
-		utils.Debugf("\n QueueControlFrame: path %d stream %d byteoffset %d", pth.pathID, f.StreamID, f.ByteOffset)
+		utils.Debugf("\n QueueControlFrame: path %d stream %d byteoffset %d at %d", pth.pathID, f.StreamID, f.ByteOffset, time.Now().UnixNano())
 	}
 
 	// Packet sent, so update its quota
