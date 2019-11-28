@@ -34,7 +34,7 @@ const AckSendDelay = 25 * time.Millisecond
 // This is the value that Google servers are using
 // const ReceiveStreamFlowControlWindow = (1 << 10) * 32 // 32 kB
 // VUVA: change it value to start stream faster
-const ReceiveStreamFlowControlWindow = (1 << 10) * 8 // 128 kB
+const ReceiveStreamFlowControlWindow = (1 << 10) * 32 // 128 kB
 
 // ReceiveConnectionFlowControlWindow is the connection-level flow control window for receiving data
 // This is the value that Google servers are using
