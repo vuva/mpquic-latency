@@ -191,7 +191,7 @@ func (c *flowController) maybeAdjustWindowIncrement() {
 	for _, remoteRTT := range c.remoteRTTs {
 		maxRemoteRTT = utils.MaxDuration(maxRemoteRTT, remoteRTT)
 	}
-
+	utils.Debugf("Check timeSinceLastWindowUpdate stream %d %d %d %d", c.streamID, timeSinceLastWindowUpdate, rtt, maxRemoteRTT)
 	// interval between the window updates is sufficiently large, no need to increase the increment
 	if timeSinceLastWindowUpdate >= 2*utils.MaxDuration(rtt, maxRemoteRTT) {
 		return
