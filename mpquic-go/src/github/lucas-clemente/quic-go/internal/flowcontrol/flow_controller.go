@@ -155,7 +155,7 @@ func (c *flowController) AddBytesRead(n protocol.ByteCount) {
 // the last return value is the new offset of the receive window
 func (c *flowController) MaybeUpdateWindow() (bool, protocol.ByteCount /* new increment */, protocol.ByteCount /* new offset */) {
 	diff := c.receiveWindow - c.bytesRead
-
+	utils.Debugf("\n MaybeUpdateWindow diff %d c.receiveWindow %d c.bytesRead %d", diff, c.receiveWindow, c.bytesRead)
 	// Chromium implements the same threshold
 	if diff < (c.receiveWindowIncrement / 2) {
 		var newWindowIncrement protocol.ByteCount
@@ -168,6 +168,7 @@ func (c *flowController) MaybeUpdateWindow() (bool, protocol.ByteCount /* new in
 
 		c.lastWindowUpdateTime = time.Now()
 		c.receiveWindow = c.bytesRead + c.receiveWindowIncrement
+		utils.Debugf("\n UpdateWindow diff %d newreceiveWindow %d receiveWindowIncrement %d newreceiveWindowIncrement", diff, c.receiveWindow, c.receiveWindowIncrement, newWindowIncrement)
 		return true, newWindowIncrement, c.receiveWindow
 	}
 
