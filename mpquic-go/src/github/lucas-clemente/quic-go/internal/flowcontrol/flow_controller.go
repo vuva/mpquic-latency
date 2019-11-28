@@ -171,7 +171,7 @@ func (c *flowController) MaybeUpdateWindow() (bool, protocol.ByteCount /* new in
 
 		c.lastWindowUpdateTime = time.Now()
 		c.receiveWindow = c.bytesRead + c.receiveWindowIncrement
-		utils.Debugf("\n UpdateWindow diff %d newreceiveWindow %d receiveWindowIncrement %d newreceiveWindowIncrement", diff, c.receiveWindow, c.receiveWindowIncrement, newWindowIncrement)
+		utils.Debugf("\n UpdateWindow diff %d newreceiveWindow %d receiveWindowIncrement %d newreceiveWindowIncrement at %d", diff, c.receiveWindow, c.receiveWindowIncrement, newWindowIncrement, time.Now().UnixNano())
 		return true, newWindowIncrement, c.receiveWindow
 	}
 
