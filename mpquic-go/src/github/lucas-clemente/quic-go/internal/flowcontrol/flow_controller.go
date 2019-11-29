@@ -162,7 +162,7 @@ func (c *flowController) MaybeUpdateWindow() (bool, protocol.ByteCount /* new in
 	// Chromium implements the same threshold
 	// if diff < (c.receiveWindowIncrement / 2) {
 	// VUVA: Chnage it to avoid blocking in multistream trafic gen
-	if diff < (c.receiveWindowIncrement / 8) {
+	if diff < (c.receiveWindowIncrement / 2) {
 		var newWindowIncrement protocol.ByteCount
 		oldWindowIncrement := c.receiveWindowIncrement
 
