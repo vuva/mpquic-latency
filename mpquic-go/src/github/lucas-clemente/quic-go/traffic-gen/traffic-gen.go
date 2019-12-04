@@ -71,6 +71,7 @@ const SERVER_TCP_PORT int = 2121
 const SERVER_QUIC_PORT int = 4343
 const STREAM_TIMEOUT int = 5
 const MB = 1 << 20
+const MAX_SEND_BUFFER_SIZE = 4194304
 
 type ClientManager struct {
 	clients    map[*Client]bool
@@ -277,8 +278,14 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 	go func() {
 		gen_counter := 1
+
 		for i := 1; time.Now().Before(endTime); i++ {
-			if isBlockingCall && send_queue.mess_list.Len() > 0 {
+			send_queue_size := 0
+			for e := send_queue.mess_list.Front(); e != nil; e = e.Next() {
+				send_queue_size += len(e.Value.([]byte))
+			}
+
+			if (isBlockingCall && send_queue.mess_list.Len() > 0) || send_queue_size > MAX_SEND_BUFFER_SIZE {
 				time.Sleep(time.Nanosecond)
 				continue
 			}
