@@ -477,7 +477,7 @@ func startServerStream(sess quic.Session, stream quic.Stream, isMultistream bool
 	// prevTime := time.Now()
 messageLoop:
 	for {
-		readTime := time.Now()
+		// readTime := time.Now()
 		message := make([]byte, 65536)
 		length, err := stream.Read(message)
 
@@ -505,7 +505,7 @@ messageLoop:
 				if seq_no_int >= BASE_SEQ_NO {
 					log.Printf("\n Got seq: %d at %d \n", seq_no_int, time.Now().UnixNano())
 					serverlog.lock.Lock()
-					serverlog.timeStamps[seq_no_int] = uint(readTime.UnixNano())
+					serverlog.timeStamps[seq_no_int] = uint(time.Now().UnixNano())
 					serverlog.lock.Unlock()
 					if isMultistream {
 						break messageLoop
