@@ -441,11 +441,12 @@ pathLoop:
 			continue pathLoop
 		}
 
-		cw := pth.sentPacketHandler.GetCongestionWindow()
+		cw := pth.sentPacketHandler.GetBandwidth()
 		currentRTT := uint64(pth.rttStats.SmoothedRTT().Nanoseconds() / 1000000)
 		rate := uint64(0)
 		if currentRTT > 0 {
-			rate = cw * 1000 / currentRTT
+			// rate = cw * 1000 / currentRTT
+			rate = cw
 			// rate = pth.rttStats.GetSendRate()
 
 		}
