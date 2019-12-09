@@ -1,10 +1,10 @@
 %% ====== SET PARAMS ==========
 k=1;
-n=1;
+n=20;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-25-c-100000';
+exp_name = 'app-delay-quic-c-5-g-300000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -59,7 +59,9 @@ for j = 1:length(scheds)
         %     sched_latencies{length(sched_latencies)+1} = sched_latency/10^6;
         eval(['[~, row1, row2] = intersect(' sched '_client_dat(:,1),' sched '_server_dat(:,1),"sorted");']);
         eval([sched '_all_timestp = [' sched '_client_dat(row1,[1,2]), ' sched '_server_dat(row2,2)];']);
-        eval([sched '_all_timestp = ' sched '_all_timestp(1:end,:);']);
+        
+%         Trim data
+        eval([sched '_all_timestp = ' sched '_all_timestp(200:end-20,:);']);
         
         
         
@@ -138,7 +140,7 @@ end
 %% =========== plot DATA ==============
 % latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
 plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
-% plotMeanLatency(labels,app_latencies);
+plotMeanLatency(labels,app_latencies);
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
 % plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
 % plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
