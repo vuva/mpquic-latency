@@ -446,7 +446,7 @@ pathLoop:
 		rate := uint64(0)
 		if currentRTT > 0 {
 			rate = cw * 1000 / currentRTT
-			// rate = pth.rttStats.GetSendRate()
+			rate = pth.rttStats.GetSendRate()
 
 		}
 
