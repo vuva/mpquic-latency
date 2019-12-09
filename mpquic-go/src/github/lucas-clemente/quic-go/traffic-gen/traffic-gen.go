@@ -281,7 +281,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 		for i := 1; time.Now().Before(endTime); i++ {
 			send_queue_size := 0
-			for e := send_queue.mess_list.Front(); e.Value != nil; e = e.Next() {
+			for e := send_queue.mess_list.Front(); e != nil && e.Value != nil; e = e.Next() {
 				send_queue_size += len(e.Value.([]byte))
 			}
 
