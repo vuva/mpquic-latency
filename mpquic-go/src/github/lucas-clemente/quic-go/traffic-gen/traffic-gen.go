@@ -285,7 +285,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				send_queue_size += len(e.Value.([]byte))
 			}
 
-			if (isBlockingCall && send_queue.mess_list.Len() > 0) || send_queue_size > MAX_SEND_BUFFER_SIZE {
+			if ((protocol == "tcp" || isBlockingCall) && send_queue.mess_list.Len() > 0) || send_queue_size > MAX_SEND_BUFFER_SIZE {
 				time.Sleep(time.Nanosecond)
 				continue
 			}
