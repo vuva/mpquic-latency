@@ -1,6 +1,6 @@
 %% ====== SET PARAMS ==========
 k=1;
-n=4;
+n=3;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
