@@ -37,7 +37,7 @@ type SentPacketHandler interface {
 
 	// vuva
 	GetBandwidth() uint64
-	SendingAllowedWithReserved(reservedPackets protocol.ByteCount) bool
+	SendingAllowedWithReserved(reservedBytes protocol.ByteCount) bool
 }
 
 // ReceivedPacketHandler handles ACKs needed to send for incoming packets
