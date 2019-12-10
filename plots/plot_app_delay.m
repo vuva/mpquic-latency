@@ -1,17 +1,17 @@
 %% ====== SET PARAMS ==========
 k=1;
-n=3;
+n=50;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-2-c-300000';
+exp_name = 'app-delay-quic-c-2-c-500000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
 HAS_PCAP = false;
 HAS_FRAME_LOG = false;
 
-TRIM_OFFSET=20 ;
+TRIM_OFFSET=25;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
