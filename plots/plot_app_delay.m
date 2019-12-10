@@ -1,6 +1,6 @@
 %% ====== SET PARAMS ==========
-k=50;
-n=50;
+k=1;
+n=9;
 folder='D:\Work\Data\mp-quic-logs\';
 distribution_name = 'on5-off3';
 global exp_name;
@@ -11,7 +11,7 @@ frame_log_surfix= '-frame.log';
 HAS_PCAP = false;
 HAS_FRAME_LOG = false;
 
-TRIM_OFFSET=15;
+TRIM_OFFSET=25;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
