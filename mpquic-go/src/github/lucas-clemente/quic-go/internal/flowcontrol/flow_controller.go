@@ -105,9 +105,10 @@ func (c *flowController) UpdateSendWindow(newOffset protocol.ByteCount) bool {
 
 func (c *flowController) SendWindowSize() protocol.ByteCount {
 	sendWindow := c.getSendWindow()
-	if c.streamID > 3 {
-		utils.Debugf("\n on Stream %d SendWindowSize() %d sendWindow %d", c.streamID, sendWindow-c.bytesSent, sendWindow)
-	}
+	// VUVA
+	// if c.streamID > 3 {
+	// 	utils.Debugf("\n on Stream %d SendWindowSize() %d sendWindow %d", c.streamID, sendWindow-c.bytesSent, sendWindow)
+	// }
 	if c.bytesSent > sendWindow { // should never happen, but make sure we don't do an underflow here
 		return 0
 	}
@@ -155,10 +156,11 @@ func (c *flowController) AddBytesRead(n protocol.ByteCount) {
 // the last return value is the new offset of the receive window
 func (c *flowController) MaybeUpdateWindow() (bool, protocol.ByteCount /* new increment */, protocol.ByteCount /* new offset */) {
 	diff := c.receiveWindow - c.bytesRead
-	if c.streamID > 3 {
-		utils.Debugf("\n MaybeUpdateWindow diff %d c.receiveWindow %d c.bytesRead %d at %d", diff, c.receiveWindow, c.bytesRead, time.Now().UnixNano())
+	//VUVA
+	// if c.streamID > 3 {
+	// 	utils.Debugf("\n MaybeUpdateWindow diff %d c.receiveWindow %d c.bytesRead %d at %d", diff, c.receiveWindow, c.bytesRead, time.Now().UnixNano())
 
-	}
+	// }
 	// Chromium implements the same threshold
 	// if diff < (c.receiveWindowIncrement / 2) {
 	// VUVA: Chnage it to avoid blocking in multistream trafic gen

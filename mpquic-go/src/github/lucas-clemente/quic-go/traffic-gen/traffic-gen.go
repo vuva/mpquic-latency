@@ -503,7 +503,7 @@ messageLoop:
 				// previous = seq_no_int
 				//
 				if seq_no_int >= BASE_SEQ_NO {
-					log.Printf("\n Got seq: %d at %d \n", seq_no_int, time.Now().UnixNano())
+					utils.Debugf("\n Got seq: %d at %d \n", seq_no_int, time.Now().UnixNano())
 					serverlog.lock.Lock()
 					serverlog.timeStamps[seq_no_int] = uint(time.Now().UnixNano())
 					serverlog.lock.Unlock()
