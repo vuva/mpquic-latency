@@ -553,8 +553,8 @@ func (h *sentPacketHandler) SendingAllowed() bool {
 }
 
 //VUVA Ninetails
-func (h *sentPacketHandler) SendingAllowedWithReserved(reservedPackets protocol.ByteCount) bool {
-	congestionLimited := h.bytesInFlight > h.congestion.GetCongestionWindow()-h.congestion.GetCongestionWindow()
+func (h *sentPacketHandler) SendingAllowedWithReserved(reservedBytes protocol.ByteCount) bool {
+	congestionLimited := h.bytesInFlight > h.congestion.GetCongestionWindow()-reservedBytes
 	maxTrackedLimited := protocol.PacketNumber(len(h.retransmissionQueue)+h.packetHistory.Len()) >= protocol.MaxTrackedSentPackets
 	if congestionLimited {
 		utils.Debugf("Congestion reserved limited path %d: bytes in flight %d, windows %d RTT %d",
