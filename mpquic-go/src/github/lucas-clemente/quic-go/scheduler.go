@@ -445,9 +445,9 @@ pathLoop:
 		currentRTT := uint64(pth.rttStats.SmoothedRTT().Nanoseconds() / 1000000)
 		rate := uint64(0)
 		if currentRTT > 0 {
-			rate = cw * 1000 / currentRTT
-			rate = pth.rttStats.GetSendRate()
-
+			// rate = cw * 1000 / currentRTT
+			// rate = pth.rttStats.GetSendRate()
+			rate = cw
 		}
 
 		if rate >= highestRate {
