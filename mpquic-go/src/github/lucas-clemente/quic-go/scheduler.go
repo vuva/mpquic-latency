@@ -442,6 +442,7 @@ pathLoop:
 		}
 
 		cw := pth.sentPacketHandler.GetBandwidth()
+		utils.Debugf("\n Ninetails: CW path %d: %d B", pathID, pth.sentPacketHandler.GetCongestionWindow())
 		currentRTT := uint64(pth.rttStats.SmoothedRTT().Nanoseconds() / 1000000)
 		rate := uint64(0)
 		if currentRTT > 0 {
