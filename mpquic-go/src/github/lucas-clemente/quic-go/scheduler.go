@@ -522,7 +522,7 @@ pathLoop:
 			}
 		}
 	} else {
-		utils.Debugf("\n Ninetails no dup: highestRate = %d next_stream %d", highestRate, next_stream.StreamID())
+		utils.Debugf("\n Ninetails no dup: highestRate = %d next_stream %p", highestRate, next_stream)
 		// return nil
 	}
 
