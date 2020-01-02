@@ -491,8 +491,11 @@ pathLoop:
 			lowestRTT = currentRTT
 		}
 
-		selectedPath = lowestRTTPath
+	}
 
+	selectedPath = lowestRTTPath
+	if selectedPath == nil {
+		return nil
 	}
 
 	if highestRate == 0 {
@@ -515,7 +518,7 @@ pathLoop:
 				}
 			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved(2*protocol.MaxPacketSize) && !hasRetransmission {
 				utils.Debugf("\n Ninetails: shortlink waiting fatlink selectedPath %d highestRatePath %d", selectedPath.pathID, highestRatePathRTT)
-				goto pathLoop
+				return nil
 			}
 		}
 	} else {
