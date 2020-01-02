@@ -418,7 +418,7 @@ func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, h
 	s.streamsMap.mutex.RLock()
 	for id, datastream := range s.streamsMap.streams {
 
-		if datastream.StreamID() > 3 {
+		if datastream.StreamID() > 3 && len(datastream.dataForWriting) > 0 {
 			next_stream = datastream
 			utils.Debugf("\n vuva: id %d stream %p", id, datastream)
 		}
