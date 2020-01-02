@@ -516,7 +516,7 @@ pathLoop:
 						utils.Debugf("\n Ninetails: redundant send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
 					}
 				}
-			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved(2*protocol.MaxPacketSize) && !hasRetransmission {
+			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved(20*protocol.MaxPacketSize) && !hasRetransmission {
 				utils.Debugf("\n Ninetails: shortlink waiting fatlink selectedPath %d highestRatePath %d", selectedPath.pathID, highestRatePathRTT)
 				return nil
 			}
