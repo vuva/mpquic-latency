@@ -515,12 +515,13 @@ pathLoop:
 				for pathID, pth := range s.paths {
 					if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
 						sch.redundantPaths = append(sch.redundantPaths, pth)
-						utils.Debugf("\n Ninetails: redundantly send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
+						utils.Debugf("\n Ninetails: redundant send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
 					}
 				}
-			} else if availablePathCount == 1 && !selectedPath.SendingAllowedWithReserved(2*protocol.MaxPacketSize) && !hasRetransmission {
+			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved(2*protocol.MaxPacketSize) && !hasRetransmission {
 				utils.Debugf("\n Ninetails: shortlink waiting fatlink selectedPath %d highestRatePath %d", selectedPath.pathID, highestRatePathRTT)
-				return nil
+				time.Sleep(time.Microsecond)
+				goto pathLoop
 			}
 		}
 	} else {
