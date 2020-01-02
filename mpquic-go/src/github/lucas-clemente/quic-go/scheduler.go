@@ -491,11 +491,8 @@ pathLoop:
 			lowestRTT = currentRTT
 		}
 
-	}
+		selectedPath = lowestRTTPath
 
-	selectedPath = lowestRTTPath
-	if selectedPath == nil {
-		goto pathLoop
 	}
 
 	if highestRate == 0 {
