@@ -495,7 +495,7 @@ pathLoop:
 
 	selectedPath = lowestRTTPath
 	if selectedPath == nil {
-		return nil
+		goto pathLoop
 	}
 
 	if highestRate == 0 {
