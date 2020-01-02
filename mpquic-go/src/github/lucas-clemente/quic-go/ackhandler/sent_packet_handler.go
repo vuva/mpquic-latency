@@ -564,8 +564,8 @@ func (h *sentPacketHandler) SendingAllowedWithReserved(reservedBytes protocol.By
 	// Workaround for #555:
 	// Always allow sending of retransmissions. This should probably be limited
 	// to RTOs, but we currently don't have a nice way of distinguishing them.
-	haveRetransmissions := len(h.retransmissionQueue) > 0
-	return !maxTrackedLimited && (!congestionLimited || haveRetransmissions)
+	// haveRetransmissions := len(h.retransmissionQueue) > 0
+	return !maxTrackedLimited && (!congestionLimited)
 }
 
 func (h *sentPacketHandler) CongestionFree() bool {
