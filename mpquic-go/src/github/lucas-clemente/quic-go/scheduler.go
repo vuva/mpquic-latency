@@ -717,6 +717,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 
 		// XXX No more path available, should we have a new QUIC error message?
 		if pth == nil {
+			utils.Debugf("\n Ninetail: pth == nil")
 			windowUpdateFrames := s.getWindowUpdateFrames(false)
 			return sch.ackRemainingPaths(s, windowUpdateFrames)
 		}
