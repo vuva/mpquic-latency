@@ -367,6 +367,7 @@ pathLoop:
 func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 
 	var selectedPath *path
+	availablePathCount := 0
 pathLoop:
 	for pathID, pth := range s.paths {
 		// Don't block path usage if we retransmit, even on another path
@@ -385,7 +386,8 @@ pathLoop:
 		if pathID == protocol.InitialPathID {
 			continue pathLoop
 		}
-
+		availablePathCount++
+		utils.Debugf("\n OPP: availablePath %d", availablePathCount)
 		if selectedPath == nil {
 			selectedPath = pth
 		} else {
