@@ -418,7 +418,7 @@ func (h *sentPacketHandler) detectLostPackets() {
 
 	maxRTT := float64(utils.MaxDuration(h.rttStats.LatestRTT(), h.rttStats.SmoothedRTT()))
 	delayUntilLost := time.Duration((1.0 + timeReorderingFraction) * maxRTT)
-
+	utils.Debugf("detectLostPackets() at %d delayUntilLost %d h.rttStats.LatestRTT() %d", time.Now().UnixNano(), delayUntilLost.Nanoseconds(), h.rttStats.LatestRTT())
 	var lostPackets []*PacketElement
 	for el := h.packetHistory.Front(); el != nil; el = el.Next() {
 		packet := el.Value
