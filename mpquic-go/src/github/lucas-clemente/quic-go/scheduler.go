@@ -118,7 +118,7 @@ func (sch *scheduler) getRetransmission(s *session) (hasRetransmission bool, ret
 				// Don't retransmit handshake packets when the handshake is complete
 				continue
 			}
-			utils.Debugf("\tDequeueing handshake retransmission for packet 0x%x", retransmitPacket.PacketNumber)
+			utils.Debugf("\tDequeueing handshake retransmission for packet %d", retransmitPacket.PacketNumber)
 			return
 		}
 		utils.Debugf("\tDequeueing retransmission of packet %d from path %d", retransmitPacket.PacketNumber, pth.pathID)
@@ -780,7 +780,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 
 		// VUVA: update send rate
 		// pth.rttStats.UpdateSendRate(uint64(pkt.Length))
-		utils.Debugf("\n Ninetails: pktsent %d at path %d sendrate %d quota %d at %d", pkt.PacketNumber, pth.pathID, pth.rttStats.GetSendRate(), sch.quotas[pth.pathID], time.Now().UnixNano())
+		utils.Debugf("\n Ninetails: pktsent %d at path %d size %d quota %d at %d", pkt.PacketNumber, pth.pathID, pkt.Length, sch.quotas[pth.pathID], time.Now().UnixNano())
 
 		// Duplicate traffic when it was sent on an unknown performing path
 		// FIXME adapt for new paths coming during the connection
