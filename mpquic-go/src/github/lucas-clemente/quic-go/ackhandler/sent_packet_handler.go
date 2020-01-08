@@ -402,16 +402,16 @@ func (h *sentPacketHandler) updateLossDetectionAlarm() {
 	// TODO(#496): Handle handshake packets separately
 	if !h.lossTime.IsZero() {
 		// Early retransmit timer or time loss detection.
-		utils.Debugf("\n path %d h.alarm %d lossTime", h.pathID, h.alarm.UnixNano())
 		h.alarm = h.lossTime
+		utils.Debugf("\n path %d h.alarm %d lossTime", h.pathID, h.alarm.UnixNano())
 	} else if h.rttStats.SmoothedRTT() != 0 && h.tlpCount < maxTailLossProbes {
 		// TLP
-		utils.Debugf("\n path %d h.alarm %d TLP", h.pathID, h.alarm.UnixNano())
 		h.alarm = h.lastSentTime.Add(h.computeTLPTimeout())
+		utils.Debugf("\n path %d h.alarm %d TLP", h.pathID, h.alarm.UnixNano())
 	} else {
 		// RTO
-		utils.Debugf("\n path %d h.alarm %d RTO", h.pathID, h.alarm.UnixNano())
 		h.alarm = h.lastSentTime.Add(utils.MaxDuration(h.computeRTOTimeout(), minRetransmissionTime))
+		utils.Debugf("\n path %d h.alarm %d RTO", h.pathID, h.alarm.UnixNano())
 	}
 
 }
@@ -657,10 +657,11 @@ func (h *sentPacketHandler) hasMultipleOutstandingRetransmittablePackets() bool 
 
 func (h *sentPacketHandler) computeTLPTimeout() time.Duration {
 	rtt := h.congestion.SmoothedRTT()
+	// VUVA: this could be an error in lucas-clemente or qdeconick's code when these two resturn value were reversed
 	if h.hasMultipleOutstandingRetransmittablePackets() {
-		return utils.MaxDuration(2*rtt, rtt*3/2+minRetransmissionTime/2)
+		return utils.MaxDuration(2*rtt, minTailLossProbeTimeout)
 	}
-	return utils.MaxDuration(2*rtt, minTailLossProbeTimeout)
+	return utils.MaxDuration(2*rtt, rtt*3/2+minRetransmissionTime/2)
 }
 
 func (h *sentPacketHandler) skippedPacketsAcked(ackFrame *wire.AckFrame) bool {
