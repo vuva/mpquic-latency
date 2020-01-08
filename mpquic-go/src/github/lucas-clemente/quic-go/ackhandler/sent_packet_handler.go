@@ -442,7 +442,7 @@ func (h *sentPacketHandler) detectLostPackets() {
 		for _, p := range lostPackets {
 			h.queuePacketForRetransmission(p)
 			h.congestion.OnPacketLost(p.Value.PacketNumber, p.Value.Length, h.bytesInFlight)
-			utils.Debugf("Detect loss: PacketNumber %d sent at %d", p.Value.PacketNumber, p.Value.SendTime.UnixNano())
+			utils.Debugf("At %d Detect loss: PacketNumber %d sent at %d", time.Now().UnixNano(), p.Value.PacketNumber, p.Value.SendTime.UnixNano())
 		}
 	}
 }
