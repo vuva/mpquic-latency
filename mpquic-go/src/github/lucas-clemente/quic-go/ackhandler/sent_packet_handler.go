@@ -410,6 +410,7 @@ func (h *sentPacketHandler) updateLossDetectionAlarm() {
 		// RTO
 		h.alarm = h.lastSentTime.Add(utils.MaxDuration(h.computeRTOTimeout(), minRetransmissionTime))
 	}
+	utils.Debugf("\n h.alarm %d", h.alarm.UnixNano())
 }
 
 func (h *sentPacketHandler) detectLostPackets() {

@@ -399,6 +399,7 @@ runLoop:
 			if timeout := timerPth.sentPacketHandler.GetAlarmTimeout(); !timeout.IsZero() && timeout.Before(now) {
 				// This could cause packets to be retransmitted, so check it before trying
 				// to send packets.
+				utils.Debugf("timerPth %d timeout %d", timerPth.pathID, timeout)
 				timerPth.sentPacketHandler.OnAlarm()
 			}
 			timerPth = nil
