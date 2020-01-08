@@ -480,6 +480,7 @@ func (h *sentPacketHandler) OnAlarm() {
 	// TODO(#496): Handle handshake packets separately
 	if !h.lossTime.IsZero() {
 		// Early retransmit or time loss detection
+		utils.Debugf("OnAlarm detectLostPackets RTT %d", h.rttStats.SmoothedRTT())
 		h.detectLostPackets()
 
 	} else if h.tlpCount < maxTailLossProbes {
