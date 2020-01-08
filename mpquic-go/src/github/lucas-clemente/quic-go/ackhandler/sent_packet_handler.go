@@ -402,15 +402,15 @@ func (h *sentPacketHandler) updateLossDetectionAlarm() {
 	// TODO(#496): Handle handshake packets separately
 	if !h.lossTime.IsZero() {
 		// Early retransmit timer or time loss detection.
-		utils.Debugf("\n path h.alarm %d lossTime", h.pathID, h.alarm.UnixNano())
+		utils.Debugf("\n path %d h.alarm %d lossTime", h.pathID, h.alarm.UnixNano())
 		h.alarm = h.lossTime
 	} else if h.rttStats.SmoothedRTT() != 0 && h.tlpCount < maxTailLossProbes {
 		// TLP
-		utils.Debugf("\n path h.alarm %d TLP", h.pathID, h.alarm.UnixNano())
+		utils.Debugf("\n path %d h.alarm %d TLP", h.pathID, h.alarm.UnixNano())
 		h.alarm = h.lastSentTime.Add(h.computeTLPTimeout())
 	} else {
 		// RTO
-		utils.Debugf("\n path h.alarm %d RTO", h.pathID, h.alarm.UnixNano())
+		utils.Debugf("\n path %d h.alarm %d RTO", h.pathID, h.alarm.UnixNano())
 		h.alarm = h.lastSentTime.Add(utils.MaxDuration(h.computeRTOTimeout(), minRetransmissionTime))
 	}
 
