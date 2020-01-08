@@ -121,7 +121,7 @@ func (sch *scheduler) getRetransmission(s *session) (hasRetransmission bool, ret
 			utils.Debugf("\tDequeueing handshake retransmission for packet 0x%x", retransmitPacket.PacketNumber)
 			return
 		}
-		utils.Debugf("\tDequeueing retransmission of packet 0x%x from path %d", retransmitPacket.PacketNumber, pth.pathID)
+		utils.Debugf("\tDequeueing retransmission of packet %d from path %d", retransmitPacket.PacketNumber, pth.pathID)
 		// resend the frames that were in the packet
 		for _, frame := range retransmitPacket.GetFramesForRetransmission() {
 			switch f := frame.(type) {
