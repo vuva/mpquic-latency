@@ -29,7 +29,9 @@ const (
 	// TCP RFC calls for 1 second RTO however Linux differs from this default and
 	// define the minimum RTO to 200ms, we will use the same until we have data to
 	// support a higher or lower value
-	minRetransmissionTime = 200 * time.Millisecond
+	// minRetransmissionTime = 200 * time.Millisecond
+	// VUVA: Reduce delayed ACK
+	minRetransmissionTime = 10 * time.Millisecond
 	// Minimum tail loss probe time in ms
 	minTailLossProbeTimeout = 10 * time.Millisecond
 
