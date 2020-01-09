@@ -662,8 +662,9 @@ func (h *sentPacketHandler) computeTLPTimeout() time.Duration {
 	// VUVA: this could be an error in lucas-clemente or qdeconick's code when these two resturn value were reversed
 	if h.hasMultipleOutstandingRetransmittablePackets() {
 		return utils.MaxDuration(2*rtt, minTailLossProbeTimeout)
+		// return utils.MaxDuration(2*rtt, rtt*3/2+minRetransmissionTime/2)
 	}
-	return utils.MaxDuration(2*rtt, rtt*3/2+minRetransmissionTime/2)
+	return utils.MaxDuration(2*rtt, minTailLossProbeTimeout)
 }
 
 func (h *sentPacketHandler) skippedPacketsAcked(ackFrame *wire.AckFrame) bool {
