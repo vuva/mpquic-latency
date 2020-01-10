@@ -442,8 +442,11 @@ func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, h
 		} else {
 			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
 		}
-		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 2*protocol.MaxPacketSize) {
+		if pathlastFrame != nil && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 0) {
+
 			lastSentStreamFrame = pathlastFrame
+		}
+		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 1*protocol.MaxPacketSize) {
 			leadingPath = pth
 		}
 	}
@@ -951,7 +954,7 @@ func (sch *scheduler) addStreamFrameEntry(pathID protocol.PathID, pkt *ackhandle
 // Redundantly resend packet on given paths. If no Frame could be duplicated at least send ACKs.
 func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packet, WUFs []*wire.WindowUpdateFrame) error {
 	// DERA: Get the frames that should be duplicated
-	// redundantFrames := pkt.GetCopyFrames()
+	redundantFrames := pkt.GetCopyFrames()
 
 	for _, redPth := range sch.redundantPaths {
 		if redPth.pathID == protocol.InitialPathID || redPth.pathID == pth.pathID {
@@ -959,9 +962,10 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 		}
 
 		// VUVA Get redundantFrame by looking at the other path
-		var redundantFrames []wire.Frame
+		// var redundantFrames []wire.Frame
 	leadingPathPacketHistory:
 		for p := pth.sentPacketHandler.GetPktHistory().Front(); p != nil; p = p.Next() {
+			utils.Debugf("\n FullRedundant: pktHistory %d size %d", p.Value.PacketNumber, p.Value.Length)
 			for _, f := range p.Value.Frames {
 				switch f.(type) {
 				case *wire.StreamFrame:
@@ -970,6 +974,7 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 					if redPthLastFrame != nil && sframe.StreamID == redPthLastFrame.StreamID && sframe.Offset > redPthLastFrame.Offset {
 						redundantFrames = p.Value.GetCopyFrames()
 						pkt = &p.Value
+						utils.Debugf("\n FullRedundant: dupFrame %d at pkt %d", sframe.Offset, pkt.PacketNumber)
 						break leadingPathPacketHistory
 					}
 				}
