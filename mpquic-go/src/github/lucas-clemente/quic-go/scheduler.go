@@ -423,18 +423,21 @@ func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, h
 	// availablePathCount := 0
 	var lastSentStreamFrame *wire.StreamFrame
 	var leadingPath *path
-pathLoop:
+
 	for pathID, pth := range s.paths {
-		// XXX Prevent using initial pathID if multiple paths
 		if pathID == protocol.InitialPathID {
-			continue pathLoop
+			continue
+		}
+
+		if pth.potentiallyFailed.Get() {
+			continue
 		}
 
 		//VUVA: finding the leading path
 		// TODO: finding a solution for multistream
 		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
 		if pathlastFrame != nil {
-			utils.Debugf("\nNewRe: pathlastFrame pth %d %d", pth.pathID, pathlastFrame.StreamID, uint64(pathlastFrame.Offset))
+			utils.Debugf("\nNewRe: pathlastFrame pth %d %d %d", pth.pathID, pathlastFrame.StreamID, pathlastFrame.Offset)
 
 		} else {
 			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
@@ -442,6 +445,14 @@ pathLoop:
 		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
 			lastSentStreamFrame = pathlastFrame
 			leadingPath = pth
+		}
+	}
+
+pathLoop:
+	for pathID, pth := range s.paths {
+		// XXX Prevent using initial pathID if multiple paths
+		if pathID == protocol.InitialPathID {
+			continue pathLoop
 		}
 
 		// Don't block path usage if we retransmit, even on another path
@@ -456,12 +467,14 @@ pathLoop:
 			continue pathLoop
 		}
 
-		if pth == leadingPath || leadingPath == nil {
+		if pth == leadingPath {
 			selectedPath = pth
 		} else {
+
 			sch.redundantPaths = append(sch.redundantPaths, pth)
 		}
 	}
+
 	if selectedPath != nil && leadingPath != nil {
 
 		utils.Debugf("\nNewRe: selectedPath %d leadingPath %d", selectedPath.pathID, leadingPath.pathID)
