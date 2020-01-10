@@ -434,7 +434,7 @@ pathLoop:
 		// TODO: finding a solution for multistream
 		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
 		if pathlastFrame != nil {
-			utils.Debugf("\nNewRe: pathlastFrame %d ", pathlastFrame.StreamID, pathlastFrame.Offset)
+			utils.Debugf("\nNewRe: pathlastFrame pth %d %d", pth.pathID, pathlastFrame.StreamID, pathlastFrame.Offset)
 
 		} else {
 			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
@@ -842,6 +842,13 @@ func (sch *scheduler) sendPacket(s *session) error {
 		if err != nil {
 			return err
 		}
+		//VUVA update last sent streamFrame
+		lastStreamFrame := pkt.GetLastStreamFrame()
+		if lastStreamFrame != nil {
+			pth.sentPacketHandler.UpdateLastSentFrame(lastStreamFrame)
+
+		}
+
 		windowUpdateFrames = nil
 		if !sent {
 			// Prevent sending empty packets
@@ -986,7 +993,12 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 		if err != nil {
 			continue
 		}
+		//VUVA update last sent streamFrame
+		lastStreamFrame := pkt.GetLastStreamFrame()
+		if lastStreamFrame != nil {
+			pth.sentPacketHandler.UpdateLastSentFrame(lastStreamFrame)
 
+		}
 		// Add mapping for duplicated packet
 		sch.dupPackets[dupID{pth.pathID, pkt.PacketNumber}] = dupID{redPth.pathID, dupPkt.number}
 		// Extend mapping to bidirection, if original packet is droppable

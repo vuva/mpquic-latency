@@ -39,6 +39,7 @@ type SentPacketHandler interface {
 	GetBandwidth() uint64
 	SendingAllowedWithReserved(reservedBytes protocol.ByteCount) bool
 	GetLastSentFrame() *wire.StreamFrame
+	UpdateLastSentFrame(streamFrame *wire.StreamFrame)
 	GetPktHistory() *PacketList
 }
 

@@ -181,13 +181,6 @@ func (h *sentPacketHandler) SentPacket(packet *Packet) error {
 	h.packets++
 	h.sentStreamFrameBytes += packet.GetStreamFrameLength()
 
-	//VUVA update last sent streamFrame
-	lastStreamFrame := packet.GetLastStreamFrame()
-	if lastStreamFrame != nil {
-		h.lastSentStreamFrame = lastStreamFrame
-
-	}
-
 	// XXX RTO and TLP are recomputed based on the possible last sent retransmission. Is it ok like this?
 	h.lastSentTime = now
 
@@ -742,6 +735,9 @@ func (h *sentPacketHandler) GetLastSentFrame() *wire.StreamFrame {
 	// 	utils.Debugf("\nNewRe: GetLastSentFrame pkt %d streamFrame %d", pkt.Value.PacketNumber, streamFrame)
 	// }
 	return h.lastSentStreamFrame
+}
+func (h *sentPacketHandler) UpdateLastSentFrame(streamFrame *wire.StreamFrame) {
+	h.lastSentStreamFrame = streamFrame
 }
 func (h *sentPacketHandler) GetPktHistory() *PacketList {
 	return h.packetHistory
