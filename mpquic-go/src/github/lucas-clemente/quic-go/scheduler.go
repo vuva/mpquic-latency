@@ -457,7 +457,7 @@ pathLoop:
 			sch.redundantPaths = append(sch.redundantPaths, pth)
 		}
 	}
-	utils.Debugf("\nNewRe: selectedPath %d leadingPath %d", selectedPath, leadingPath)
+	utils.Debugf("\nNewRe: selectedPath %d leadingPath %d", selectedPath.pathID, leadingPath.pathID)
 	return selectedPath
 }
 
@@ -937,6 +937,7 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 					redPthLastFrame := redPth.sentPacketHandler.GetLastSentFrame()
 					if sframe.StreamID == redPthLastFrame.StreamID && sframe.Offset > redPthLastFrame.Offset {
 						redundantFrames = p.Value.GetCopyFrames()
+						pkt = &p.Value
 					}
 				}
 
