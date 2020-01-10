@@ -935,15 +935,17 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 
 		// VUVA Get redundantFrame by looking at the other path
 		var redundantFrames []wire.Frame
+	leadingPathPacketHistory:
 		for p := pth.sentPacketHandler.GetPktHistory().Front(); p != nil; p = p.Next() {
 			for _, f := range p.Value.Frames {
 				switch f.(type) {
 				case *wire.StreamFrame:
 					sframe := f.(*wire.StreamFrame)
 					redPthLastFrame := redPth.sentPacketHandler.GetLastSentFrame()
-					if sframe.StreamID == redPthLastFrame.StreamID && sframe.Offset > redPthLastFrame.Offset {
+					if redPthLastFrame != nil && sframe.StreamID == redPthLastFrame.StreamID && sframe.Offset > redPthLastFrame.Offset {
 						redundantFrames = p.Value.GetCopyFrames()
 						pkt = &p.Value
+						break leadingPathPacketHistory
 					}
 				}
 
