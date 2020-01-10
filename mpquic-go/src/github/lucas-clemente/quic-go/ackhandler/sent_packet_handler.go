@@ -714,3 +714,23 @@ func (h *sentPacketHandler) RemovePacketByNumber(num protocol.PacketNumber) bool
 	}
 	return false
 }
+
+//VUVA: return last sent Pkt
+func (h *sentPacketHandler) GetLastSentFrame() *wire.StreamFrame {
+	pkt := h.packetHistory.Back()
+	var streamFrame *wire.StreamFrame
+	for ; pkt != nil && pkt.Value.Frames != nil; pkt = pkt.Prev() {
+
+		frames := pkt.Value.Frames
+		for _, frame := range frames {
+			sframe, err := frame.(*wire.StreamFrame)
+			if !err {
+				streamFrame = sframe
+			}
+		}
+	}
+	return streamFrame
+}
+func (h *sentPacketHandler) GetPktHistory() *PacketList {
+	return h.packetHistory
+}

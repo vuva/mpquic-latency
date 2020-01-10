@@ -12,6 +12,8 @@ import (
 	"github.com/lucas-clemente/quic-go/internal/protocol"
 	"github.com/lucas-clemente/quic-go/internal/utils"
 	"github.com/lucas-clemente/quic-go/internal/wire"
+
+	"container/list"
 )
 
 var (
@@ -23,9 +25,6 @@ var (
 	CongestionControl string
 	// LogPayload indicates if send goodput Bytes should be logged to file
 	LogPayload = true
-
-	//VUVA: cached value of highestrate
-	HighestRateCache uint64
 )
 
 // SetSchedulerAlgorithm is used to adapt the scheduler
@@ -33,7 +32,7 @@ func SetSchedulerAlgorithm(scheduler string) {
 	s := make([]byte, len(scheduler))
 	copy(s, scheduler)
 	SchedulerAlgorithm = string(s)
-	RedundantSending = SchedulerAlgorithm == "oppRedundant" || SchedulerAlgorithm == "utilRepair" || SchedulerAlgorithm == "nineTails"
+	RedundantSending = SchedulerAlgorithm == "oppRedundant" || SchedulerAlgorithm == "utilRepair" || SchedulerAlgorithm == "nineTails" || SchedulerAlgorithm == "redundant"
 }
 
 // SetCongestionControl is used to set the CC algorithm
@@ -47,6 +46,20 @@ func SetCongestionControl(cc string) {
 type dupID struct {
 	PathID       protocol.PathID
 	PacketNumber protocol.PacketNumber
+}
+
+//VUVA: frame queue for redundant sending
+type StreamFrameList struct {
+	stream_frame_queue *list.List
+
+	mutex sync.RWMutex
+}
+
+type StreamFrameElement struct {
+	streamID   StreamID
+	offset     protocol.ByteCount
+	dataLength protocol.ByteCount
+	sentByPath protocol.PathID
 }
 
 type scheduler struct {
@@ -85,12 +98,17 @@ type scheduler struct {
 	logFiles      map[protocol.PathID]*os.File
 	lastSentBytes map[protocol.PathID]uint64
 	lastLogTS     float64
+
+	//VUVA: cached value of highestrate
+	highestRateCache uint64
+	streamFrameQueue StreamFrameList
 }
 
 func (sch *scheduler) setup() {
 	sch.quotas = make(map[protocol.PathID]uint)
 	sch.dupPackets = make(map[dupID]dupID)
 	sch.bestPathSelection = make(map[protocol.PathID]uint64)
+	sch.streamFrameQueue = StreamFrameList{stream_frame_queue: list.New()}
 }
 
 func (sch *scheduler) getRetransmission(s *session) (hasRetransmission bool, retransmitPacket *ackhandler.Packet, pth *path) {
@@ -364,7 +382,7 @@ pathLoop:
 }
 
 // Select all paths for retransmission, or paths with space for new transmissions.
-func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
+func (sch *scheduler) selectOppRedundantPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
 
 	var selectedPath *path
 	// availablePathCount := 0
@@ -389,6 +407,51 @@ pathLoop:
 		// availablePathCount++
 		// utils.Debugf("\n OPP: availablepaths %d", availablePathCount)
 		if selectedPath == nil {
+			selectedPath = pth
+		} else {
+			sch.redundantPaths = append(sch.redundantPaths, pth)
+		}
+	}
+
+	return selectedPath
+}
+
+//VUVA: new full redundant sched
+func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, hasStreamRetransmission bool, fromPth *path) *path {
+
+	var selectedPath *path
+	// availablePathCount := 0
+	var lastSentStreamFrame *wire.StreamFrame
+	var leadingPath *path
+pathLoop:
+	for pathID, pth := range s.paths {
+
+		//VUVA: finding the leading path
+		// TODO: finding a solution for multistream
+		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
+		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
+			lastSentStreamFrame = pathlastFrame
+			leadingPath = pth
+		}
+
+		// Don't block path usage if we retransmit, even on another path
+		// DERA: Only consider paths, that have space in their cwnd for 'new' packets.
+		//		 Or consider all valid paths for outstanding retransmissions.
+		if !hasRetransmission && !pth.SendingAllowed() {
+			continue pathLoop
+		}
+
+		// If this path is potentially failed, do no consider it for sending
+		if pth.potentiallyFailed.Get() {
+			continue pathLoop
+		}
+
+		// XXX Prevent using initial pathID if multiple paths
+		if pathID == protocol.InitialPathID {
+			continue pathLoop
+		}
+
+		if pth == leadingPath {
 			selectedPath = pth
 		} else {
 			sch.redundantPaths = append(sch.redundantPaths, pth)
@@ -501,9 +564,9 @@ pathLoop:
 	}
 
 	if highestRate == 0 {
-		highestRate = HighestRateCache
+		highestRate = sch.highestRateCache
 	} else {
-		HighestRateCache = highestRate
+		sch.highestRateCache = highestRate
 	}
 	// check if we should send redundantly
 	shouldRedundant := false
@@ -582,10 +645,12 @@ func (sch *scheduler) selectPath(s *session, hasRetransmission bool, hasStreamRe
 		return sch.selectPathRoundRobin(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	case "oppRedundant":
 		// Select any free-to-send path for sending and all others as redundant paths.
-		return sch.selectRedundantPaths(s, hasRetransmission, hasStreamRetransmission, fromPth)
+		return sch.selectOppRedundantPaths(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	case "utilRepair":
 		// Utilize path with the highest throughput.
 		return sch.selectPathUtilRepair(s, hasRetransmission, hasStreamRetransmission, fromPth)
+	case "redundant":
+		return sch.selectRedundantPaths(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	case "nineTails":
 		return sch.selectNineTailsPaths(s, hasRetransmission, hasStreamRetransmission, fromPth)
 	default:
@@ -802,6 +867,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 		}
 		// Redundant retranmissions
 		if RedundantSending {
+
 			err := sch.redSendPacket(s, pth, pkt, windowUpdateFrames)
 
 			// VUVA: update send rate
@@ -822,21 +888,69 @@ func (sch *scheduler) sendPacket(s *session) error {
 	}
 }
 
+//VUVA: handle StreamFrameQUEUE
+func (sch *scheduler) addStreamFrameEntry(pathID protocol.PathID, pkt *ackhandler.Packet) {
+	for _, f := range pkt.Frames {
+		// Frames suitable for MP-duplication
+		switch f.(type) {
+		case *wire.StreamFrame:
+			fElement := StreamFrameElement{
+				streamID:   f.(*wire.StreamFrame).StreamID,
+				offset:     f.(*wire.StreamFrame).Offset,
+				dataLength: f.(*wire.StreamFrame).DataLen(),
+				sentByPath: pathID,
+			}
+			sch.streamFrameQueue.stream_frame_queue.PushBack(fElement)
+		}
+	}
+
+}
+
+// func (sch *scheduler) updateStreamFrameQueue(s *session) {
+// 	for _, f := range sch.streamFrameQueue {
+
+// 	}
+// 	s.streamsMap.mutex.RLock()
+// 	for id, datastream := range s.streamsMap.streams;datastream.StreamID() > 3 {
+// 		datastream.flowControlManager.
+// 	}
+// 	s.streamsMap.mutex.RUnlock()
+// }
+
 // Redundantly resend packet on given paths. If no Frame could be duplicated at least send ACKs.
 func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packet, WUFs []*wire.WindowUpdateFrame) error {
-	// Get the frames that should be duplicated
-	redundantFrames := pkt.GetCopyFrames()
-	if redundantFrames == nil {
-		if sch.redundantPaths != nil {
-			utils.Infof("No RED Frames")
-		}
-		// Prevent duplicating empty packets
-		return sch.ackRemainingPaths(s, WUFs)
-	}
+	// DERA: Get the frames that should be duplicated
+	// redundantFrames := pkt.GetCopyFrames()
 
 	for _, redPth := range sch.redundantPaths {
 		if redPth.pathID == protocol.InitialPathID || redPth.pathID == pth.pathID {
 			continue
+		}
+
+		// VUVA Get redundantFrame by looking at the other path
+		var redundantFrames []wire.Frame
+		for p := pth.sentPacketHandler.GetPktHistory().Front(); p != nil; p = p.Next() {
+			for _, f := range p.Value.Frames {
+				switch f.(type) {
+				case *wire.StreamFrame:
+					sframe := f.(*wire.StreamFrame)
+					redPthLastFrame := redPth.sentPacketHandler.GetLastSentFrame()
+					if sframe.StreamID == redPthLastFrame.StreamID && sframe.Offset > redPthLastFrame.Offset {
+						redundantFrames = p.Value.GetCopyFrames()
+					}
+				}
+
+			}
+		}
+
+		//END VUVA
+
+		if redundantFrames == nil {
+			if sch.redundantPaths != nil {
+				utils.Infof("No RED Frames")
+			}
+			// Prevent duplicating empty packets
+			return sch.ackRemainingPaths(s, WUFs)
 		}
 		// Clone duplicable Frames from packet
 		encLevel, sealer := s.packer.cryptoSetup.GetSealer()

@@ -711,6 +711,8 @@ func schedNameConvert(protocol string, sched_name string) string {
 
 		case "nt":
 			converted_name = "nineTails"
+		case "re":
+			converted_name = "redundant"
 		default:
 			panic("no scheduler found")
 		}
