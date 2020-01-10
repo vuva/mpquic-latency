@@ -467,12 +467,13 @@ pathLoop:
 			continue pathLoop
 		}
 
-		if pth == leadingPath {
-			selectedPath = pth
-		} else {
+		if leadingPath != nil && pth != leadingPath {
 
 			sch.redundantPaths = append(sch.redundantPaths, pth)
+		} else {
+			selectedPath = pth
 		}
+
 	}
 
 	if selectedPath != nil && leadingPath != nil {
