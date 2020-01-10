@@ -429,7 +429,7 @@ pathLoop:
 		//VUVA: finding the leading path
 		// TODO: finding a solution for multistream
 		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
-		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
+		if pathlastFrame != nil && pathlastFrame.StreamID >= 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
 			lastSentStreamFrame = pathlastFrame
 			leadingPath = pth
 		}
@@ -451,13 +451,13 @@ pathLoop:
 			continue pathLoop
 		}
 
-		if pth == leadingPath {
+		if pth == leadingPath || leadingPath == nil {
 			selectedPath = pth
 		} else {
 			sch.redundantPaths = append(sch.redundantPaths, pth)
 		}
 	}
-
+	utils.Debugf("\nNewRe: selectedPath %d leadingPath %d", selectedPath, leadingPath)
 	return selectedPath
 }
 
@@ -786,7 +786,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 
 		// XXX No more path available, should we have a new QUIC error message?
 		if pth == nil {
-			utils.Debugf("\n Ninetail: pth == nil")
+			// utils.Debugf("\n Ninetail: pth == nil")
 			windowUpdateFrames := s.getWindowUpdateFrames(false)
 			return sch.ackRemainingPaths(s, windowUpdateFrames)
 		}
