@@ -425,6 +425,10 @@ func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, h
 	var leadingPath *path
 pathLoop:
 	for pathID, pth := range s.paths {
+		// XXX Prevent using initial pathID if multiple paths
+		if pathID == protocol.InitialPathID {
+			continue pathLoop
+		}
 
 		//VUVA: finding the leading path
 		// TODO: finding a solution for multistream
@@ -433,9 +437,9 @@ pathLoop:
 			utils.Debugf("\nNewRe: pathlastFrame %d ", pathlastFrame.StreamID, pathlastFrame.Offset)
 
 		} else {
-			utils.Debugf("\nNewRe: pathlastFrame nil")
+			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
 		}
-		if pathlastFrame != nil && pathlastFrame.StreamID >= 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
+		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
 			lastSentStreamFrame = pathlastFrame
 			leadingPath = pth
 		}
@@ -449,11 +453,6 @@ pathLoop:
 
 		// If this path is potentially failed, do no consider it for sending
 		if pth.potentiallyFailed.Get() {
-			continue pathLoop
-		}
-
-		// XXX Prevent using initial pathID if multiple paths
-		if pathID == protocol.InitialPathID {
 			continue pathLoop
 		}
 
