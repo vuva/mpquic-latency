@@ -442,7 +442,7 @@ func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, h
 		} else {
 			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
 		}
-		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
+		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 2*protocol.MaxPacketSize) {
 			lastSentStreamFrame = pathlastFrame
 			leadingPath = pth
 		}
@@ -466,12 +466,14 @@ pathLoop:
 		if pth.potentiallyFailed.Get() {
 			continue pathLoop
 		}
-
-		if leadingPath != nil && pth != leadingPath {
-
-			sch.redundantPaths = append(sch.redundantPaths, pth)
-		} else {
+		if leadingPath == nil && selectedPath == nil {
 			selectedPath = pth
+		} else if leadingPath == nil && selectedPath != nil {
+			sch.redundantPaths = append(sch.redundantPaths, pth)
+		} else if leadingPath != nil && pth == leadingPath {
+			selectedPath = pth
+		} else if leadingPath != nil && pth != leadingPath {
+			sch.redundantPaths = append(sch.redundantPaths, pth)
 		}
 
 	}
