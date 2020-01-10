@@ -405,15 +405,15 @@ func (h *sentPacketHandler) updateLossDetectionAlarm() {
 	if !h.lossTime.IsZero() {
 		// Early retransmit timer or time loss detection.
 		h.alarm = h.lossTime
-		utils.Debugf("\n path %d h.alarm %d lossTime", h.pathID, h.alarm.UnixNano())
+		// utils.Debugf("\n path %d h.alarm %d lossTime", h.pathID, h.alarm.UnixNano())
 	} else if h.rttStats.SmoothedRTT() != 0 && h.tlpCount < maxTailLossProbes {
 		// TLP
 		h.alarm = h.lastSentTime.Add(h.computeTLPTimeout())
-		utils.Debugf("\n path %d h.alarm %d TLP", h.pathID, h.alarm.UnixNano())
+		// utils.Debugf("\n path %d h.alarm %d TLP", h.pathID, h.alarm.UnixNano())
 	} else {
 		// RTO
 		h.alarm = h.lastSentTime.Add(utils.MaxDuration(h.computeRTOTimeout(), minRetransmissionTime))
-		utils.Debugf("\n path %d h.alarm %d RTO", h.pathID, h.alarm.UnixNano())
+		// utils.Debugf("\n path %d h.alarm %d RTO", h.pathID, h.alarm.UnixNano())
 	}
 
 }
@@ -723,11 +723,13 @@ func (h *sentPacketHandler) GetLastSentFrame() *wire.StreamFrame {
 
 		frames := pkt.Value.Frames
 		for _, frame := range frames {
-			sframe, err := frame.(*wire.StreamFrame)
-			if !err {
-				streamFrame = sframe
+
+			switch frame.(type) {
+			case *wire.StreamFrame:
+				streamFrame = frame.(*wire.StreamFrame)
 			}
 		}
+		utils.Debugf("\nNewRe: GetLastSentFrame pkt %d streamFrame %d", pkt.Value.PacketNumber, streamFrame)
 	}
 	return streamFrame
 }
