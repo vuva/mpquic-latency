@@ -76,11 +76,12 @@ func (p *Packet) GetStreamFrameLength() uint64 {
 func (p *Packet) GetLastStreamFrame() *wire.StreamFrame {
 
 	var streamFrame *wire.StreamFrame
-
+	if p == nil || p.Frames == nil {
+		return nil
+	}
 	for _, f := range p.Frames {
 		switch f.(type) {
 		case *wire.StreamFrame:
-			// DataLen() gives the payload length of the stream frame without header
 			streamFrame = f.(*wire.StreamFrame)
 		}
 	}
