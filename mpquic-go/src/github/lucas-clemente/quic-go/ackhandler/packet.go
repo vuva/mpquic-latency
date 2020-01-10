@@ -73,6 +73,21 @@ func (p *Packet) GetStreamFrameLength() uint64 {
 	return sfPayloadLength
 }
 
+func (p *Packet) GetLastStreamFrame() *wire.StreamFrame {
+
+	var streamFrame *wire.StreamFrame
+
+	for _, f := range p.Frames {
+		switch f.(type) {
+		case *wire.StreamFrame:
+			// DataLen() gives the payload length of the stream frame without header
+			streamFrame = f.(*wire.StreamFrame)
+		}
+	}
+
+	return streamFrame
+}
+
 // GetCopyFrames returns a slice with all contained frames that can be duplicated
 func (p *Packet) GetCopyFrames() []wire.Frame {
 

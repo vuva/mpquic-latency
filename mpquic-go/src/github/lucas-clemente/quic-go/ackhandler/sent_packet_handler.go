@@ -96,6 +96,9 @@ type sentPacketHandler struct {
 	retransmissions      uint64
 	losses               uint64
 	sentStreamFrameBytes uint64
+
+	//VUVA
+	lastSentStreamFrame *wire.StreamFrame
 }
 
 func (h *sentPacketHandler) GetBandwidth() uint64 {
@@ -177,6 +180,9 @@ func (h *sentPacketHandler) SentPacket(packet *Packet) error {
 	// Update some statistics
 	h.packets++
 	h.sentStreamFrameBytes += packet.GetStreamFrameLength()
+
+	//VUVA update last sent streamFrame
+	h.lastSentStreamFrame = packet.GetLastStreamFrame()
 
 	// XXX RTO and TLP are recomputed based on the possible last sent retransmission. Is it ok like this?
 	h.lastSentTime = now
@@ -717,21 +723,21 @@ func (h *sentPacketHandler) RemovePacketByNumber(num protocol.PacketNumber) bool
 
 //VUVA: return last sent Pkt
 func (h *sentPacketHandler) GetLastSentFrame() *wire.StreamFrame {
-	pkt := h.packetHistory.Back()
-	var streamFrame *wire.StreamFrame
-	for ; pkt != nil && pkt.Value.Frames != nil; pkt = pkt.Prev() {
+	// pkt := h.packetHistory.Back()
+	// var streamFrame *wire.StreamFrame
+	// for ; pkt != nil && pkt.Value.Frames != nil; pkt = pkt.Prev() {
 
-		frames := pkt.Value.Frames
-		for _, frame := range frames {
+	// 	frames := pkt.Value.Frames
+	// 	for _, frame := range frames {
 
-			switch frame.(type) {
-			case *wire.StreamFrame:
-				streamFrame = frame.(*wire.StreamFrame)
-			}
-		}
-		utils.Debugf("\nNewRe: GetLastSentFrame pkt %d streamFrame %d", pkt.Value.PacketNumber, streamFrame)
-	}
-	return streamFrame
+	// 		switch frame.(type) {
+	// 		case *wire.StreamFrame:
+	// 			streamFrame = frame.(*wire.StreamFrame)
+	// 		}
+	// 	}
+	// 	utils.Debugf("\nNewRe: GetLastSentFrame pkt %d streamFrame %d", pkt.Value.PacketNumber, streamFrame)
+	// }
+	return h.lastSentStreamFrame
 }
 func (h *sentPacketHandler) GetPktHistory() *PacketList {
 	return h.packetHistory

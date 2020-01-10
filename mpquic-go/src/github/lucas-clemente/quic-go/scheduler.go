@@ -429,7 +429,12 @@ pathLoop:
 		//VUVA: finding the leading path
 		// TODO: finding a solution for multistream
 		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
-		utils.Debugf("\nNewRe: pathlastFrame %d", pathlastFrame)
+		if pathlastFrame != nil {
+			utils.Debugf("\nNewRe: pathlastFrame %d ", pathlastFrame.StreamID, pathlastFrame.Offset)
+
+		} else {
+			utils.Debugf("\nNewRe: pathlastFrame nil")
+		}
 		if pathlastFrame != nil && pathlastFrame.StreamID >= 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset >= lastSentStreamFrame.Offset) {
 			lastSentStreamFrame = pathlastFrame
 			leadingPath = pth
