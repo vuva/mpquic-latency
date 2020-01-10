@@ -434,7 +434,7 @@ pathLoop:
 		// TODO: finding a solution for multistream
 		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
 		if pathlastFrame != nil {
-			utils.Debugf("\nNewRe: pathlastFrame pth %d %d", pth.pathID, pathlastFrame.StreamID, pathlastFrame.Offset)
+			utils.Debugf("\nNewRe: pathlastFrame pth %d %d", pth.pathID, pathlastFrame.StreamID, uint64(pathlastFrame.Offset))
 
 		} else {
 			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
@@ -462,7 +462,10 @@ pathLoop:
 			sch.redundantPaths = append(sch.redundantPaths, pth)
 		}
 	}
-	utils.Debugf("\nNewRe: selectedPath %d leadingPath %d", selectedPath, leadingPath)
+	if selectedPath != nil && leadingPath != nil {
+
+		utils.Debugf("\nNewRe: selectedPath %d leadingPath %d", selectedPath.pathID, leadingPath.pathID)
+	}
 	return selectedPath
 }
 
