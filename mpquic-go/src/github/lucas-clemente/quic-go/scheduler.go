@@ -966,9 +966,10 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 	leadingPathPacketHistory:
 		for p := pth.sentPacketHandler.GetPktHistory().Front(); p != nil; p = p.Next() {
 			if _, exists := sch.dupPackets[dupID{pth.pathID, p.Value.PacketNumber}]; exists {
-				continue
+				utils.Debugf("\n FullRedundant: have sent pkt %d before", pth.pathID, p.Value.PacketNumber)
+				continue leadingPathPacketHistory
 			}
-			utils.Debugf("\n FullRedundant: redPth %d leadpth %d pktHistory %d size %d", redPth.pathID, pth.pathID, p.Value.PacketNumber, p.Value.Length)
+			utils.Debugf("\n FullRedundant: find frame to dup redPth %d leadpth %d pktHistory %d size %d", redPth.pathID, pth.pathID, p.Value.PacketNumber, p.Value.Length)
 			for _, f := range p.Value.Frames {
 				switch f.(type) {
 				case *wire.StreamFrame:
