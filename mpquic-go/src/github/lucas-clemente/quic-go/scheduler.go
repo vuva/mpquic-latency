@@ -965,16 +965,19 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 		// var redundantFrames []wire.Frame
 	leadingPathPacketHistory:
 		for p := pth.sentPacketHandler.GetPktHistory().Front(); p != nil; p = p.Next() {
-			utils.Debugf("\n FullRedundant: pktHistory %d size %d", p.Value.PacketNumber, p.Value.Length)
+			if _, exists := sch.dupPackets[dupID{pth.pathID, p.Value.PacketNumber}]; exists {
+				continue
+			}
+			utils.Debugf("\n FullRedundant: redPth %d leadpth %d pktHistory %d size %d", redPth.pathID, pth.pathID, p.Value.PacketNumber, p.Value.Length)
 			for _, f := range p.Value.Frames {
 				switch f.(type) {
 				case *wire.StreamFrame:
 					sframe := f.(*wire.StreamFrame)
 					redPthLastFrame := redPth.sentPacketHandler.GetLastSentFrame()
-					if redPthLastFrame != nil && sframe.StreamID == redPthLastFrame.StreamID && sframe.Offset > redPthLastFrame.Offset {
+					if redPthLastFrame != nil {
 						redundantFrames = p.Value.GetCopyFrames()
 						pkt = &p.Value
-						utils.Debugf("\n FullRedundant: dupFrame %d at pkt %d", sframe.Offset, pkt.PacketNumber)
+						utils.Debugf("\n FullRedundant: dupFrame %d at pkt %d of pth %d", sframe.Offset, pkt.PacketNumber, pth.pathID)
 						break leadingPathPacketHistory
 					}
 				}
