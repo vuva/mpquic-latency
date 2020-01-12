@@ -1019,7 +1019,7 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 		//VUVA update last sent streamFrame
 		lastStreamFrame := pkt.GetLastStreamFrame()
 		if lastStreamFrame != nil {
-			pth.sentPacketHandler.UpdateLastSentFrame(lastStreamFrame)
+			redPth.sentPacketHandler.UpdateLastSentFrame(lastStreamFrame)
 
 		}
 		// Add mapping for duplicated packet
