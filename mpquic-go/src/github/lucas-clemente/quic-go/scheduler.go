@@ -446,7 +446,7 @@ func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, h
 
 			lastSentStreamFrame = pathlastFrame
 		}
-		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 1*protocol.MaxPacketSize) {
+		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 0*protocol.MaxPacketSize) {
 			leadingPath = pth
 		}
 	}
@@ -966,7 +966,7 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 	leadingPathPacketHistory:
 		for p := pth.sentPacketHandler.GetPktHistory().Front(); p != nil; p = p.Next() {
 			if _, exists := sch.dupPackets[dupID{pth.pathID, p.Value.PacketNumber}]; exists {
-				utils.Debugf("\n FullRedundant: have sent pkt %d before", pth.pathID, p.Value.PacketNumber)
+				utils.Debugf("\n FullRedundant: have sent pkt %d %d before", pth.pathID, p.Value.PacketNumber)
 				continue leadingPathPacketHistory
 			}
 			utils.Debugf("\n FullRedundant: find frame to dup redPth %d leadpth %d pktHistory %d size %d", redPth.pathID, pth.pathID, p.Value.PacketNumber, p.Value.Length)
