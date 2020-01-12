@@ -424,13 +424,14 @@ func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, h
 	var lastSentStreamFrame *wire.StreamFrame
 	var leadingPath *path
 
+leadPathLoop:
 	for pathID, pth := range s.paths {
 		if pathID == protocol.InitialPathID {
-			continue
+			continue leadPathLoop
 		}
 
 		if pth.potentiallyFailed.Get() {
-			continue
+			continue leadPathLoop
 		}
 
 		//VUVA: finding the leading path
@@ -467,13 +468,9 @@ pathLoop:
 		if pth.potentiallyFailed.Get() {
 			continue pathLoop
 		}
-		if leadingPath == nil && selectedPath == nil {
+		if leadingPath == nil || pth == leadingPath {
 			selectedPath = pth
-		} else if leadingPath == nil && selectedPath != nil {
-			sch.redundantPaths = append(sch.redundantPaths, pth)
-		} else if leadingPath != nil && pth == leadingPath {
-			selectedPath = pth
-		} else if leadingPath != nil && pth != leadingPath {
+		} else {
 			sch.redundantPaths = append(sch.redundantPaths, pth)
 		}
 
