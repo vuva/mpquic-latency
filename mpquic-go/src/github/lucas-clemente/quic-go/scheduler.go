@@ -443,12 +443,10 @@ func (sch *scheduler) selectRedundantPaths(s *session, hasRetransmission bool, h
 			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
 		}
 		if pathlastFrame != nil && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 0) {
-
 			lastSentStreamFrame = pathlastFrame
-		}
-		if pathlastFrame != nil && pathlastFrame.StreamID > 3 && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 0*protocol.MaxPacketSize) {
 			leadingPath = pth
 		}
+
 	}
 
 pathLoop:
