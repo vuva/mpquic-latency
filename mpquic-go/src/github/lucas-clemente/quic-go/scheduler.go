@@ -501,6 +501,7 @@ func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, h
 	// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
 	var next_stream *stream
 	var dataInStream uint64
+
 	// numStreams := uint32(len(m.streams))
 	s.streamsMap.mutex.RLock()
 	for id, datastream := range s.streamsMap.streams {
@@ -602,7 +603,7 @@ pathLoop:
 	// }
 	// check if we should send redundantly
 	shouldRedundant := false
-	if highestRate != 0 && next_stream != nil {
+	if highestRate != 0 {
 		shouldRedundant = dataInStream <= 3*uint64(protocol.MaxPacketSize) || float64(dataInStream*8)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2)
 		utils.Debugf("\n Ninetails: selectedPathID %d availablepaths %d \n highestRatepath %d = %d bps, %d ms; \n lowRTTpath %d = %d bps, %d ms \n stream %d datainstream %d with %f >< %d + %d/2 ,shouldRedundant %t", selectedPath.pathID, availablePathCount, highestRatePath.pathID, highestRate, highestRatePathRTT, lowestRTTPath.pathID, lowestRTTPathRate, lowestRTT, next_stream.StreamID(), dataInStream, float64(dataInStream*8)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, shouldRedundant)
 		if shouldRedundant {
