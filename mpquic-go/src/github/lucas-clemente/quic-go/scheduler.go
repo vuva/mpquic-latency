@@ -494,6 +494,8 @@ func (sch *scheduler) selectNineTailsPaths(s *session, hasRetransmission bool, h
 	highestRatePathRTT := uint64(0)
 	lowestRTTPathRate := uint64(0)
 	lowestRTT := uint64(math.MaxInt64)
+	var lastSentStreamFrame *wire.StreamFrame
+	var leadingPath *path
 
 	// Calculate the current data waiting
 	// utils.Debugf("\n vuva: streammaplen %d", len(s.streamsMap.streams))
@@ -547,6 +549,14 @@ pathLoop:
 			highestRatePathRTT = currentRTT
 		}
 
+		//VUVA: finding the leading path
+		// TODO: finding a solution for multistream
+		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
+		if pathlastFrame != nil && (lastSentStreamFrame == nil || pathlastFrame.Offset-lastSentStreamFrame.Offset >= 0) {
+			lastSentStreamFrame = pathlastFrame
+			leadingPath = pth
+		}
+
 		// Don't block path usage if we retransmit, even on another path
 		// DERA: Only consider paths, that have space in their cwnd for 'new' packets.
 		//		 Or consider all valid paths for outstanding retransmissions.
@@ -596,18 +606,31 @@ pathLoop:
 		shouldRedundant = float64(dataInStream*8)/float64(highestRate)*1000.0 < float64(highestRatePathRTT+lowestRTT/2)
 		utils.Debugf("\n Ninetails: selectedPathID %d availablepaths %d \n highestRatepath %d = %d bps, %d ms; \n lowRTTpath %d = %d bps, %d ms \n stream %d datainstream %d with %f >< %d + %d/2 ,shouldRedundant %t", selectedPath.pathID, availablePathCount, highestRatePath.pathID, highestRate, highestRatePathRTT, lowestRTTPath.pathID, lowestRTTPathRate, lowestRTT, next_stream.StreamID(), dataInStream, float64(dataInStream*8)/float64(highestRate)*1000.0, highestRatePathRTT, lowestRTT, shouldRedundant)
 		if shouldRedundant {
-			if availablePathCount > 1 {
-				for pathID, pth := range s.paths {
-					if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
-						sch.redundantPaths = append(sch.redundantPaths, pth)
-						utils.Debugf("\n Ninetails: redundant send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
-					}
+			// if availablePathCount > 1 {
+			// 	for pathID, pth := range s.paths {
+			// 		if pathID != selectedPath.pathID && pathID != protocol.InitialPathID && pth.SendingAllowed() {
+			// 			sch.redundantPaths = append(sch.redundantPaths, pth)
+			// 			utils.Debugf("\n Ninetails: redundant send stream %d datainstream %d on path %d", next_stream.streamID, dataInStream, pathID)
+			// 		}
+			// 	}
+			// } else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved(0*protocol.MaxPacketSize) && !hasRetransmission {
+			// 	utils.Debugf("\n Ninetails: shortlink waiting fatlink selectedPath %d highestRatePath %d", selectedPath.pathID, highestRatePathRTT)
+			// 	// time.Sleep(time.Microsecond)
+			// 	// goto pathLoop
+			// 	return nil
+			// }
+
+			// NewRE
+		redundantPathLoop:
+			for pathID, tmpPth := range s.paths {
+				if !hasRetransmission && !tmpPth.SendingAllowed() || pathID == protocol.InitialPathID {
+					continue redundantPathLoop
 				}
-			} else if availablePathCount == 1 && selectedPath.pathID != highestRatePath.pathID && !selectedPath.SendingAllowedWithReserved(0*protocol.MaxPacketSize) && !hasRetransmission {
-				utils.Debugf("\n Ninetails: shortlink waiting fatlink selectedPath %d highestRatePath %d", selectedPath.pathID, highestRatePathRTT)
-				// time.Sleep(time.Microsecond)
-				// goto pathLoop
-				return nil
+				if leadingPath == nil || tmpPth == leadingPath {
+					selectedPath = tmpPth
+				} else {
+					sch.redundantPaths = append(sch.redundantPaths, tmpPth)
+				}
 			}
 		}
 	} else {
