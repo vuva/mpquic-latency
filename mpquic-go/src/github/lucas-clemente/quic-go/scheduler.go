@@ -595,11 +595,11 @@ pathLoop:
 		return nil
 	}
 
-	if highestRate == 0 {
-		highestRate = sch.highestRateCache
-	} else {
-		sch.highestRateCache = highestRate
-	}
+	// if highestRate == 0 {
+	// 	highestRate = sch.highestRateCache
+	// } else {
+	// 	sch.highestRateCache = highestRate
+	// }
 	// check if we should send redundantly
 	shouldRedundant := false
 	if highestRate != 0 && next_stream != nil {
