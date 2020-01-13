@@ -438,7 +438,7 @@ leadPathLoop:
 		// TODO: finding a solution for multistream
 		pathlastFrame := pth.sentPacketHandler.GetLastSentFrame()
 		if pathlastFrame != nil {
-			utils.Debugf("\nNewRe: pathlastFrame pth %d %d %d", pth.pathID, pathlastFrame.StreamID, pathlastFrame.Offset)
+			utils.Debugf("\nNewRe: pathlastFrame pth %d %d %d, cwnd %d/%d", pth.pathID, pathlastFrame.StreamID, pathlastFrame.Offset, pth.sentPacketHandler.GetBytesInFlight(), pth.sentPacketHandler.GetCongestionWindow())
 
 		} else {
 			utils.Debugf("\nNewRe: pathlastFrame nil pth %d", pth.pathID)
@@ -812,7 +812,7 @@ func (sch *scheduler) sendPacket(s *session) error {
 			windowUpdateFrames := s.getWindowUpdateFrames(false)
 			return sch.ackRemainingPaths(s, windowUpdateFrames)
 		}
-
+		utils.Debugf("NewRe: SelectedPath %d at %d", pth.pathID, time.Now().UnixNano())
 		// If we have an handshake packet retransmission, do it directly
 		if hasRetransmission && retransmitHandshakePacket != nil {
 			s.packer.QueueControlFrame(pth.sentPacketHandler.GetStopWaitingFrame(true), pth)
@@ -1009,7 +1009,7 @@ func (sch *scheduler) redSendPacket(s *session, pth *path, pkt *ackhandler.Packe
 			frames:          redundantFrames,
 			encryptionLevel: encLevel,
 		}
-		utils.Infof("DUPLICATE packet %d on path %d total dup %d", pkt.PacketNumber, redPth.pathID, sch.duplicatedPackets)
+		utils.Infof("DUPLICATE packet %d of path %d on path %d total dup %d", pkt.PacketNumber, pth.pathID, redPth.pathID, sch.duplicatedPackets)
 
 		// Send duplicated packet
 		err = s.sendPackedPacket(dupPkt, redPth)
