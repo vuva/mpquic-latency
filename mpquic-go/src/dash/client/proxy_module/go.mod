@@ -7,4 +7,4 @@ require (
 	golang.org/x/net v0.0.0-20190415214537-1da14a5a36f2
 )
 
-replace github.com/lucas-clemente/quic-go => ../../../quic-go
+replace github.com/lucas-clemente/quic-go => ../../../github/lucas-clemente/quic-go/

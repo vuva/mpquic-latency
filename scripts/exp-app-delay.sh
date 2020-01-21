@@ -20,13 +20,13 @@ export SERVER=nodem1.moongenmultipath.spork-join.filab.uni-hannover.de
 export ROUTER=nodem2.moongenmultipath.spork-join.filab.uni-hannover.de
 
 
+: <<'END'
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=default'
 sleep 5
 export SL_SCHED="lrtt"
 ~/sshlauncher/sshlauncher $CONFIG_FILE.config -d
 sleep 5
-#: <<'END'
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=roundrobin'
 sleep 5
@@ -35,12 +35,12 @@ export SL_SCHED="rr"
 sleep 5
 
 
-ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
-ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
-sleep 5
-export SL_SCHED="opp"
-~/sshlauncher/sshlauncher $CONFIG_FILE.config
-sleep 5
+#ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
+#ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=oppredundant'
+#sleep 5
+#export SL_SCHED="opp"
+#~/sshlauncher/sshlauncher $CONFIG_FILE.config
+#sleep 5
 
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=redundant'
@@ -49,14 +49,20 @@ export SL_SCHED="re"
 ~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
 
+
 ssh vuva@$CLIENT 'sudo sysctl -w net.mptcp.mptcp_scheduler=ninetails'
 ssh vuva@$SERVER 'sudo sysctl -w net.mptcp.mptcp_scheduler=ninetails'
 sleep 5
 export SL_SCHED="nt"
 ~/sshlauncher/sshlauncher $CONFIG_FILE.config
 sleep 5
-
 END
+
+sleep 5
+export SL_SCHED="sp"
+~/sshlauncher/sshlauncher $CONFIG_FILE.config
+sleep 5
+
 done
 
 

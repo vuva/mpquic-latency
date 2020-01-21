@@ -1,0 +1,17 @@
+2020-01-21 17:56:04,282 - dash_client.py:593 - INFO - Downloading MPD file https://10.1.1.2:4242/4k-bbb-0.5s/4k-bbb-0.5s.mpd
+2020-01-21 17:56:04,806 - dash_client.py:111 - INFO - Downloaded the MPD file 4k-bbb-0.5s.mpd
+2020-01-21 17:56:04,806 - read_mpd.py:122 - INFO - Reading the MPD file
+2020-01-21 17:56:04,809 - read_mpd.py:199 - INFO - Found Video
+2020-01-21 17:56:04,810 - read_mpd.py:201 - INFO - Retrieving Media
+2020-01-21 17:56:04,813 - dash_client.py:602 - INFO - The DASH media has 1 video representations, video_segment_duration 0
+2020-01-21 17:56:04,813 - dash_client.py:612 - CRITICAL - Started Basic-DASH Playback
+2020-01-21 17:56:04,813 - dash_buffer.py:19 - INFO - Initializing the Buffer
+2020-01-21 17:56:04,814 - dash_buffer.py:57 - INFO - VideoLength=634.6,segmentDuration=0.5,MaxBufferSize=634.6,InitialBuffer(secs)=2,BufferAlph(secs)=5,BufferBeta(secs)=10
+2020-01-21 17:56:04,814 - dash_buffer.py:65 - INFO - Changing state from INITIALIZED to INITIAL_BUFFERING at 0.0 Playback time 
+2020-01-21 17:56:04,833 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0,CurrentPlaybackTime=0.0,CurrentBufferSize=0,CurrentPlaybackState=INITIAL_BUFFERING,Action=Starting,Bitrate=0
+2020-01-21 17:56:04,834 - dash_buffer.py:228 - INFO - Starting the Player
+2020-01-21 17:56:04,834 - dash_buffer.py:78 - CRITICAL - Initialized player with video length 634.6
+2020-01-21 17:56:04,838 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0,CurrentPlaybackTime=0.0,CurrentBufferSize=0,CurrentPlaybackState=INITIAL_BUFFERING,Action=Starting,Bitrate=0
+2020-01-21 17:56:04,838 - dash_client.py:229 - INFO - The segments are stored in TEMP_laBx0Q
+2020-01-21 17:56:04,840 - dash_client.py:275 - INFO -  BASIC: Processing the segment 0
+2020-01-21 17:56:04,853 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5sinit.mp4

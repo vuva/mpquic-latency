@@ -1,8 +1,8 @@
 from ctypes import *
 from os.path import expanduser
 
-home = expanduser("~")
-lib = cdll.LoadLibrary(home + "/dash/client/proxy_module.so")
+home = expanduser("~/mpquic-latency/mpquic-go/src")
+lib = cdll.LoadLibrary(home + "/dash/client/proxy_module/proxy_module.so")
 
 class GoSlice(Structure):
     _fields_ = [("data", POINTER(c_void_p)), 

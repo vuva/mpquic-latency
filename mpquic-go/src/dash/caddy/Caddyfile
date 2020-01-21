@@ -1,0 +1,4 @@
+https://10.1.1.2:4242 {
+    root media
+    tls self_signed
+}

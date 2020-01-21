@@ -12,7 +12,10 @@ Testing:
     python dash_client.py -m "http://127.0.0.1:8000/media/mpd/x4ukwHdACDw.mpd" -p "basic"
 
 """
+
 from __future__ import division
+import sys
+sys.path.insert(0, "../../../dash/client/proxy_module")
 import conn as glueConnection
 import read_mpd
 import urlparse
@@ -23,7 +26,7 @@ import socket
 import struct
 import random
 import os
-import sys
+#import sys
 import errno
 import timeit
 from string import ascii_letters, digits
@@ -411,8 +414,8 @@ def start_playback_smart(dp_object, domain, playback_type=None, download=False, 
         segment_duration = segment_info['playback_length']
         dash_player.write(segment_info)
         segment_files.append(segment_filename)
-        config_dash.LOG.info("Downloaded %s. Size = %s in %s seconds" % (
-            segment_url, segment_size, str(segment_download_time)))
+        config_dash.LOG.info("Downloaded %s. Size = %s duration %s in %s seconds" % (
+            segment_url, segment_size, segment_duration ,str(segment_download_time)))
         if previous_bitrate:
             if previous_bitrate < current_bitrate:
                 config_dash.JSON_HANDLE['playback_info']['up_shifts'] += 1
@@ -596,7 +599,7 @@ def main():
     # Reading the MPD file created
     dp_object, video_segment_duration = read_mpd.read_mpd(mpd_file, dp_object)
     
-    config_dash.LOG.info("The DASH media has %d video representations" % len(dp_object.video))
+    config_dash.LOG.info("The DASH media has %d video representations, video_segment_duration %d" % (len(dp_object.video) , video_segment_duration))
     if LIST:
         # Print the representations and EXIT
         print_representations(dp_object)

@@ -226,9 +226,12 @@ def read_mpd(mpd_file, dashplayback):
                                     if video_segment_duration == None:
                                         split = segment_URL.attrib['media'].split('.')
                                         seg_dur = split[1]
+					print ("seg_dur: {}".format(seg_dur))
                                         if len(split) > 2:
                                             seg_dur = split[1] + '.' + split[2]
+					    print ("seg_dur: {}".format(seg_dur))
                                         if seg_dur != None and len(seg_dur) > 1:
+					    print ("seg_dur: {}".format(seg_dur))
                                             seg_dur = seg_dur[1:len(seg_dur)]
                                             seg_dur = seg_dur.split('s')[0]
                                             video_segment_duration = seg_dur
@@ -260,5 +263,5 @@ def read_mpd(mpd_file, dashplayback):
     else:
 
         print "Error: UknownFormat of MPD file!"
-
+    print ("video_segment_duration: {}".format(video_segment_duration))
     return dashplayback, float(video_segment_duration)

@@ -1,0 +1,176 @@
+2020-01-21 17:53:42,093 - dash_client.py:593 - INFO - Downloading MPD file https://10.1.1.2:4242/4k-bbb-0.5s/4k-bbb-0.5s.mpd
+2020-01-21 17:53:42,729 - dash_client.py:111 - INFO - Downloaded the MPD file 4k-bbb-0.5s.mpd
+2020-01-21 17:53:42,729 - read_mpd.py:122 - INFO - Reading the MPD file
+2020-01-21 17:53:42,732 - read_mpd.py:199 - INFO - Found Video
+2020-01-21 17:53:42,732 - read_mpd.py:201 - INFO - Retrieving Media
+2020-01-21 17:53:42,736 - dash_client.py:602 - INFO - The DASH media has 1 video representations, video_segment_duration 0
+2020-01-21 17:53:42,736 - dash_client.py:612 - CRITICAL - Started Basic-DASH Playback
+2020-01-21 17:53:42,736 - dash_buffer.py:19 - INFO - Initializing the Buffer
+2020-01-21 17:53:42,736 - dash_buffer.py:57 - INFO - VideoLength=634.6,segmentDuration=0.5,MaxBufferSize=634.6,InitialBuffer(secs)=2,BufferAlph(secs)=5,BufferBeta(secs)=10
+2020-01-21 17:53:42,736 - dash_buffer.py:65 - INFO - Changing state from INITIALIZED to INITIAL_BUFFERING at 0.0 Playback time 
+2020-01-21 17:53:42,758 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0,CurrentPlaybackTime=0.0,CurrentBufferSize=0,CurrentPlaybackState=INITIAL_BUFFERING,Action=Starting,Bitrate=0
+2020-01-21 17:53:42,758 - dash_buffer.py:228 - INFO - Starting the Player
+2020-01-21 17:53:42,758 - dash_buffer.py:78 - CRITICAL - Initialized player with video length 634.6
+2020-01-21 17:53:42,761 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0,CurrentPlaybackTime=0.0,CurrentBufferSize=0,CurrentPlaybackState=INITIAL_BUFFERING,Action=Starting,Bitrate=0
+2020-01-21 17:53:42,761 - dash_client.py:229 - INFO - The segments are stored in TEMP_nYAKIR
+2020-01-21 17:53:42,762 - dash_client.py:275 - INFO -  BASIC: Processing the segment 0
+2020-01-21 17:53:42,778 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5sinit.mp4
+2020-01-21 17:53:43,210 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5sinit.mp4
+2020-01-21 17:53:43,210 - dash_client.py:404 - INFO - BASIC : The total downloaded = 14, segment_size = 14, segment_number = 0
+2020-01-21 17:53:43,210 - dash_buffer.py:212 - INFO - Writing segment 0 at time 5.00679016113e-06
+2020-01-21 17:53:43,213 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0.000411033630371,CurrentPlaybackTime=0.0,CurrentBufferSize=1,CurrentPlaybackState=INITIAL_BUFFERING,Action=Writing,Bitrate=6887871
+2020-01-21 17:53:43,213 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5sinit.mp4. Size = 14 duration 0.5 in 0.43195605278 seconds
+2020-01-21 17:53:43,214 - dash_client.py:275 - INFO -  BASIC: Processing the segment 1
+2020-01-21 17:53:43,245 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 259.285636303, next_bitrate = 6887871.0
+2020-01-21 17:53:43,245 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 2
+2020-01-21 17:53:43,245 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s1.m4s
+2020-01-21 17:53:43,347 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s1.m4s
+2020-01-21 17:53:43,347 - dash_client.py:404 - INFO - BASIC : The total downloaded = 28, segment_size = 14, segment_number = 1
+2020-01-21 17:53:43,347 - dash_buffer.py:212 - INFO - Writing segment 1 at time 0.137263059616
+2020-01-21 17:53:43,348 - dash_buffer.py:141 - INFO - Initial Waiting Time = 0.589331865311
+2020-01-21 17:53:43,348 - dash_buffer.py:65 - INFO - Changing state from INITIAL_BUFFERING to PLAY at 0.0 Playback time 
+2020-01-21 17:53:43,350 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0.137597084045,CurrentPlaybackTime=0.0,CurrentBufferSize=2,CurrentPlaybackState=INITIAL_BUFFERING,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:43,350 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s1.m4s. Size = 14 duration 0.5 in 0.101425170898 seconds
+2020-01-21 17:53:43,351 - dash_client.py:275 - INFO -  BASIC: Processing the segment 2
+2020-01-21 17:53:43,353 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0.13797211647,CurrentPlaybackTime=0.0,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=InitialBuffering-Play,Bitrate=0
+2020-01-21 17:53:43,353 - dash_buffer.py:166 - CRITICAL - Reading the segment number 0 from the buffer at playtime 0.0
+2020-01-21 17:53:43,354 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 419.962289739, next_bitrate = 6887871.0
+2020-01-21 17:53:43,354 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 3
+2020-01-21 17:53:43,354 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s2.m4s
+2020-01-21 17:53:43,355 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0.142978906631,CurrentPlaybackTime=0.0,CurrentBufferSize=1,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871
+2020-01-21 17:53:43,355 - dash_buffer.py:180 - INFO - Started playing with representation 6887871 at 4.05311584473e-06
+2020-01-21 17:53:43,456 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s2.m4s
+2020-01-21 17:53:43,456 - dash_client.py:404 - INFO - BASIC : The total downloaded = 42, segment_size = 14, segment_number = 2
+2020-01-21 17:53:43,456 - dash_buffer.py:212 - INFO - Writing segment 2 at time 0.246156930923
+2020-01-21 17:53:43,460 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0.246422052383,CurrentPlaybackTime=0.101598978043,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:43,460 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s2.m4s. Size = 14 duration 0.5 in 0.101613998413 seconds
+2020-01-21 17:53:43,461 - dash_client.py:275 - INFO -  BASIC: Processing the segment 3
+2020-01-21 17:53:43,464 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 529.137839641, next_bitrate = 6887871.0
+2020-01-21 17:53:43,465 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 4
+2020-01-21 17:53:43,465 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s3.m4s
+2020-01-21 17:53:43,768 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s3.m4s
+2020-01-21 17:53:43,768 - dash_client.py:404 - INFO - BASIC : The total downloaded = 56, segment_size = 14, segment_number = 3
+2020-01-21 17:53:43,769 - dash_buffer.py:212 - INFO - Writing segment 3 at time 0.558562994003
+2020-01-21 17:53:43,772 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0.558830976486,CurrentPlaybackTime=0.414264917374,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:43,773 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s3.m4s. Size = 14 duration 0.5 in 0.302989006042 seconds
+2020-01-21 17:53:43,774 - dash_client.py:275 - INFO -  BASIC: Processing the segment 4
+2020-01-21 17:53:43,777 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 477.619971171, next_bitrate = 6887871.0
+2020-01-21 17:53:43,778 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 5
+2020-01-21 17:53:43,778 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s4.m4s
+2020-01-21 17:53:43,778 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:43,855 - dash_buffer.py:166 - CRITICAL - Reading the segment number 1 from the buffer at playtime 0.500038862228
+2020-01-21 17:53:43,857 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=0.645050048828,CurrentPlaybackTime=0.500215053558,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:44,357 - dash_buffer.py:166 - CRITICAL - Reading the segment number 2 from the buffer at playtime 1.0025229454
+2020-01-21 17:53:44,360 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=1.14753890038,CurrentPlaybackTime=1.00270605087,CurrentBufferSize=1,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:44,380 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s4.m4s
+2020-01-21 17:53:44,380 - dash_client.py:404 - INFO - BASIC : The total downloaded = 70, segment_size = 14, segment_number = 4
+2020-01-21 17:53:44,380 - dash_buffer.py:212 - INFO - Writing segment 4 at time 1.17040300369
+2020-01-21 17:53:44,382 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=1.17068791389,CurrentPlaybackTime=1.02586483955,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:44,383 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s4.m4s. Size = 14 duration 0.5 in 0.102132081985 seconds
+2020-01-21 17:53:44,384 - dash_client.py:275 - INFO -  BASIC: Processing the segment 5
+2020-01-21 17:53:44,387 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 538.401325459, next_bitrate = 6887871.0
+2020-01-21 17:53:44,388 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 6
+2020-01-21 17:53:44,389 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s5.m4s
+2020-01-21 17:53:44,490 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s5.m4s
+2020-01-21 17:53:44,491 - dash_client.py:404 - INFO - BASIC : The total downloaded = 84, segment_size = 14, segment_number = 5
+2020-01-21 17:53:44,491 - dash_buffer.py:212 - INFO - Writing segment 5 at time 1.28072500229
+2020-01-21 17:53:44,494 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=1.28123092651,CurrentPlaybackTime=1.13649606705,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:44,494 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s5.m4s. Size = 14 duration 0.5 in 0.101704120636 seconds
+2020-01-21 17:53:44,495 - dash_client.py:275 - INFO -  BASIC: Processing the segment 6
+2020-01-21 17:53:44,498 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 788.883084396, next_bitrate = 6887871.0
+2020-01-21 17:53:44,499 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 7
+2020-01-21 17:53:44,499 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s6.m4s
+2020-01-21 17:53:44,499 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:44,860 - dash_buffer.py:166 - CRITICAL - Reading the segment number 3 from the buffer at playtime 1.50486803055
+2020-01-21 17:53:44,863 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=1.64988708496,CurrentPlaybackTime=1.50505495071,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:45,100 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s6.m4s
+2020-01-21 17:53:45,101 - dash_client.py:404 - INFO - BASIC : The total downloaded = 98, segment_size = 14, segment_number = 6
+2020-01-21 17:53:45,101 - dash_buffer.py:212 - INFO - Writing segment 6 at time 1.89139699936
+2020-01-21 17:53:45,105 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=1.89168095589,CurrentPlaybackTime=1.74689698219,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:45,105 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s6.m4s. Size = 14 duration 0.5 in 0.102103948593 seconds
+2020-01-21 17:53:45,105 - dash_client.py:275 - INFO -  BASIC: Processing the segment 7
+2020-01-21 17:53:45,108 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 788.129469028, next_bitrate = 6887871.0
+2020-01-21 17:53:45,109 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 8
+2020-01-21 17:53:45,109 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s7.m4s
+2020-01-21 17:53:45,110 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:45,363 - dash_buffer.py:166 - CRITICAL - Reading the segment number 4 from the buffer at playtime 2.00819706917
+2020-01-21 17:53:45,365 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=2.15318608284,CurrentPlaybackTime=2.00835084915,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:45,711 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s7.m4s
+2020-01-21 17:53:45,711 - dash_client.py:404 - INFO - BASIC : The total downloaded = 112, segment_size = 14, segment_number = 7
+2020-01-21 17:53:45,711 - dash_buffer.py:212 - INFO - Writing segment 7 at time 2.50106310844
+2020-01-21 17:53:45,715 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=2.50130605698,CurrentPlaybackTime=2.3568110466,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:45,715 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s7.m4s. Size = 14 duration 0.5 in 0.101691007614 seconds
+2020-01-21 17:53:45,716 - dash_client.py:275 - INFO -  BASIC: Processing the segment 8
+2020-01-21 17:53:45,720 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 788.044060221, next_bitrate = 6887871.0
+2020-01-21 17:53:45,720 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 9
+2020-01-21 17:53:45,721 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s8.m4s
+2020-01-21 17:53:45,721 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:45,865 - dash_buffer.py:166 - CRITICAL - Reading the segment number 5 from the buffer at playtime 2.51060605049
+2020-01-21 17:53:45,868 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=2.65559411049,CurrentPlaybackTime=2.51076984406,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:46,322 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s8.m4s
+2020-01-21 17:53:46,322 - dash_client.py:404 - INFO - BASIC : The total downloaded = 126, segment_size = 14, segment_number = 8
+2020-01-21 17:53:46,322 - dash_buffer.py:212 - INFO - Writing segment 8 at time 3.11228704453
+2020-01-21 17:53:46,326 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=3.11269402504,CurrentPlaybackTime=2.96800398827,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:46,326 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s8.m4s. Size = 14 duration 0.5 in 0.101598024368 seconds
+2020-01-21 17:53:46,327 - dash_client.py:275 - INFO -  BASIC: Processing the segment 9
+2020-01-21 17:53:46,330 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 1099.70131029, next_bitrate = 6887871.0
+2020-01-21 17:53:46,330 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 10
+2020-01-21 17:53:46,331 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s9.m4s
+2020-01-21 17:53:46,331 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:46,368 - dash_buffer.py:166 - CRITICAL - Reading the segment number 6 from the buffer at playtime 3.01331996918
+2020-01-21 17:53:46,371 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=3.15831303596,CurrentPlaybackTime=3.0134768486,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:46,871 - dash_buffer.py:166 - CRITICAL - Reading the segment number 7 from the buffer at playtime 3.5161459446
+2020-01-21 17:53:46,874 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=3.66116094589,CurrentPlaybackTime=3.51632785797,CurrentBufferSize=1,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:46,932 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s9.m4s
+2020-01-21 17:53:46,933 - dash_client.py:404 - INFO - BASIC : The total downloaded = 140, segment_size = 14, segment_number = 9
+2020-01-21 17:53:46,933 - dash_buffer.py:212 - INFO - Writing segment 9 at time 3.72294092178
+2020-01-21 17:53:46,937 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=3.72320508957,CurrentPlaybackTime=3.57863497734,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:46,937 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s9.m4s. Size = 14 duration 0.5 in 0.101665019989 seconds
+2020-01-21 17:53:46,938 - dash_client.py:275 - INFO -  BASIC: Processing the segment 10
+2020-01-21 17:53:46,942 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 1100.7108758, next_bitrate = 6887871.0
+2020-01-21 17:53:46,942 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 11
+2020-01-21 17:53:46,943 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s10.m4s
+2020-01-21 17:53:47,045 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s10.m4s
+2020-01-21 17:53:47,045 - dash_client.py:404 - INFO - BASIC : The total downloaded = 154, segment_size = 14, segment_number = 10
+2020-01-21 17:53:47,046 - dash_buffer.py:212 - INFO - Writing segment 10 at time 3.83549404144
+2020-01-21 17:53:47,049 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=3.83576202393,CurrentPlaybackTime=3.69120407104,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:47,049 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s10.m4s. Size = 14 duration 0.5 in 0.101706981659 seconds
+2020-01-21 17:53:47,050 - dash_client.py:275 - INFO -  BASIC: Processing the segment 11
+2020-01-21 17:53:47,053 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 1100.70468599, next_bitrate = 6887871.0
+2020-01-21 17:53:47,053 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 12
+2020-01-21 17:53:47,054 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s11.m4s
+2020-01-21 17:53:47,054 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:47,374 - dash_buffer.py:166 - CRITICAL - Reading the segment number 8 from the buffer at playtime 4.01902484894
+2020-01-21 17:53:47,377 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=4.16404700279,CurrentPlaybackTime=4.01921486855,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:47,655 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s11.m4s
+2020-01-21 17:53:47,656 - dash_client.py:404 - INFO - BASIC : The total downloaded = 168, segment_size = 14, segment_number = 11
+2020-01-21 17:53:47,656 - dash_buffer.py:212 - INFO - Writing segment 11 at time 4.44605302811
+2020-01-21 17:53:47,659 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=4.44633412361,CurrentPlaybackTime=4.30176687241,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:47,660 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s11.m4s. Size = 14 duration 0.5 in 0.10156917572 seconds
+2020-01-21 17:53:47,660 - dash_client.py:275 - INFO -  BASIC: Processing the segment 12
+2020-01-21 17:53:47,663 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 1101.86287571, next_bitrate = 6887871.0
+2020-01-21 17:53:47,664 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 13
+2020-01-21 17:53:47,664 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s12.m4s
+2020-01-21 17:53:47,665 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:47,877 - dash_buffer.py:166 - CRITICAL - Reading the segment number 9 from the buffer at playtime 4.52191400528
+2020-01-21 17:53:47,879 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=4.66692590714,CurrentPlaybackTime=4.52209401131,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:48,265 - dash_client.py:387 - INFO - BASIC: Downloaded segment https://10.1.1.2:4242/segment.0.5s12.m4s
+2020-01-21 17:53:48,266 - dash_client.py:404 - INFO - BASIC : The total downloaded = 182, segment_size = 14, segment_number = 12
+2020-01-21 17:53:48,266 - dash_buffer.py:212 - INFO - Writing segment 12 at time 5.05592989922
+2020-01-21 17:53:48,269 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=5.05619692802,CurrentPlaybackTime=4.91162991524,CurrentBufferSize=3,CurrentPlaybackState=PLAY,Action=Writing,Bitrate=6887871.0
+2020-01-21 17:53:48,269 - dash_client.py:418 - INFO - Downloaded https://10.1.1.2:4242/segment.0.5s12.m4s. Size = 14 duration 0.5 in 0.101712942123 seconds
+2020-01-21 17:53:48,270 - dash_client.py:275 - INFO -  BASIC: Processing the segment 13
+2020-01-21 17:53:48,274 - basic_dash2.py:59 - INFO - Basic Adaptation: Download Rate = 1101.8153229, next_bitrate = 6887871.0
+2020-01-21 17:53:48,275 - dash_client.py:305 - INFO - Basic-DASH: Selected 6887871.0 for the segment 14
+2020-01-21 17:53:48,275 - dash_client.py:362 - INFO - BASIC: Segment URL = https://10.1.1.2:4242/segment.0.5s13.m4s
+2020-01-21 17:53:48,275 - dash_client.py:365 - INFO - SLEEPING for 0.5seconds 
+2020-01-21 17:53:48,379 - dash_buffer.py:166 - CRITICAL - Reading the segment number 10 from the buffer at playtime 5.02451491356
+2020-01-21 17:53:48,382 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=5.16952896118,CurrentPlaybackTime=5.02469706535,CurrentBufferSize=2,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:48,882 - dash_buffer.py:166 - CRITICAL - Reading the segment number 11 from the buffer at playtime 5.52747607231
+2020-01-21 17:53:48,885 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=5.67249703407,CurrentPlaybackTime=5.52766394615,CurrentBufferSize=1,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:49,385 - dash_buffer.py:166 - CRITICAL - Reading the segment number 12 from the buffer at playtime 6.03034496307
+2020-01-21 17:53:49,388 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=6.175344944,CurrentPlaybackTime=6.03050994873,CurrentBufferSize=0,CurrentPlaybackState=PLAY,Action=StillPlaying,Bitrate=6887871.0
+2020-01-21 17:53:49,888 - dash_buffer.py:154 - INFO - Buffer empty after 6.53321790695 seconds of playback
+2020-01-21 17:53:49,888 - dash_buffer.py:65 - INFO - Changing state from PLAY to BUFFERING at 6.53335189819 Playback time 
+2020-01-21 17:53:49,891 - dash_buffer.py:263 - INFO - BufferStats: EpochTime=6.67833304405,CurrentPlaybackTime=6.53335189819,CurrentBufferSize=0,CurrentPlaybackState=BUFFERING,Action=Play-Buffering,Bitrate=0
+2020-01-21 17:53:49,891 - dash_buffer.py:111 - CRITICAL - Entering buffering stage after 6.53335189819 seconds of playback

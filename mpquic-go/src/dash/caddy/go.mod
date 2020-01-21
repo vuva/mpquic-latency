@@ -8,6 +8,6 @@ require (
 )
 
 replace (
-	github.com/lucas-clemente/quic-go => ../../quic-go
+	github.com/lucas-clemente/quic-go => ../../github/lucas-clemente/quic-go/
 	github.com/mholt/caddy => ../../caddy
 )
