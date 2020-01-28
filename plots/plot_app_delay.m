@@ -1,17 +1,17 @@
-%% ====== SET PARAMS ==========
+%% ====== SET PARAMS =========
 k=1;
-n=2;
-folder='D:\Work\Data\mp-quic-logs\';
+n=41;
+folder='D:\Work\Data\mp-quic-logs\nt-paper\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-2-c-500000';
+exp_name = 'app-delay-quic-c-2-c-400000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
 HAS_PCAP = false;
 HAS_FRAME_LOG = false;
 
-TRIM_OFFSET=25;
+TRIM_OFFSET=15;
 
 global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
@@ -31,8 +31,8 @@ set(groot,'DefaultFigureColormap',feval('colorcube'));
       'DefaultAxesTitleFontSizeMultiplier', 1) ;
 
 %% =========== Load DATA ==============
-scheds=["lrtt","rr","opp","nt"];
-labels=["LowRTT","RoundRobin","Opp-Redundant","NineTails"];
+scheds=["lrtt","re", "nt","rr"];
+labels=["LowRTT","Redundant","NineTails","rr"];
 
 app_latencies={};
 send_latencies={};
@@ -63,7 +63,7 @@ for j = 1:length(scheds)
         eval([sched '_all_timestp = [' sched '_client_dat(row1,[1,2]), ' sched '_server_dat(row2,2)];']);
         
 %         Trim data
-        eval([sched '_all_timestp = ' sched '_all_timestp(TRIM_OFFSET:end-TRIM_OFFSET,:);']);
+        eval([sched '_all_timestp = ' sched '_all_timestp(TRIM_OFFSET:end-TRIM_OFFSET/10,:);']);
         
         
         
@@ -120,7 +120,7 @@ for j = 1:length(scheds)
         %         eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
         %         eval(['sched_net_latency = vertcat(sched_net_latency,10^3*(' sched '_pcap_dat(:,7) - ' sched '_pcap_dat(:,6)));']);
         
-        eval(['sched_app_latency = vertcat(sched_app_latency,' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,2));']);
+        eval(['sched_app_latency = vertcat(sched_app_latency,[' sched '_all_timestp(:,3) - ' sched '_all_timestp(:,2),' sched '_all_timestp(:,1)]);']);
         %         eval(['sched_send_latency = vertcat(sched_send_latency,' sched '_all_timestp(:,4) - ' sched '_all_timestp(:,2));']);
         %         eval(['sched_recv_latency = vertcat(sched_recv_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,2));']);
         %         eval(['sched_net_latency = vertcat(sched_net_latency,' sched '_all_timestp(:,5) - ' sched '_all_timestp(:,4));']);
@@ -138,9 +138,16 @@ end
 % for i=1:length(app_latencies)
 %     app_latencies{i} = app_latencies{i}(20:end)
 % end
+debug_app_latencies = app_latencies;
+for i=1:length(app_latencies)
+    app_latencies{i}=app_latencies{i}(:,1);
+end
+
+
 
 %% =========== plot DATA ==============
 % latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
+
 plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
 plotMeanLatency(labels,app_latencies);
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
@@ -151,12 +158,14 @@ plotMeanLatency(labels,app_latencies);
 % plotccdf(latency_ana_label, [net_latencies(2), addCell(net_latencies(2),send_latencies(2)), addCell(net_latencies(2),send_latencies(2),recv_latencies(2)), send_latencies(2)]);
 % plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(3),send_latencies(3)), addCell(net_latencies(3),send_latencies(3),recv_latencies(3)), send_latencies(3)]);
 % plotccdf(latency_ana_label, [net_latencies(1), addCell(net_latencies(4),send_latencies(4)), addCell(net_latencies(4),send_latencies(4),recv_latencies(4)), send_latencies(4)]);
-plot_throughput(labels,server_dat);
+% plot_throughput(labels,server_dat);
 % plot_subflows("opp",opp_pcap_dat);
 % plot_subflows("RR",rr_pcap_dat);
 % plot_subflows("tag9999999",tag0_pcap_dat);
 
-
+%% =========== plot QUANTILE DATA ==============
+% plotquantile([labels,pcap_labels],all_app_latencies);
+plotMeanLine([labels,pcap_labels],all_app_latencies);
 
 %% =========== Functions Definition ==============
 function[sorted_data] = sortData(raw_data)
@@ -168,9 +177,14 @@ global exp_name;
 
 figure
 for i=1:length(data)
-    [xccdf,yccdf]=getccdf(data{i});
+    
+    if length(data{i})>0
+        
+        [xccdf,yccdf]=getccdf(data{i});
+   
     plot(xccdf,yccdf);
     hold on;
+end
 end
 
 xlabel('Latency (ms)') ;
@@ -178,6 +192,54 @@ ylabel('Probability P(X>x)');
 title(strcat('CCDF-',exp_name));
 legend(labels);
 set(gca, 'YScale', 'log');
+end
+
+function[]=plotquantile(labels,data)
+global exp_name;
+quantile_thres = 10^-1;
+quantile_data = zeros(size(data));
+figure
+for i=1:size(data, 1)
+    for j=1:size(data, 2)
+    if length(data{i,j})>0
+        
+        [xccdf,yccdf]=getccdf(data{i,j});
+        for k=1:size(yccdf,1)
+            if yccdf(k,1) < quantile_thres
+                quantile_data(i,j)=xccdf(k,1)
+                break
+            end
+            
+        end
+        
+ 
+    end
+    end
+end
+plot([40,80,160,200,400,800],quantile_data);
+xlabel('Message size (kB)') ;
+ylabel('Quantile 1% Latency (ms)');
+
+legend(labels);
+end
+
+function[]=plotMeanLine(labels,data)
+global exp_name;
+mean_latency_data = zeros(size(data));
+figure
+for i=1:size(data, 1)
+    for j=1:size(data, 2)
+    if length(data{i,j})>0       
+       mean_latency_data(i,j)=mean(data{i,j});
+    end
+    end
+end
+plot([40,80,160,200,400,800],mean_latency_data);
+xlabel('Message size (kB)') ;
+ylabel('Mean Latency (ms)');
+title(strcat('CCDF-',exp_name));
+legend(labels);
+
 end
 
 function[xccdf,yccdf] = getccdf(value)
