@@ -1,10 +1,10 @@
 %% ====== SET PARAMS =========
 k=1;
-n=41;
+n=50;
 folder='D:\Work\Data\mp-quic-logs\nt-paper\';
 distribution_name = 'on5-off3';
 global exp_name;
-exp_name = 'app-delay-quic-c-2-c-400000';
+exp_name = 'app-delay-quic-c-1-c-800000';
 log_surfix= '-timestamp.log';
 pcap_surfix= '-pcap.dat';
 frame_log_surfix= '-frame.log';
@@ -17,22 +17,24 @@ global RTT; RTT=1;
 global TIME_RESOLUTION; TIME_RESOLUTION = .1;
 
 set(groot,'DefaultFigureWindowStyle','docked');
-set(groot,'DefaultLineLineWidth',1.5);
+set(groot,'DefaultLineLineWidth',2);
 set(groot,'DefaultAxesXGrid','off','DefaultAxesYGrid','on','DefaultAxesGridLineStyle','--');
 set(groot,'defaultAxesPlotboxAspectRatio',[1.618,1,1]);
 set(groot,'defaultAxesPlotboxAspectRatioMode','manual');
 set(groot,'DefaultFigureColormap',feval('colorcube'));
 
      set(groot, 'DefaultAxesFontWeight', 'normal', ...
-      'DefaultAxesFontSize', 12, ...
+         'DefaultLegendFontSize', 16,...
+      'DefaultAxesFontSize', 14, ...
       'DefaultAxesFontAngle', 'normal', ... % Not sure the difference here
       'DefaultAxesFontWeight', 'normal', ... % Not sure the difference here
       'DefaultAxesTitleFontWeight', 'normal', ...
       'DefaultAxesTitleFontSizeMultiplier', 1) ;
 
 %% =========== Load DATA ==============
-scheds=["lrtt","re", "nt","rr"];
-labels=["LowRTT","Redundant","NineTails","rr"];
+scheds=["lrtt","rr","re", "nt","sp"];
+% scheds=["rr"];
+labels=["LowRTT","RoundRobin","Redundant","NineTails","SinglePath"];
 
 app_latencies={};
 send_latencies={};
@@ -149,7 +151,8 @@ end
 % latency_ana_label=["Dnet","Dnet + Dsnd","Dnet + Dsnd + Drecv"];
 
 plotccdf([labels,pcap_labels],[app_latencies,net_latencies]);
-plotMeanLatency(labels,app_latencies);
+% plotMeanLatency(labels,app_latencies);
+
 % plotccdf([labels,pcap_labels],[send_latencies,recv_latencies]);
 % plotccdf(latency_ana_label, [net_latencies(1), recv_latencies(1),app_latencies(1)]);
 % plotccdf(latency_ana_label, [net_latencies(2), recv_latencies(2),app_latencies(2)]);
@@ -164,7 +167,9 @@ plotMeanLatency(labels,app_latencies);
 % plot_subflows("tag9999999",tag0_pcap_dat);
 
 %% =========== plot QUANTILE DATA ==============
-% plotquantile([labels,pcap_labels],all_app_latencies);
+plotquantile([labels,pcap_labels],10^-2,all_app_latencies);
+plotquantile([labels,pcap_labels],10^-3,all_app_latencies);
+plotquantile([labels,pcap_labels],10^-4,all_app_latencies);
 plotMeanLine([labels,pcap_labels],all_app_latencies);
 
 %% =========== Functions Definition ==============
@@ -194,9 +199,9 @@ legend(labels);
 set(gca, 'YScale', 'log');
 end
 
-function[]=plotquantile(labels,data)
+function[]=plotquantile(labels,quantile_thres,data)
 global exp_name;
-quantile_thres = 10^-1;
+
 quantile_data = zeros(size(data));
 figure
 for i=1:size(data, 1)
@@ -206,7 +211,7 @@ for i=1:size(data, 1)
         [xccdf,yccdf]=getccdf(data{i,j});
         for k=1:size(yccdf,1)
             if yccdf(k,1) < quantile_thres
-                quantile_data(i,j)=xccdf(k,1)
+                quantile_data(i,j)=xccdf(k,1);
                 break
             end
             
@@ -216,10 +221,10 @@ for i=1:size(data, 1)
     end
     end
 end
-plot([40,80,160,200,400,800],quantile_data);
+plot([20,40,80,160,200,400,800],quantile_data);
 xlabel('Message size (kB)') ;
-ylabel('Quantile 1% Latency (ms)');
-
+ylabel(['Quantile ' num2str(quantile_thres*100) '% Latency (ms)']);
+title('');
 legend(labels);
 end
 
@@ -234,7 +239,7 @@ for i=1:size(data, 1)
     end
     end
 end
-plot([40,80,160,200,400,800],mean_latency_data);
+plot([20,40,80,100,160,200,400],mean_latency_data);
 xlabel('Message size (kB)') ;
 ylabel('Mean Latency (ms)');
 title(strcat('CCDF-',exp_name));
