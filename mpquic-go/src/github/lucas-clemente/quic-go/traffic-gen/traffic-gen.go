@@ -48,6 +48,25 @@ type ServerLog struct {
 	lock       sync.RWMutex
 }
 
+type TrafficGenConfig struct {
+	Mode              string
+	RunTime           uint
+	CsizeDistro       string
+	CsizeValue        float64
+	ArrDistro         string
+	ArrValue          float64
+	Address           string
+	Protocol          string
+	LogFolder         string
+	IsMultipath       bool
+	IsMultiStream     bool
+	Sched             string
+	Debug             bool
+	CongestionControl string
+	IsBlockCall       bool
+	IsReverse         bool
+}
+
 func (b binds) String() string {
 	return strings.Join(b, ",")
 }
@@ -110,17 +129,30 @@ func (manager *ClientManager) start() {
 	}
 }
 
-func (manager *ClientManager) receive(client *Client) {
+func (manager *ClientManager) communicate(client *Client, config *TrafficGenConfig) {
+	if !config.IsReverse {
+		receiveTCP(client.socket)
+	} else {
+		if config.Protocol == "tcp" {
+			tcp_connection := client.socket.(*net.TCPConn)
+			send(nil, tcp_connection, config)
+		} else {
 
+		}
+	}
+	manager.unregister <- client
+}
+
+func receiveTCP(socket net.Conn) {
 	timeStamps := make(map[uint]uint)
 	buffer := make([]byte, 0)
 	for {
 		message := make([]byte, 65536)
-		length, err := client.socket.Read(message)
+		length, err := socket.Read(message)
 		if err != nil {
 			log.Println(err)
-			manager.unregister <- client
-			client.socket.Close()
+
+			socket.Close()
 			break
 		}
 		if length > 0 {
@@ -149,7 +181,7 @@ func (manager *ClientManager) receive(client *Client) {
 		}
 	}
 
-	writeToFile(LOG_PREFIX+"server-timestamp.log", timeStamps)
+	writeToFile(LOG_PREFIX+"receiver-timestamp.log", timeStamps)
 }
 
 // func (client *Client) receive() {
@@ -179,7 +211,7 @@ func (manager *ClientManager) send(client *Client) {
 	}
 }
 
-func startServerMode(address string, protocol string, multipath bool, multiStream bool, log_file string) {
+func startServerMode(config *TrafficGenConfig) {
 	fmt.Println("Starting server...")
 	var listener net.Listener
 	var err error
@@ -191,10 +223,10 @@ func startServerMode(address string, protocol string, multipath bool, multiStrea
 	}
 	go manager.start()
 
-	switch protocol {
+	switch config.Protocol {
 	case "tcp":
 
-		listener, err = net.Listen("tcp", address)
+		listener, err = net.Listen("tcp", config.Address)
 		if err != nil {
 			log.Println(err)
 		}
@@ -208,18 +240,18 @@ func startServerMode(address string, protocol string, multipath bool, multiStrea
 			}
 			client := &Client{socket: tcp_connection, data: make(chan []byte)}
 			manager.register <- client
-			go manager.receive(client)
+			go manager.communicate(client, config)
 			//		go manager.send(client)
 		}
 	case "quic":
 
-		startQUICServer(address, multipath, multiStream)
+		startQUICServer(config.Address, config.IsMultipath, config.IsMultiStream)
 
 	}
 
 }
 
-func startClientMode(address string, protocol string, run_time uint, csize_distro string, csize_value float64, arrival_distro string, arrival_value float64, multipath bool, scheduler string, isBlockingCall bool, isMultiStream bool) {
+func startClientMode(config *TrafficGenConfig) {
 	fmt.Println("Starting client...")
 
 	// var stream quic.Stream
@@ -227,14 +259,14 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	var connection *net.TCPConn
 	var err error
 
-	if protocol == "quic" {
-		addresses := []string{address}
-		quic_session, err = startQUICSession(addresses, scheduler, multipath)
+	if config.Protocol == "quic" {
+		addresses := []string{config.Address}
+		quic_session, err = startQUICSession(addresses, config.Sched, config.IsMultipath)
 		// defer stream.Close()
 		defer quic_session.Close(nil)
 
-	} else if protocol == "tcp" {
-		tcp_address := strings.Split(address, ":")
+	} else if config.Protocol == "tcp" {
+		tcp_address := strings.Split(config.Address, ":")
 		ip_add := net.ParseIP(tcp_address[0]).To4()
 		port, _ := strconv.Atoi(tcp_address[1])
 		connection, err = net.DialTCP("tcp", nil, &net.TCPAddr{IP: ip_add, Port: port})
@@ -248,21 +280,24 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	if err != nil {
 		log.Println(err)
 	}
+	if !config.IsReverse {
+		send(quic_session, connection, config)
+	} else {
+		if config.Protocol == "tcp" {
+			receiveTCP(connection)
+		} else {
 
-	//	error = connection.SetNoDelay(true)
-	//	if error != nil {
-	//	    log.Println(error.Error())
-	//	}
-	//	client := &Client{socket: connection}
-	//	go client.receive()
+		}
+	}
 
+}
+
+func send(quic_session quic.Session, connection *net.TCPConn, config *TrafficGenConfig) {
 	sendingDone := make(chan bool)
 	generatingDone := make(chan bool)
-	//	go client.send(connection ,run_time , csize_distro , csize_value , arrival_distro , arrival_value )
-
-	// go func() {
+	var err error
 	var run_time_duration time.Duration
-	run_time_duration, err = time.ParseDuration(strconv.Itoa(int(run_time)) + "ms")
+	run_time_duration, err = time.ParseDuration(strconv.Itoa(int(config.RunTime)) + "ms")
 	if err != nil {
 		log.Println(err)
 	}
@@ -285,14 +320,14 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 				send_queue_size += len(e.Value.([]byte))
 			}
 
-			if ((protocol == "tcp" || isBlockingCall) && send_queue.mess_list.Len() > 0) || send_queue_size > MAX_SEND_BUFFER_SIZE {
+			if ((config.Protocol == "tcp" || config.IsBlockCall) && send_queue.mess_list.Len() > 0) || send_queue_size > MAX_SEND_BUFFER_SIZE {
 				time.Sleep(time.Nanosecond)
 				continue
 			}
 			// reader := bufio.NewReader(os.Stdin)
 			// message, _ := reader.ReadString('\n')
 			//			utils.Debugf("before: %d \n", time.Now().UnixNano())
-			message, seq := generateMessage(uint(gen_counter), csize_distro, csize_value)
+			message, seq := generateMessage(uint(gen_counter), config.CsizeDistro, config.CsizeValue)
 			gen_counter++
 			// send_queue = append(send_queue, message)
 			// next_message := send_queue[0]
@@ -302,7 +337,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			if time.Now().Before(startTime) {
 				wait_time = 1000000000
 			} else {
-				wait_time = uint(1000000000/getRandom(arrival_distro, arrival_value)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
+				wait_time = uint(1000000000/getRandom(config.ArrDistro, config.ArrValue)) - (uint(time.Now().UnixNano()) - timeStamps[seq-1])
 			}
 
 			if wait_time > 0 {
@@ -355,8 +390,8 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 			// send_queue.mutex.Unlock()
 
 			utils.Debugf("Message in queue: %d at %d \n", send_queue.mess_list.Len(), uint(time.Now().UnixNano()))
-			if protocol == "quic" {
-				if isMultiStream {
+			if config.Protocol == "quic" {
+				if config.IsMultiStream {
 
 					go startQUICClientStream(quic_session, message)
 				} else {
@@ -376,7 +411,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 
 				}
 
-			} else if protocol == "tcp" {
+			} else if config.Protocol == "tcp" {
 				go connection.Write(message)
 
 			}
@@ -410,7 +445,7 @@ func startClientMode(address string, protocol string, run_time uint, csize_distr
 	}()
 	<-generatingDone
 	<-sendingDone
-	writeToFile(LOG_PREFIX+"client-timestamp.log", timeStamps)
+	writeToFile(LOG_PREFIX+"sender-timestamp.log", timeStamps)
 	// writeToFile(LOG_PREFIX+"write-timegap.log", writeTime)
 	os.Rename("sender-frame.log", LOG_PREFIX+"sender-frame.log")
 	os.Rename("receiver-frame.log", LOG_PREFIX+"receiver-frame.log")
@@ -460,7 +495,7 @@ func startQUICServer(addr string, isMultipath bool, isMultiStream bool) error {
 			break
 		}
 		// defer stream.Close()
-		go startServerStream(sess, stream, isMultiStream, &serverlog)
+		go receiveQUICStream(sess, stream, isMultiStream, &serverlog)
 
 	}
 
@@ -469,7 +504,7 @@ func startQUICServer(addr string, isMultipath bool, isMultiStream bool) error {
 	return err
 }
 
-func startServerStream(sess quic.Session, stream quic.Stream, isMultistream bool, serverlog *ServerLog) {
+func receiveQUICStream(sess quic.Session, stream quic.Stream, isMultistream bool, serverlog *ServerLog) {
 	utils.Debugf("\n Get data from stream: %d \n at ", stream.StreamID(), time.Now().UnixNano())
 	// beginstream := time.Now()
 	buffer := make([]byte, 0)
@@ -739,7 +774,26 @@ func main() {
 	flagDebug := flag.Bool("v", false, "Debug mode")
 	flagCong := flag.String("cc", "olia", "Congestion control")
 	flagBlock := flag.Bool("b", false, "Blocking call")
+	flagReverse := flag.Bool("r", false, "Reverse send")
 	flag.Parse()
+	config := TrafficGenConfig{
+		Mode:              *flagMode,
+		RunTime:           *flagTime,
+		CsizeDistro:       *flagCsizeDistro,
+		CsizeValue:        *flagCsizeValue,
+		ArrDistro:         *flagArrDistro,
+		ArrValue:          *flagArrValue,
+		Address:           *flagAddress,
+		Protocol:          *flagProtocol,
+		LogFolder:         *flagLog,
+		IsMultipath:       *flagMultipath,
+		IsMultiStream:     *flagMultiStream,
+		Sched:             *flagSched,
+		Debug:             *flagDebug,
+		CongestionControl: *flagCong,
+		IsBlockCall:       *flagBlock,
+		IsReverse:         *flagReverse,
+	}
 	if *flagDebug {
 		utils.SetLogLevel(utils.LogLevelDebug)
 	}
@@ -749,8 +803,8 @@ func main() {
 	sched := schedNameConvert(*flagProtocol, *flagSched)
 	if strings.ToLower(*flagMode) == "server" {
 		quic.SetSchedulerAlgorithm(sched)
-		startServerMode(*flagAddress, *flagProtocol, *flagMultipath, *flagMultiStream, *flagLog)
+		startServerMode(&config)
 	} else {
-		startClientMode(*flagAddress, *flagProtocol, *flagTime, *flagCsizeDistro, float64(*flagCsizeValue), *flagArrDistro, float64(*flagArrValue), *flagMultipath, sched, *flagBlock, *flagMultiStream)
+		startClientMode(&config)
 	}
 }
