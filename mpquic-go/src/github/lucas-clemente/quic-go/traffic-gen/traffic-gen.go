@@ -51,6 +51,7 @@ type ServerLog struct {
 type TrafficGenConfig struct {
 	Mode              string
 	RunTime           uint
+	StartDelay        uint
 	CsizeDistro       string
 	CsizeValue        float64
 	ArrDistro         string
@@ -298,11 +299,11 @@ func send(quic_session quic.Session, connection *net.TCPConn, config *TrafficGen
 	var err error
 	var run_time_duration time.Duration
 	run_time_duration, err = time.ParseDuration(strconv.Itoa(int(config.RunTime)) + "ms")
+	startDelay, err := time.ParseDuration(strconv.Itoa(int(config.StartDelay)) + "ms")
 	if err != nil {
 		log.Println(err)
 	}
 
-	startDelay, _ := time.ParseDuration("5s")
 	startTime := time.Now().Add(startDelay)
 	endTime := startTime.Add(run_time_duration)
 	timeStamps := make(map[uint]uint)
@@ -761,6 +762,7 @@ func schedNameConvert(protocol string, sched_name string) string {
 func main() {
 	flagMode := flag.String("mode", "server", "start in client or server mode")
 	flagTime := flag.Uint("t", 10000, "time to run (ms)")
+	flagStartDelay := flag.Uint("d", 2000, "Start Delay (ms)")
 	flagCsizeDistro := flag.String("csizedist", "c", "data chunk size distribution")
 	flagCsizeValue := flag.Float64("csizeval", 1000, "data chunk size value")
 	flagArrDistro := flag.String("arrdist", "c", "arrival distribution")
@@ -793,6 +795,7 @@ func main() {
 		CongestionControl: *flagCong,
 		IsBlockCall:       *flagBlock,
 		IsReverse:         *flagReverse,
+		StartDelay:        *flagStartDelay,
 	}
 	if *flagDebug {
 		utils.SetLogLevel(utils.LogLevelDebug)
