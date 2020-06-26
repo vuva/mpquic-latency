@@ -51,10 +51,10 @@ JSON_HANDLE['playback_info'] = {'start_time': None,
                                 }
 # Constants for the BASIC-2 adaptation scheme
 # VUVA set to 2, default is 10, 1.2, 5
-BASIC_THRESHOLD = 1
+BASIC_THRESHOLD = 10
 BASIC_UPPER_THRESHOLD = 1.2
 # Number of segments for moving average
-BASIC_DELTA_COUNT = 1
+BASIC_DELTA_COUNT = 5
 # VUVA lower threshold to present bitrate flapping to lower quality
 BASIC_LOWER_THRESHOLD = 1
 
@@ -69,7 +69,7 @@ RE_BUFFERING_COUNT = 1
 ALPHA_BUFFER_COUNT = 5
 BETA_BUFFER_COUNT = 10
 # Set the size of the buffer in terms of segments. Set to unlimited if 0 or None
-MAX_BUFFER_SIZE = 1
+MAX_BUFFER_SIZE = 0
 
 # ---------------------------------------------------
 # Netflix (Buffer-based) ADAPTATION

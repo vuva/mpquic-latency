@@ -369,7 +369,7 @@ def start_playback_smart(dp_object, domain, playback_type=None, download=False, 
             config_dash.LOG.debug("SLEPT for {}seconds ".format(time.time() - delay_start))
         elif playback_type.upper() == "BASIC" and dash_player.playback_state != "INITIAL_BUFFERING" and dash_player.buffer.qsize() == config_dash.BASIC_THRESHOLD:
             delay_start = time.time()
-            while dash_player.buffer.qsize() == config_dash.BASIC_THRESHOLD:
+            while dash_player.buffer.qsize() >= config_dash.BASIC_THRESHOLD:
                 time.sleep(0.001)
             config_dash.LOG.debug("SLEPT for {}seconds ".format(time.time() - delay_start))
         start_time = timeit.default_timer()
