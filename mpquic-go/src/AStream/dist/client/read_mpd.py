@@ -218,6 +218,7 @@ def read_mpd(mpd_file, dashplayback):
 
                     if 'video' in representation.attrib['mimeType']:
                         if "SegmentList" in get_tag_name(segment_info.tag):
+                            video_segment_duration = int(segment_info.attrib['duration'])/1000000
                             for segment_URL in segment_info:
                                 if "Initialization" in get_tag_name(segment_URL.tag):
                                     media_object[bandwidth].initialization = segment_URL.attrib['sourceURL']
@@ -264,4 +265,5 @@ def read_mpd(mpd_file, dashplayback):
 
         print "Error: UknownFormat of MPD file!"
     print ("video_segment_duration: {}".format(video_segment_duration))
+ #   video_segment_duration=0.5
     return dashplayback, float(video_segment_duration)

@@ -362,10 +362,15 @@ def start_playback_smart(dp_object, domain, playback_type=None, download=False, 
         config_dash.LOG.info("{}: Segment URL = {}".format(playback_type.upper(), segment_url))
         if delay:
             delay_start = time.time()
-            config_dash.LOG.info("SLEEPING for {}seconds ".format(delay*segment_duration))
+            config_dash.LOG.info("In buffer: {}. SLEEPING for {}seconds ".format(dash_player.buffer.qsize() ,delay*segment_duration))
             while time.time() - delay_start < (delay * segment_duration) - 0.001:
                 time.sleep(0.001)
             delay = 0
+            config_dash.LOG.debug("SLEPT for {}seconds ".format(time.time() - delay_start))
+        elif playback_type.upper() == "BASIC" and dash_player.playback_state != "INITIAL_BUFFERING" and dash_player.buffer.qsize() == config_dash.BASIC_THRESHOLD:
+            delay_start = time.time()
+            while dash_player.buffer.qsize() == config_dash.BASIC_THRESHOLD:
+                time.sleep(0.001)
             config_dash.LOG.debug("SLEPT for {}seconds ".format(time.time() - delay_start))
         start_time = timeit.default_timer()
         try:
